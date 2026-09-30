@@ -7,6 +7,14 @@ import type { StackViewAnalysis, ViewCategory } from "./clearance";
 import { VIEW_CATEGORY_LABEL, levelView } from "./clearance";
 import type { DatasetIndex } from "./dataset-index";
 
+/**
+ * A unit that can be priced and compared: on sale with a published price, or
+ * awaiting the price list but carrying an illustrative estimate.
+ */
+export function onOffer(u: Unit): boolean {
+  return u.price !== null && (u.status === "available" || u.status === "pending");
+}
+
 export function psf(ix: DatasetIndex, unit: Unit): number | null {
   const area = ix.stackLayout(unit.stackId).areaSqft;
   if (unit.price === null || area === null) return null;
@@ -73,7 +81,7 @@ export function clearanceCost(
 ): ClearanceCost {
   const available = ix
     .unitsInStack(selected.stackId)
-    .filter((u) => u.status === "available" && u.price !== null);
+    .filter(onOffer);
   const { optimistic, conservative } = view.clearFrom;
   const below =
     optimistic === null

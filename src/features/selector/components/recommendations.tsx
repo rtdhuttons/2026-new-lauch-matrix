@@ -36,7 +36,7 @@ export function Recommendations({
                 <>
                   <p className="mt-1 font-display text-xl font-extrabold">{unitLabel(engine.ix, u)}</p>
                   <p className="font-display-normal text-sm text-canopy/80">
-                    {layout.name}, {layout.bedrooms} bedrooms, {money(u.price!)}
+                    {layout.name}, {layout.bedrooms} bedrooms, {money(u.price!)}{u.priceIsEstimate ? " (estimate)" : ""}
                     {r.ranked?.fit.score != null && `, fit ${Math.round(r.ranked.fit.score)}/100`}
                     {r.ranked && r.ranked.fit.coverage < 1 && ` (${Math.round(r.ranked.fit.coverage * 100)}% of weights had data)`}
                   </p>

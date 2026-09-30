@@ -1,16 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { dataGaps, dataset, mrtEntrance } from "../data";
 import type { Unit } from "../model/types";
 import { unitLabel } from "../lib/dataset-index";
 import { createEngine } from "../lib/engine";
+import type { PriceEstimate } from "../lib/estimate";
+import { applyPriceEstimate, canEstimate, DEFAULT_ESTIMATE } from "../lib/estimate";
 import { compactMoney } from "../lib/format";
 import type { Preferences } from "../lib/recommend";
 import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
 import { Comparison } from "./comparison";
 import { MethodNotes } from "./method-notes";
 import { PreferencesPanel } from "./preferences-panel";
+import { PriceEstimateSection } from "./price-estimate";
 import { Recommendations } from "./recommendations";
 import { ScenarioCalculator } from "./scenario-calculator";
 import { SiteView } from "./site-view";
@@ -25,14 +28,30 @@ function scrollToId(id: string) {
 }
 
 export function SelectorApp() {
-  const engine = useMemo(() => createEngine(dataset, mrtEntrance), []);
+  // Illustrative prices stand in until the developer's price list is loaded.
+  const estimatable = canEstimate(dataset);
+  const [estimateOn, setEstimateOn] = useState(estimatable);
+  const [estimate, setEstimate] = useState<PriceEstimate>(DEFAULT_ESTIMATE);
+  const deferredEstimate = useDeferredValue(estimate);
+  const priced = useMemo(
+    () => (estimatable && estimateOn ? applyPriceEstimate(dataset, deferredEstimate) : dataset),
+    [estimatable, estimateOn, deferredEstimate],
+  );
+  const engine = useMemo(() => createEngine(priced, mrtEntrance), [priced]);
   const ix = engine.ix;
+  const prices = priced.units.flatMap((u) => (u.price !== null ? [u.price] : []));
+  const budgetRange = prices.length
+    ? { min: Math.floor(Math.min(...prices) / 50_000) * 50_000, max: Math.ceil(Math.max(...prices) / 50_000) * 50_000 }
+    : { min: 1_300_000, max: 3_600_000 };
 
   const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [stackId, setStackId] = useState("01");
   const [level, setLevel] = useState(14);
   const [referenceId, setReferenceId] = useState<string | null>(
-    () => dataset.units.find((u) => u.stackId === "01" && u.price !== null)?.id ?? null,
+    () =>
+      (estimatable ? applyPriceEstimate(dataset, DEFAULT_ESTIMATE) : dataset).units.find(
+        (u) => u.stackId === "01" && u.price !== null,
+      )?.id ?? null,
   );
   const [shortlist, setShortlist] = useState<string[]>(["01-14", "01-20"]);
   const [month, setMonth] = useState(5);
@@ -141,7 +160,7 @@ export function SelectorApp() {
                   {prefs.bedrooms === "any" ? "Any bedrooms" : `${prefs.bedrooms} bedrooms`}, up to {compactMoney(prefs.budget)}, {eligibleCount} units match
                 </p>
                 <div id="prefs-body" className={`${prefsOpen ? "block" : "hidden"} mt-4 lg:block lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1`}>
-                  <PreferencesPanel prefs={prefs} onChange={setPrefs} eligibleCount={eligibleCount} />
+                  <PreferencesPanel prefs={prefs} onChange={setPrefs} eligibleCount={eligibleCount} budgetRange={budgetRange} />
                 </div>
               </div>
             </aside>
@@ -245,6 +264,24 @@ export function SelectorApp() {
           </div>
         </section>
 
+        {estimatable && (
+          <section id="prices" aria-labelledby="prices-title" className="mt-16 scroll-mt-20">
+            <SectionHeading
+              id="prices-title"
+              title="Illustrative prices"
+              lede="The price list isn't out yet. Set a starting PSF and a step per floor to see what each unit type could cost; every price in the selector follows these assumptions."
+            />
+            <PriceEstimateSection
+              base={dataset}
+              priced={priced}
+              enabled={estimateOn}
+              onEnabled={setEstimateOn}
+              estimate={estimate}
+              onEstimate={setEstimate}
+            />
+          </section>
+        )}
+
         <section id="recommendations" aria-labelledby="rec-title" className="mt-16 scroll-mt-20">
           <SectionHeading
             id="rec-title"
@@ -298,7 +335,7 @@ export function SelectorApp() {
             {unit ? (
               <>
                 <span className="font-semibold">{unitLabel(ix, unit)}</span>{" "}
-                {unit.price !== null ? compactMoney(unit.price) : "not on sale"}
+                {unit.price !== null ? `${compactMoney(unit.price)}${unit.priceIsEstimate ? " est." : ""}` : "not on sale"}
               </>
             ) : (
               `Level ${level}: no homes`

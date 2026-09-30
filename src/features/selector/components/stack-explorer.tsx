@@ -9,7 +9,7 @@ import { POTENTIAL_LABEL } from "../lib/exposure";
 import { compactMoney, facingNote, heightText, isPesType, layoutSummary, money, psfText, signedMoney } from "../lib/format";
 import { compassWords, compassWords16, floorRL } from "../lib/geometry";
 import { FloorPlan } from "./floor-plan";
-import { clearanceNarrative, premiumOver, psf } from "../lib/pricing";
+import { clearanceNarrative, onOffer, premiumOver, psf } from "../lib/pricing";
 import { card, StatusChip, ViewChip, VIEW_COLOURS } from "./ui";
 
 const STATUS_TEXT: Record<UnitStatus, string> = {
@@ -81,7 +81,7 @@ function Elevation({
         const unit = units.find((u) => u.level === lv.level);
         const y = yOf(lv.level);
         const selected = lv.level === level;
-        const unavailable = unit && unit.status !== "available";
+        const unavailable = unit && !onOffer(unit);
         return (
           <g
             key={lv.level}
@@ -112,7 +112,7 @@ function Elevation({
               <rect x="83" y={y - 1} width="120" height={ROW_H + 2} fill="none" stroke="#10291c" strokeWidth="2.2" rx="2" />
             )}
             <text x="208" y={y + 11} fontSize="9.5" className="font-display-normal tabular-nums" fill={unit?.status === "available" ? "#10291c" : "#6f7a71"}>
-              {unit ? (unit.price !== null ? compactMoney(unit.price) : unit.status === "pending" ? "Awaiting" : STATUS_TEXT[unit.status]) : ""}
+              {unit ? (unit.price !== null ? `${unit.priceIsEstimate ? "~" : ""}${compactMoney(unit.price)}` : unit.status === "pending" ? "Awaiting" : STATUS_TEXT[unit.status]) : ""}
             </text>
           </g>
         );
@@ -265,14 +265,14 @@ export function StackExplorer({
   const unit = units.find((u) => u.level === level) ?? null;
   const lv = levelView(view, level)!;
   const levels = ix.levelsForStack(stackId);
-  const available = units.filter((u) => u.status === "available");
+  const available = units.filter(onOffer);
   const prevAvail = [...available].reverse().find((u) => u.level < level);
   const nextAvail = available.find((u) => u.level > level);
   const assessment = unit ? engine.assess(unit) : null;
   const premium = unit && reference ? premiumOver(ix, unit, reference) : null;
   const isRef = unit && reference && unit.id === reference.id;
   const onList = unit ? shortlist.includes(unit.id) : false;
-  const narrative = unit && unit.status === "available" ? clearanceNarrative(ix, view, unit) : [];
+  const narrative = unit && onOffer(unit) ? clearanceNarrative(ix, view, unit) : [];
 
   const valueText = unit
     ? `Level ${level}, ${STATUS_TEXT[unit.status]}${unit.price !== null ? `, ${money(unit.price)}` : ""}, ${VIEW_CATEGORY_LABEL[lv.category]}`
@@ -380,7 +380,7 @@ export function StackExplorer({
                       unit.status === "available" ? "bg-[#dcefe3] text-[#155c3a]" : "bg-mist-deep text-canopy/70"
                     }`}
                   >
-                    {STATUS_TEXT[unit.status]}
+                    {unit.priceIsEstimate ? "Estimate · awaiting price list" : STATUS_TEXT[unit.status]}
                   </span>
                 </div>
                 {unit.typeCode && (
@@ -416,7 +416,7 @@ export function StackExplorer({
                 ))}
                 <dl className="mt-3 grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="font-display-normal text-sm text-stone">Price</dt>
+                    <dt className="font-display-normal text-sm text-stone">{unit.priceIsEstimate ? "Estimated price" : "Price"}</dt>
                     <dd className="font-display-normal text-lg font-semibold tabular-nums">
                       {unit.price !== null ? money(unit.price) : "Not published"}
                     </dd>
@@ -448,7 +448,9 @@ export function StackExplorer({
                 </dl>
                 {unit.status !== "available" && (
                   <p className="mt-3 text-sm text-canopy/75">
-                    {unit.status === "pending"
+                    {unit.priceIsEstimate
+                      ? `Estimated, not the developer's price: ${unit.priceProvenance.note?.replace(/^TRM illustration: /, "").replace(/\. Not the developer's price\.$/, "")}. Change it under Illustrative prices.`
+                      : unit.status === "pending"
                       ? "Awaiting the developer's price list. Prices and premiums appear here once it is released."
                       : "Prices are only shown for units on sale. We don't estimate this unit's price from neighbouring floors."}
                   </p>

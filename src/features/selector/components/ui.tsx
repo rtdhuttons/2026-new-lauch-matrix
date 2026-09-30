@@ -37,6 +37,13 @@ export function StatusChip({
   );
 }
 
+/**
+ * Bedroom-count colours, shared by the 3D view and the price chart. Checked
+ * with the dataviz palette validator (lightness, chroma, colour-blind and
+ * normal-vision separation on white); always shown with a text label.
+ */
+export const BEDROOM_COLOURS: Record<number, string> = { 2: "#2a78d6", 3: "#eb6834", 4: "#4a3aa7", 5: "#1baf7a" };
+
 export const VIEW_COLOURS: Record<ViewCategory, string> = {
   below: "#c3cac3",
   partial: "#9cc2cb",

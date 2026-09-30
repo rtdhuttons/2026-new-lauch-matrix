@@ -142,8 +142,13 @@ export interface Unit {
   stackId: string;
   level: number;
   status: UnitStatus;
-  /** Only published for available units. Never interpolated. */
+  /**
+   * Published price for available units. Never interpolated from other
+   * floors; an illustrative estimate is flagged with `priceIsEstimate`.
+   */
   price: number | null;
+  /** True when `price` is a TRM illustration from the user's PSF assumptions. */
+  priceIsEstimate?: boolean;
   /** Developer's unit type code, e.g. "CP2p", when it differs by level. */
   typeCode?: string;
   /** The developer's floor plan for this unit's type, when published. */

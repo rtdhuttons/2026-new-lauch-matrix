@@ -8,11 +8,12 @@ import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { compactMoney } from "../lib/format";
 import { compassWords16 } from "../lib/geometry";
+import { onOffer } from "../lib/pricing";
 import type { RankedUnit } from "../lib/recommend";
 import { formatClock, sunPosition } from "../lib/solar";
 import type { Overlay } from "./site-plan";
 import { SitePlan } from "./site-plan";
-import { VIEW_COLOURS } from "./ui";
+import { BEDROOM_COLOURS, VIEW_COLOURS } from "./ui";
 
 const Site3D = dynamic(() => import("./site-3d"), {
   ssr: false,
@@ -43,7 +44,6 @@ function sunColour(minutes: number): string {
   return `rgb(${mix(236, 214)}, ${mix(238, 120)}, ${mix(228, 18)})`;
 }
 
-const BEDROOM_COLOURS: Record<number, string> = { 2: "#8fbac6", 3: "#dcc08a", 4: "#b98fb2", 5: "#7f9f7a" };
 const STATUS_COLOURS: Record<UnitStatus, string> = {
   available: "#2f7d57",
   reserved: "#dcc08a",
@@ -167,7 +167,7 @@ export function SiteView({
   const colours = useMemo(() => {
     const map = new Map<string, string>();
     for (const u of ds.units) {
-      const onSale = u.status === "available";
+      const onSale = onOffer(u);
       let c: string;
       switch (colourMode) {
         case "bedrooms": {
@@ -211,7 +211,7 @@ export function SiteView({
               : ix.stackLayout(selectedUnit.stackId).name
         }, ${
           selectedUnit.price !== null
-            ? compactMoney(selectedUnit.price)
+            ? `${compactMoney(selectedUnit.price)}${selectedUnit.priceIsEstimate ? " (estimate)" : ""}`
             : selectedUnit.status === "not-released"
               ? "not yet released"
               : selectedUnit.status === "pending"

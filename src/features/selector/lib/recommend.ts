@@ -20,6 +20,7 @@
 import type { Unit } from "../model/types";
 import type { Criterion, Engine, UnitAssessment } from "./engine";
 import { CRITERIA } from "./engine";
+import { onOffer } from "./pricing";
 
 export type Purpose = "own" | "invest" | "both";
 
@@ -109,7 +110,7 @@ export function rankUnits(engine: Engine, prefs: Preferences): RankedUnit[] {
     const assessment = engine.assess(unit);
     const layout = engine.ix.stackLayout(unit.stackId);
     const exclusions: Exclusion[] = [];
-    if (unit.status !== "available" || unit.price === null) exclusions.push("not-available");
+    if (!onOffer(unit)) exclusions.push("not-available");
     if (unit.price !== null && unit.price > prefs.budget) exclusions.push("over-budget");
     if (prefs.bedrooms !== "any" && layout.bedrooms !== prefs.bedrooms) exclusions.push("bedrooms");
     const cat = assessment.level?.category;

@@ -8,7 +8,7 @@ import type { Engine } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
 import { areaText, heightText, metres, money, psfText, signedMoney } from "../lib/format";
 import { compassWords } from "../lib/geometry";
-import { clearanceCost, premiumOver, psf } from "../lib/pricing";
+import { clearanceCost, onOffer, premiumOver, psf } from "../lib/pricing";
 import type { Facade, SunState } from "../lib/solar";
 import { formatClock, formatMinutes, MONTHS } from "../lib/solar";
 import { card, StatusChip, ViewChip } from "./ui";
@@ -435,7 +435,7 @@ function PricePanel({ engine, unit, reference }: { engine: Engine; unit: Unit; r
   const view = engine.view(unit.stackId);
   const cost = clearanceCost(ix, view, unit);
   const premium = reference ? premiumOver(ix, unit, reference) : null;
-  const ladder = ix.unitsInStack(unit.stackId).filter((u) => u.status === "available");
+  const ladder = ix.unitsInStack(unit.stackId).filter(onOffer);
 
   return (
     <div className="grid gap-5">
@@ -447,7 +447,7 @@ function PricePanel({ engine, unit, reference }: { engine: Engine; unit: Unit; r
       </div>
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <dt className="font-display-normal text-sm text-stone">Total price</dt>
+          <dt className="font-display-normal text-sm text-stone">{unit.priceIsEstimate ? "Estimated total price" : "Total price"}</dt>
           <dd className="font-display-normal text-lg font-semibold">{unit.price !== null ? money(unit.price) : "Not published"}</dd>
         </div>
         <div>

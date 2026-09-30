@@ -21,10 +21,13 @@ export function PreferencesPanel({
   prefs,
   onChange,
   eligibleCount,
+  budgetRange = { min: 1_300_000, max: 3_600_000 },
 }: {
   prefs: Preferences;
   onChange: (p: Preferences) => void;
   eligibleCount: number;
+  /** Slider limits, from the cheapest and dearest priced units. */
+  budgetRange?: { min: number; max: number };
 }) {
   const set = <K extends keyof Preferences>(key: K, value: Preferences[K]) =>
     onChange({ ...prefs, [key]: value });
@@ -60,8 +63,8 @@ export function PreferencesPanel({
           <input
             id="budget"
             type="range"
-            min={1_300_000}
-            max={3_600_000}
+            min={budgetRange.min}
+            max={budgetRange.max}
             step={50_000}
             value={prefs.budget}
             onChange={(e) => set("budget", Number(e.target.value))}
@@ -90,7 +93,7 @@ export function PreferencesPanel({
           Only units with an estimated clear main view
         </label>
         <p className="font-display-normal text-sm text-stone" aria-live="polite">
-          {eligibleCount} available units meet these essentials.
+          {eligibleCount} priced units meet these essentials.
         </p>
       </div>
 

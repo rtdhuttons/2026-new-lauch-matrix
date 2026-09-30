@@ -86,7 +86,7 @@ export function Comparison({
       title: "Entry price & premium",
       rows: [
         {
-          label: "Price",
+          label: shortlist.some((u) => u.priceIsEstimate) ? "Price (estimate)" : "Price",
           cells: shortlist.map((u) => (u.price !== null ? money(u.price) : "Not published")),
           best: bestIndex(shortlist.map((u) => u.price), false, 10_000),
         },
