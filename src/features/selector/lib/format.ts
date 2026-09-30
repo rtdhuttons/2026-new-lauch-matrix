@@ -54,8 +54,12 @@ export function isPesType(typeCode: string | undefined): boolean {
   return !!typeCode && /p( \(L\))?$/.test(typeCode);
 }
 
-/** A level in the project's height datum, e.g. "14.5 m above Upper Thomson Road" or "RL 26 m". */
-export function heightText(project: Project, rl: number): string {
-  const v = Number.isInteger(rl) ? String(rl) : rl.toFixed(1);
+/**
+ * A level, or a range of levels, in the project's height datum, e.g.
+ * "14.5 m above Upper Thomson Road" or "RL 26–30 m".
+ */
+export function heightText(project: Project, rl: number, maxRl = rl): string {
+  const f = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+  const v = maxRl !== rl ? `${f(rl)}–${f(maxRl)}` : f(rl);
   return project.heightDatum ? `${v} m above ${project.heightDatum}` : `RL ${v} m`;
 }

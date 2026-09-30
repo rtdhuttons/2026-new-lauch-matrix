@@ -194,9 +194,13 @@ export function buildScene(ds: Dataset): SceneData {
   const houses: Box[] = [];
   const trees: Tree[] = [];
   const rand = seeded(20260930);
+  // A real site plan image already shows the landscape, so only the
+  // illustrative demo gets generated planting, houses and trees.
+  const decorate = !ds.project.display?.planImage;
 
   for (const o of ds.obstructions) {
     if (o.kind === "own-block") continue;
+    if (!decorate && o.kind !== "existing-building") continue;
     const midTop = (o.topRL.min + o.topRL.max) / 2;
     if (o.kind === "existing-building") {
       buildings.push({
@@ -234,9 +238,6 @@ export function buildScene(ds: Dataset): SceneData {
 
   const { width, height } = ds.project.siteBounds;
   const SITE_Y = 4;
-  // A real site plan image already shows the landscape, so only the
-  // illustrative demo gets generated planting.
-  const decorate = !ds.project.display?.planImage;
 
   // Planting along the site boundary, leaving gaps at the gates.
   const nearGate = (px: number, pz: number) =>

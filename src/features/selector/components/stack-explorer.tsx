@@ -172,6 +172,8 @@ function ViewSection({
   const x = (d: number) => pad.l + ((d + 20) / (dist + 20)) * (W - pad.l - pad.r);
   const y = (rl: number) => pad.t + ((maxRL - rl) / (maxRL - minRL)) * (H - pad.t - pad.b);
   const eye = lv.eyeRL;
+  const shortName = view.target.name.replace(/ \(.*\)$/, "");
+  const targetLabel = shortName.charAt(0).toUpperCase() + shortName.slice(1);
   const clears = lv.category === "clear" || lv.category === "clear-limited";
   const lineColour = clears ? "#1d7a4f" : lv.clearedShare.optimistic > 0 ? "#c88a12" : "#b3413b";
 
@@ -204,8 +206,19 @@ function ViewSection({
       )}
       {/* Target */}
       <line x1={x(dist - 40)} x2={x(dist)} y1={y(view.target.surfaceRL)} y2={y(view.target.surfaceRL)} stroke="#2e6a78" strokeWidth="4" />
-      <text x={x(dist)} y={y(view.target.surfaceRL) - 7} textAnchor="end" fontSize="9" className="fill-reservoir font-display-normal">
-        {view.target.name}
+      <text
+        x={x(dist)}
+        y={
+          // Drop the label below the line when it would collide with the obstruction's label.
+          gov && Math.abs(y(gov.obstruction.topRL.max) - y(view.target.surfaceRL)) < 16
+            ? y(view.target.surfaceRL) + 14
+            : y(view.target.surfaceRL) - 7
+        }
+        textAnchor="end"
+        fontSize="9"
+        className="fill-reservoir font-display-normal"
+      >
+        {targetLabel}
       </text>
       {/* Sight line */}
       <line x1={x(0)} y1={y(eye)} x2={x(dist)} y2={y(view.target.surfaceRL)} stroke={lineColour} strokeWidth="1.8" strokeDasharray={clears ? undefined : "6 4"} />
@@ -284,7 +297,7 @@ export function StackExplorer({
             </p>
             <p className="mt-1 text-sm text-canopy/75">
               {view.target === null
-                ? "Needs neighbouring building heights and view targets, which are not loaded yet. The marker appears here once they are."
+                ? "No surveyed buildings or view target in this direction yet. The marker appears here once they are loaded."
                 : <>The estimated first floor where the main view clears{" "}{view.governing ? view.governing.obstruction.name : "nearby obstructions"}.</>}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">

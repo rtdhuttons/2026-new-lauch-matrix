@@ -41,6 +41,7 @@ import {
   polylineLength,
   rayPolygonSpan,
 } from "../../lib/geometry";
+import { thomsonReserveSurroundings } from "./surroundings";
 import { unitSchedule } from "./unit-schedule";
 
 const UPDATED = "2026-09-30";
@@ -235,7 +236,8 @@ note(["18"], "About 63 m to Block 11 (architect's brief).");
 // floor actually sees over the landed homes and trees in between is not
 // assessed until their heights are loaded.
 const OUTLOOKS = [
-  { from: 190, to: 245, label: "Towards MacRitchie Reservoir" },
+  { from: 110, to: 160, label: "Towards the CBD skyline" },
+  { from: 160, to: 245, label: "Towards MacRitchie Reservoir" },
   { from: 245, to: 290, label: "Towards Windsor Nature Park" },
   { from: 290, to: 335, label: "Towards the Singapore Island Country Club golf course" },
 ];
@@ -248,8 +250,8 @@ function outlookFor(bearing: number): Stack["mainView"] {
     coneHalfWidthDeg: 12,
     targetId: "",
     provenance: o
-      ? brief("Direction only, from the brief's tower orientation diagram. Neighbouring heights are not loaded, so clearance is not assessed.", "estimated")
-      : unknown("View targets and neighbouring building heights are not loaded yet"),
+      ? brief("Direction from the brief's tower orientation diagram and surrounding view photos", "estimated")
+      : unknown("No surveyed surroundings in this direction yet"),
   };
 }
 
@@ -366,7 +368,7 @@ for (const s of stacks) {
   s.mainView = {
     ...s.mainView,
     label: `Across the development to ${hit.block.name}, about ${Math.round(hit.near / 5) * 5} m away`,
-    provenance: traced("Direction and distance measured on the site plan; neighbouring heights beyond are not loaded"),
+    provenance: traced("Direction and distance measured on the site plan"),
   };
 }
 
@@ -388,7 +390,26 @@ const units: Unit[] = stacks.flatMap((s) => {
     }));
 });
 
-const obstructions: Obstruction[] = blocks.map((b) => {
+// Road centrelines on the plan; the extra points past the site only shape
+// the surrounding zones.
+const UPPER_THOMSON = [P(-40, 160), P(40, 330), P(200, 520), P(450, 632), P(800, 668), P(1200, 662), P(1480, 640)];
+const BRIGHT_HILL = [P(1250, 40), P(1330, 190), P(1420, 350), P(1490, 500)];
+const surroundings = thomsonReserveSurroundings({
+  upperThomson: [P(-160, -110), ...UPPER_THOMSON, P(1800, 600), P(2150, 560), P(2700, 640)],
+  siteFrontage: [1, UPPER_THOMSON.length],
+  brightHill: [P(1200, -100), ...BRIGHT_HILL, P(1560, 650)],
+});
+
+// Each stack looks at the nature reserve forest when its main direction
+// reaches it; other directions (Bishan and Sin Ming to the north and east)
+// have no surveyed surroundings yet and stay "not assessed".
+for (const s of stacks) {
+  const dir = bearingVector(s.livingBearingDeg, PLAN_NORTH_DEG);
+  const target = surroundings.viewTargets.find((t) => rayPolygonSpan(s.position, dir, t.footprint));
+  if (target) s.mainView = { ...s.mainView, targetId: target.id };
+}
+
+const ownBlocks: Obstruction[] = blocks.map((b) => {
   const top = blockTopRL(b);
   return {
     id: `own-${b.id}`,
@@ -402,6 +423,8 @@ const obstructions: Obstruction[] = blocks.map((b) => {
   };
 });
 
+const obstructions: Obstruction[] = [...ownBlocks, ...surroundings.obstructions];
+
 const plan = traced("Drawn from the site plan; road centrelines are approximate");
 const briefPlan = brief("Drawn onto the site plan from the architect's circulation and vehicle plans; positions approximate", "estimated");
 
@@ -410,7 +433,7 @@ const exposureSources: ExposureSource[] = [
     id: "upper-thomson",
     kind: "main-road",
     name: "Upper Thomson Road",
-    geometry: [P(-40, 160), P(40, 330), P(200, 520), P(450, 632), P(800, 668), P(1200, 662), P(1480, 640)],
+    geometry: UPPER_THOMSON,
     levelRL: ROAD_RL,
     activity: "Heavy traffic and buses through the day; busiest at morning and evening peaks",
     context:
@@ -429,7 +452,7 @@ const exposureSources: ExposureSource[] = [
     id: "bright-hill",
     kind: "main-road",
     name: "Bright Hill Drive",
-    geometry: [P(1250, 40), P(1330, 190), P(1420, 350), P(1490, 500)],
+    geometry: BRIGHT_HILL,
     activity: "Local traffic; school drop-offs in the morning",
     provenance: plan,
   },
@@ -554,7 +577,7 @@ export const thomsonReserveDataset: Dataset = {
       roadLabels: [],
       mrtLabel: { text: "Upper Thomson MRT, Exit 2", at: mrtExit },
       notice:
-        "Thomson Reserve, from the developer's site plan, elevation charts, factsheet and the architect's brief: every stack and level with its unit type, heights above Upper Thomson Road, gates and driveways. Prices and availability are not published yet, and neighbouring building heights are not loaded, so view clearance is not assessed.",
+        "Thomson Reserve, from the developer's site plan, elevation charts, factsheet and the architect's brief: every stack and level with its unit type, heights above Upper Thomson Road, gates and driveways. View clearance uses the brief's storey counts for the surrounding landed homes, so it is an estimate; views to the north and east are not assessed. Prices and availability are not published yet.",
       pricingNote:
         "Awaiting the developer's price list. Prices, premiums and resale scenarios appear once it is loaded.",
     },
@@ -564,8 +587,8 @@ export const thomsonReserveDataset: Dataset = {
   stacks,
   units,
   obstructions,
-  viewTargets: [],
-  futureSites: [],
+  viewTargets: surroundings.viewTargets,
+  futureSites: surroundings.futureSites,
   exposureSources,
   gates,
   internalRoutes,
@@ -579,7 +602,8 @@ export const thomsonReserveMrtExit = mrtExit;
 /** Known gaps, kept next to the data so they are not forgotten. */
 export const thomsonReserveGaps = [
   "Prices and availability: awaiting the developer's price list.",
-  "Neighbouring building heights and view targets, needed for the View Clearance Floor Marker.",
+  "Surveyed heights of the surrounding landed homes and trees: the View Clearance Floor Marker uses the brief's storey counts and assumed tree and forest heights.",
+  "Surroundings to the north and east (Sin Ming and Bishan), so views that way can be assessed.",
   "Exact finished floor levels: first homes use the brief's approximate heights above Upper Thomson Road (8.5 m Luxury, 14.5 m Classic); level 1 to 2 uses the factsheet's 4.3 m; other floors assume 3.15 m.",
   "Walked routes to the MRT: only the 65 m covered linkway outside Side Gate 1 is measured; paths inside the development are estimated.",
   "Room facings: living and master bedroom are assumed to face away from the lift core until each unit plan is keyed in.",

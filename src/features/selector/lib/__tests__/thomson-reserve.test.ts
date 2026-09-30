@@ -61,9 +61,10 @@ describe("Thomson Reserve dataset", () => {
     expect(ds.units.every((u) => u.price === null && u.status === "pending")).toBe(true);
   });
 
-  it("keeps view clearance unassessed while neighbour heights are missing", () => {
+  it("keeps view clearance unassessed where the surroundings are unknown", () => {
     const engine = createEngine(ds, thomsonReserveMrtExit);
-    const a = engine.assess(ds.units[0]);
+    // Stack 01 faces east-south-east, towards Bishan: no surveyed surroundings.
+    const a = engine.assess(ds.units.find((u) => u.stackId === "01")!);
     expect(a.level?.category).toBe("unknown");
     expect(a.scores.view.score).toBeNull();
     expect(a.scores.resale.score).not.toBeNull();
@@ -126,10 +127,26 @@ describe("Thomson Reserve dataset", () => {
     expect(road.source.context).toMatch(/forest band/);
   });
 
-  it("labels view directions without implying clearance", () => {
+  it("labels view directions from the brief", () => {
     const labels = new Set(ds.stacks.map((s) => s.mainView.label));
     expect([...labels].some((l) => l.startsWith("Towards MacRitchie"))).toBe(true);
     expect([...labels].some((l) => l.startsWith("Across the development"))).toBe(true);
-    for (const s of ds.stacks) expect(s.mainView.targetId).toBe("");
+  });
+
+  it("assesses views over the landed estates from the brief's storey counts", () => {
+    const engine = createEngine(ds, thomsonReserveMrtExit);
+    // Stack 28 (Block 7) faces west over the landed homes towards Windsor Nature Park.
+    const v = engine.view("28");
+    expect(v.target?.id).toBe("catchment-forest");
+    expect(v.status).toBe("assumed");
+    // Clears the 2–3 storey houses and the on-site forest band within a few floors.
+    expect(v.clearFrom.optimistic).toBeGreaterThanOrEqual(1);
+    expect(v.clearFrom.conservative).toBeLessThanOrEqual(5);
+    // Looking across the development at a block of the same height never clears it.
+    const across = engine.view("06");
+    expect(across.governing?.obstruction.kind).toBe("own-block");
+    expect(across.clearFrom.conservative).toBeNull();
+    // Non-GCBA landed estates have unverified zoning, so future risk stays unknown.
+    expect(v.futureRisk.level).toBe("unknown");
   });
 });

@@ -218,12 +218,8 @@ export function UnitDetails({
                 <dd className="font-display-normal font-semibold">{a.view.governing?.obstruction.name ?? "None found"}</dd>
                 {a.view.governing && (
                   <dd className="text-sm text-canopy/80">
-                    {Math.round(a.view.governing.near)}–{Math.round(a.view.governing.far)} m away, top RL{" "}
-                    {a.view.governing.obstruction.topRL.min}
-                    {a.view.governing.obstruction.topRL.max !== a.view.governing.obstruction.topRL.min
-                      ? `–${a.view.governing.obstruction.topRL.max}`
-                      : ""}{" "}
-                    m
+                    {Math.round(a.view.governing.near)}–{Math.round(a.view.governing.far)} m away, top{" "}
+                    {heightText(engine.ix.ds.project, a.view.governing.obstruction.topRL.min, a.view.governing.obstruction.topRL.max)}
                   </dd>
                 )}
               </div>
