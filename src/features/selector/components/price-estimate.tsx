@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import type { Dataset } from "../model/types";
 import type { PriceEstimate } from "../lib/estimate";
-import { DEFAULT_ESTIMATE, describeEstimate, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
+import { averagePsf, baseFromAverage, DEFAULT_ESTIMATE, describeEstimate, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
 import { compactMoney } from "../lib/format";
 import { LevelLadder } from "./level-ladder";
-import { BEDROOM_COLOURS, card } from "./ui";
+import { PriceMatrix } from "./price-matrix";
+import { BEDROOM_COLOURS, card, Segmented } from "./ui";
 
 interface TypeRow {
   key: string;
@@ -146,6 +147,10 @@ export function PriceEstimateSection({
   const pct = (n: number) => ((n - lo) / (hi - lo)) * 100;
   const bedroomsShown = [...new Set(rows.map((r) => r.bedrooms).filter((b): b is number => b !== null))].sort();
   const isDefault = estimate.basePsf === DEFAULT_ESTIMATE.basePsf && estimate.stepPsf === DEFAULT_ESTIMATE.stepPsf;
+  // Prices can be anchored on the lowest floor or on the average across every home.
+  const [mode, setMode] = useState<"lowest" | "average">("lowest");
+  const [avgTarget, setAvgTarget] = useState(() => Math.round(averagePsf(base, estimate)));
+  const avgNow = Math.round(averagePsf(base, estimate));
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr] [&>*]:min-w-0">
@@ -161,16 +166,44 @@ export function PriceEstimateSection({
           Use illustrative prices across the selector
         </label>
         <div className={`mt-4 grid gap-4 ${enabled ? "" : "pointer-events-none opacity-50"}`} aria-disabled={!enabled}>
-          <NumberField
-            id="base-psf"
-            label={`Lowest floor (level ${baseLevel})`}
-            hint="Starting PSF for the lowest homes."
-            value={estimate.basePsf}
-            min={500}
-            max={10_000}
-            step={10}
-            onChange={(basePsf) => onEstimate({ ...estimate, basePsf })}
+          <Segmented<"lowest" | "average">
+            label="Set prices by"
+            value={mode}
+            options={[
+              { value: "lowest", label: "Lowest floor PSF" },
+              { value: "average", label: "Average PSF" },
+            ]}
+            onChange={(m) => {
+              setMode(m);
+              if (m === "average") setAvgTarget(avgNow);
+            }}
           />
+          {mode === "lowest" ? (
+            <NumberField
+              id="base-psf"
+              label={`Lowest floor (level ${baseLevel})`}
+              hint={`Averages ${money(avgNow)} psf across all ${base.units.length.toLocaleString("en-SG")} homes.`}
+              value={estimate.basePsf}
+              min={500}
+              max={10_000}
+              step={10}
+              onChange={(basePsf) => onEstimate({ ...estimate, basePsf })}
+            />
+          ) : (
+            <NumberField
+              id="avg-psf"
+              label="Average across all homes"
+              hint={`Each home counted at its own level, so level ${baseLevel} is ${money(estimate.basePsf)} psf.`}
+              value={avgTarget}
+              min={500}
+              max={10_000}
+              step={10}
+              onChange={(avg) => {
+                setAvgTarget(avg);
+                onEstimate({ ...estimate, basePsf: baseFromAverage(base, avg, estimate.stepPsf) });
+              }}
+            />
+          )}
           <NumberField
             id="step-psf"
             label="Added per floor"
@@ -179,12 +212,21 @@ export function PriceEstimateSection({
             min={0}
             max={200}
             step={1}
-            onChange={(stepPsf) => onEstimate({ ...estimate, stepPsf })}
+            onChange={(stepPsf) =>
+              onEstimate(
+                mode === "average"
+                  ? { stepPsf, basePsf: baseFromAverage(base, avgTarget, stepPsf) }
+                  : { ...estimate, stepPsf },
+              )
+            }
           />
           <button
             type="button"
-            disabled={isDefault}
-            onClick={() => onEstimate(DEFAULT_ESTIMATE)}
+            disabled={isDefault && mode === "lowest"}
+            onClick={() => {
+              setMode("lowest");
+              onEstimate(DEFAULT_ESTIMATE);
+            }}
             className="justify-self-start rounded-full border border-canopy/25 px-4 py-1.5 font-display-normal text-sm font-semibold disabled:opacity-40"
           >
             Reset to {money(DEFAULT_ESTIMATE.basePsf)} + {money(DEFAULT_ESTIMATE.stepPsf)}
@@ -205,6 +247,20 @@ export function PriceEstimateSection({
             <LevelLadder base={base} estimate={estimate} />
           ) : (
             <p className="text-[1rem] text-canopy/80">Turn on illustrative prices to see prices level by level.</p>
+          )}
+        </div>
+      </div>
+
+      <div className={`${card} p-5 sm:p-6 lg:col-span-2`}>
+        <h3 className="font-display text-lg font-extrabold">Price by level and unit type</h3>
+        <p className="mt-1 text-sm text-canopy/75">
+          Every level from {topLevel} down to {baseLevel}, at {describeEstimate(estimate, baseLevel)}. Scroll sideways for the larger homes.
+        </p>
+        <div className="mt-4">
+          {enabled ? (
+            <PriceMatrix base={base} estimate={estimate} />
+          ) : (
+            <p className="text-[1rem] text-canopy/80">Turn on illustrative prices to see the full price table.</p>
           )}
         </div>
       </div>

@@ -64,3 +64,22 @@ export function applyPriceEstimate(ds: Dataset, e: PriceEstimate): Dataset {
   };
   return { ...ds, units, project: { ...ds.project, display } };
 }
+
+/** Average floors above the lowest level, over every home (each counted once). */
+function meanLevelOffset(ds: Dataset): number {
+  const baseLevel = lowestHomeLevel(ds);
+  return ds.units.reduce((a, u) => a + (u.level - baseLevel), 0) / ds.units.length;
+}
+
+/** Average PSF across every home, each counted at its own level. */
+export function averagePsf(ds: Dataset, e: PriceEstimate): number {
+  return e.basePsf + e.stepPsf * meanLevelOffset(ds);
+}
+
+/**
+ * The lowest-floor PSF that makes the average across every home equal
+ * `average`, rounded to the dollar.
+ */
+export function baseFromAverage(ds: Dataset, average: number, stepPsf: number): number {
+  return Math.round(average - stepPsf * meanLevelOffset(ds));
+}

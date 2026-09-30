@@ -42,3 +42,16 @@ describe("illustrative price estimate", () => {
     expect(applyPriceEstimate(demo, DEFAULT_ESTIMATE)).toBe(demo);
   });
 });
+
+describe("setting prices by average PSF", () => {
+  it("finds the lowest-floor PSF that gives the chosen average", async () => {
+    const { averagePsf, baseFromAverage } = await import("../estimate");
+    const base = baseFromAverage(ds, 2900, 15);
+    expect(averagePsf(ds, { basePsf: base, stepPsf: 15 })).toBeCloseTo(2900, 0);
+    // The unit-weighted mean psf of the priced dataset matches too.
+    const priced = applyPriceEstimate(ds, { basePsf: base, stepPsf: 15 });
+    const lowest = Math.min(...priced.units.map((u) => u.level));
+    const mean = priced.units.reduce((a, u) => a + base + 15 * (u.level - lowest), 0) / priced.units.length;
+    expect(mean).toBeCloseTo(2900, 0);
+  });
+});
