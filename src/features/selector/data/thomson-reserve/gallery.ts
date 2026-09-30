@@ -31,10 +31,28 @@ export const gallery: GalleryImage[] = [
     alt: "A long infinity pool and lawn framed by tropical trees, with residential towers behind. Artist's impression.",
   },
   {
+    src: src("arrival-court.jpg"),
+    title: "Arrival court",
+    caption: "The drop-off courtyard off Bright Hill Drive, lit for coming home at night.",
+    alt: "A circular drop-off court at night, ringed by lit timber fins around a planted tree, with the pools beyond. Artist's impression.",
+  },
+  {
     src: src("grand-clubhouse.jpg"),
     title: "The Grand Clubhouse",
     caption: "A pool deck and planted roof at the heart of the development.",
     alt: "The Grand Clubhouse at dusk, with a curved planted roof above a wide lit pool and sun loungers. Artist's impression.",
+  },
+  {
+    src: src("poolside-homes.jpg"),
+    title: "Homes on the water",
+    caption: "The lowest homes open onto lawns and the pool deck.",
+    alt: "Ground-level homes with private terraces beside a lawn, palms and a pool with sun loungers. Artist's impression.",
+  },
+  {
+    src: src("lawn.jpg"),
+    title: "Room to run",
+    caption: "Open lawns, a shaded pavilion and play features beside the clubhouse.",
+    alt: "A wide lawn with a pavilion and timber play features, the clubhouse and towers behind. Artist's impression.",
   },
   {
     src: src("clubhouse-dining.jpg"),
@@ -67,6 +85,12 @@ export const gallery: GalleryImage[] = [
     alt: "A yoga studio laid with mats and blocks, with a mirrored wall and glass onto a garden deck. Artist's impression.",
   },
   {
+    src: src("kids-room.jpg"),
+    title: "Children's room",
+    caption: "A forest-themed room for the youngest residents.",
+    alt: "A children's room with low tables, green and orange chairs and a wall of stylised trees. Artist's impression.",
+  },
+  {
     src: src("towers.jpg"),
     title: "Towers of 21 and 30 storeys",
     caption: "Two Luxury towers of 30 storeys and four Classic towers of 21, set in parkland.",
@@ -79,11 +103,7 @@ export function levelImage(level: number): GalleryImage {
   const find = (file: string) => gallery.find((g) => g.src.endsWith(file))!;
   if (level >= 21) return find("sunset-1920.jpg");
   if (level >= 5) return find("towers.jpg");
-  return {
-    ...find("pools-lawn.jpg"),
-    title: "Close to the gardens",
-    caption: "The lowest homes sit just above the pools and landscaped decks.",
-  };
+  return find("poolside-homes.jpg");
 }
 
 export const locationMap = {

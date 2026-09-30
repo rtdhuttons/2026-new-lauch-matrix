@@ -47,15 +47,18 @@ export function ProjectHero({
   );
 }
 
-/** One large image and up to eight smaller ones, each opening larger on tap. */
+/** One large image and a grid of smaller ones, each opening larger on tap. */
 export function Gallery({ images }: { images: GalleryImage[] }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState<GalleryImage | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  // Nine fill three rows on wide screens; the rest wait behind a button.
+  const INITIAL = 9;
   const show = (img: GalleryImage) => {
     setOpen(img);
     dialog.current?.showModal();
   };
-  const [feature, ...rest] = images.slice(0, 9);
+  const [feature, ...rest] = showAll ? images : images.slice(0, INITIAL);
 
   return (
     <>
@@ -88,7 +91,19 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
           </figure>
         ))}
       </div>
-      <p className="mt-2 font-display-normal text-xs text-stone">Artist&apos;s impressions from the developer&apos;s marketing material.</p>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="font-display-normal text-xs text-stone">Artist&apos;s impressions from the developer&apos;s marketing material.</p>
+        {images.length > INITIAL && (
+          <button
+            type="button"
+            onClick={() => setShowAll((v) => !v)}
+            aria-expanded={showAll}
+            className="rounded-full border border-canopy/25 px-4 py-2 font-display-normal text-sm font-semibold hover:border-canopy/50"
+          >
+            {showAll ? "Show fewer photos" : `Show all ${images.length} photos`}
+          </button>
+        )}
+      </div>
       <dialog
         ref={dialog}
         aria-label={open?.title ?? "Image"}
