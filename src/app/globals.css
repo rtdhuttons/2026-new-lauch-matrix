@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canopy: #10291c;
+  --color-canopy-soft: #1c3a2a;
+  --color-mist: #edf0ea;
+  --color-mist-deep: #dfe4dc;
+  --color-reservoir: #2e6a78;
+  --color-reservoir-light: #9cc2cb;
+  --color-stone: #6f7a71;
+  --color-paper: #ffffff;
+
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+
+  /* Modular scale, ratio 4:3 from an 18px base */
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.45;
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.5rem;
+  --text-lg--line-height: 1.35;
+  --text-xl: 2rem;
+  --text-xl--line-height: 1.15;
+  --text-2xl: 2.625rem;
+  --text-2xl--line-height: 1.05;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background: var(--color-mist);
+  color: var(--color-canopy);
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+
+/* Expanded Archivo is the drafting-lettering voice for names and headings */
+.font-display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+}
+
+.font-display-normal {
+  font-family: var(--font-display);
+  font-stretch: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-reservoir);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
