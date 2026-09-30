@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    },
+    "aetumi": {
+      "type": "http",
+      "url": "https://mcp.aetumi.app"
+    },
+    "blender": {
+      "command": "uvx",
+      "args": ["mcp-for-blender"]
+    },
+    "blender-pro": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/RFingAdam/mcp-blender",
+        "mcp-blender",
+        "--port",
+        "9876"
+      ]
+    }
+  }
+}

@@ -33,5 +33,8 @@
         "repo": "pbakaus/impeccable"
       }
     }
-  }
+  },
+  "disabledMcpjsonServers": [
+    "blender-pro"
+  ]
 }
