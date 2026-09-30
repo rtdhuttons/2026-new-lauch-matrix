@@ -1,12 +1,19 @@
 {
+  "disabledMcpjsonServers": [
+    "blender-pro"
+  ],
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
     "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "figma@claude-plugins-official": true,
     "21st@21st-dev": true,
-    "playwright@claude-plugins-official": true,
+    "playwright@claude-plugins-official": false,
     "context7@claude-plugins-official": true,
-    "impeccable@impeccable": true
+    "impeccable@impeccable": true,
+    "vercel@claude-plugins-official": true,
+    "supabase@claude-plugins-official": true,
+    "mapbox@claude-plugins-official": true,
+    "modern-web-guidance@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -33,8 +40,5 @@
         "repo": "pbakaus/impeccable"
       }
     }
-  },
-  "disabledMcpjsonServers": [
-    "blender-pro"
-  ]
+  }
 }

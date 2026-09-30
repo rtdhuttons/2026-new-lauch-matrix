@@ -1,8 +1,17 @@
 {
   "mcpServers": {
+    "playwright": {
+      "command": "sh",
+      "args": [
+        "scripts/playwright-mcp.sh"
+      ]
+    },
     "shadcn": {
       "command": "npx",
-      "args": ["shadcn@latest", "mcp"]
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     },
     "aetumi": {
       "type": "http",
@@ -10,7 +19,9 @@
     },
     "blender": {
       "command": "uvx",
-      "args": ["mcp-for-blender"]
+      "args": [
+        "mcp-for-blender"
+      ]
     },
     "blender-pro": {
       "command": "uvx",

@@ -14,6 +14,27 @@ npm test           # calculation tests (Vitest)
 npm run lint && npm run typecheck
 ```
 
+## Claude Code setup
+
+Project plugins are enabled in `.claude/settings.json` and extra MCP servers are in `.mcp.json`, so they load in any checkout.
+
+| Plugin / server | Use | Needs |
+|---|---|---|
+| frontend-design, ui-ux-pro-max, impeccable | Design direction and critique | — |
+| modern-web-guidance | Current web performance and accessibility practice | — |
+| figma | Design tokens from Figma | Figma sign-in |
+| 21st | Component search | `API_KEY_21ST` |
+| context7 | Up-to-date library docs | optional `CONTEXT7_API_KEY` |
+| vercel | Deploys, preview links, logs | Vercel sign-in. Anonymous usage telemetry; set `VERCEL_PLUGIN_TELEMETRY=off` to disable |
+| supabase | Database for registrations and saved shortlists | Supabase sign-in |
+| mapbox | Maps and walking routes | Mapbox sign-in / token |
+| playwright (`.mcp.json`) | Browser checks and screenshots | — |
+| shadcn, aetumi, blender (`.mcp.json`) | Components, 3D components, Blender | Blender desktop app for blender |
+
+Playwright runs through `scripts/playwright-mcp.sh` instead of the marketplace plugin: in Claude Code cloud sessions it uses the preinstalled Chromium, headless, and elsewhere it uses Playwright MCP's defaults. The plugin version is disabled because it only looks for Google Chrome.
+
+In cloud sessions, remote servers only connect if their hosts are allowed in the environment's network access (for example `mcp.context7.com`, `mcp.figma.com`, `mcp.vercel.com`, `mcp.mapbox.com`, `mcp.supabase.com`, `21st.dev`, `mcp.aetumi.app`).
+
 ## Stack & Unit Selector
 
 Helps a buyer decide which stack and floor suit them, what changes as they move up, and whether the extra price for a better floor, facing or view is worth paying. **Every figure is illustrative demo data for "Wrenfield Residences", a fictional project.**
