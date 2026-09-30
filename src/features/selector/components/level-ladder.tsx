@@ -6,6 +6,7 @@ import type { Dataset } from "../model/types";
 import type { PriceEstimate } from "../lib/estimate";
 import { estimatedPsf, lowestHomeLevel } from "../lib/estimate";
 import { BEDROOM_COLOURS } from "./ui";
+import { AssetImg } from "./asset-image";
 
 interface LevelRow {
   level: number;
@@ -126,8 +127,7 @@ export function LevelLadder({ base, estimate }: { base: Dataset; estimate: Price
 
       <div className="min-w-0">
         <figure className="relative overflow-hidden rounded-xl bg-canopy">
-          {/* eslint-disable-next-line @next/next/no-img-element -- plain img so the standalone build can load it */}
-          <img key={img.src} src={img.src} alt={img.alt} className="aspect-[16/7] w-full object-cover motion-safe:animate-[fadeIn_400ms_ease-out]" />
+          <AssetImg key={img.src} src={img.src} alt={img.alt} className="aspect-[16/7] w-full object-cover motion-safe:animate-[fadeIn_400ms_ease-out]" />
           <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/20 to-transparent" />
           <figcaption className="absolute inset-y-0 left-0 flex flex-col justify-end p-4 text-white sm:p-6" aria-live="polite">
             <span className="font-display-normal text-sm font-semibold uppercase tracking-[0.14em] text-white/85">Level {sel.level}</span>

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import type { GalleryImage } from "../data/thomson-reserve/gallery";
+import { AssetImg } from "./asset-image";
 
 /** Full-bleed opening image with the project's name and key facts. */
 export function ProjectHero({
@@ -19,8 +20,7 @@ export function ProjectHero({
 }) {
   return (
     <section aria-label={`${name} at a glance`} className="relative isolate overflow-hidden bg-canopy text-white">
-      {/* eslint-disable-next-line @next/next/no-img-element -- plain img so the standalone build can load it */}
-      <img
+      <AssetImg
         src={image.src}
         srcSet={image.srcSet}
         sizes="100vw"
@@ -76,8 +76,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
               aria-label={`${img.title}. Open larger`}
               className="absolute inset-0 h-full w-full"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- see ProjectHero */}
-              <img
+              <AssetImg
                 src={img.src}
                 alt={img.alt}
                 loading="lazy"
@@ -115,8 +114,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
       >
         {open && (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element -- see ProjectHero */}
-            <img src={open.src} alt={open.alt} className="block h-auto w-full" />
+            <AssetImg src={open.src} alt={open.alt} className="block h-auto w-full" />
             <div className="flex items-start justify-between gap-4 px-4 py-3">
               <div>
                 <p className="font-display-normal font-semibold">{open.title}</p>

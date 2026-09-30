@@ -29,6 +29,8 @@ const js = await build({
     "process.env.NEXT_PUBLIC_TR_SITE_PLAN": JSON.stringify(sitePlan),
     "process.env.NEXT_PUBLIC_TR_PLAN_BASE": JSON.stringify("plans"),
     "process.env.NEXT_PUBLIC_TR_IMAGE_BASE": JSON.stringify("images"),
+    // The viewer's CSP blocks <img> URLs to the page's own files; fetch them into blob: URLs instead.
+    "process.env.NEXT_PUBLIC_ASSET_FETCH": JSON.stringify("1"),
   },
   legalComments: "none",
 });

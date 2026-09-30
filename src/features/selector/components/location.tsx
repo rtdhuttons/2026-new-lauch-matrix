@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { card } from "./ui";
+import { AssetImg } from "./asset-image";
 
 // Places named on the developer's location map. Distances are left out
 // unless measured: only the MRT linkway length comes from the architect.
@@ -52,8 +53,7 @@ export function LocationSection({ map }: { map: { src: string; srcSet: string; a
           aria-label="Location map. Open larger"
           className="block w-full"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- plain img so the standalone build can load it */}
-          <img src={map.src} srcSet={map.srcSet} sizes="(min-width: 1024px) 860px, 100vw" alt={map.alt} loading="lazy" className="block h-auto w-full" />
+          <AssetImg src={map.src} srcSet={map.srcSet} sizes="(min-width: 1024px) 860px, 100vw" alt={map.alt} loading="lazy" className="block h-auto w-full" />
         </button>
         <figcaption className="px-4 py-2.5 font-display-normal text-xs text-stone">
           Location map from the developer&apos;s marketing material. Not to scale. Tap to enlarge.
@@ -91,8 +91,7 @@ export function LocationSection({ map }: { map: { src: string; srcSet: string; a
             Close
           </button>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
-        <img src={map.src} alt={map.alt} className="block h-auto w-full min-w-[900px]" />
+        <AssetImg src={map.src} alt={map.alt} className="block h-auto w-full min-w-[900px]" />
       </dialog>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import type { Unit } from "../model/types";
+import { AssetImg } from "./asset-image";
 
 /** Floor plan thumbnail that opens the full page in a dialog. */
 export function FloorPlan({ unit }: { unit: Unit }) {
@@ -18,8 +19,7 @@ export function FloorPlan({ unit }: { unit: Unit }) {
         className="block w-full overflow-hidden rounded-lg border border-canopy/15 bg-white hover:border-canopy/40"
         aria-label={`${title}. Open larger`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- plain img so the standalone build can load it */}
-        <img src={plan.src} alt="" loading="lazy" className="block h-auto w-full" />
+        <AssetImg src={plan.src} alt="" loading="lazy" className="block h-auto w-full" />
       </button>
       <figcaption className="mt-1.5 text-sm text-canopy/75">
         {title}. Tap to enlarge.{plan.mirrored ? " This stack is a mirror image of the plan shown." : ""} {plan.credit}
@@ -45,8 +45,7 @@ export function FloorPlan({ unit }: { unit: Unit }) {
             Close
           </button>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
-        <img src={plan.src} alt={`${title}, from the developer's unit plans`} className="block h-auto w-full" />
+        <AssetImg src={plan.src} alt={`${title}, from the developer's unit plans`} className="block h-auto w-full" />
       </dialog>
     </figure>
   );
