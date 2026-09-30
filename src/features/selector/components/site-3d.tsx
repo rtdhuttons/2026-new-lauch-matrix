@@ -12,8 +12,15 @@ import type { Dataset, Point, Unit } from "../model/types";
 import type { Box, Extrusion, SceneData, Tree, UnitBox } from "../lib/scene";
 import { buildScene, sunVector } from "../lib/scene";
 
+export interface Facility {
+  number: number;
+  name: string;
+  position: Point;
+}
+
 export interface Site3DProps {
   ds: Dataset;
+  facilities: Facility[] | null;
   colours: Map<string, string>;
   selectedStackId: string;
   selectedUnit: Unit | null;
@@ -101,27 +108,76 @@ function PlainBoxes({ boxes, colour, cast = true }: { boxes: Box[]; colour: stri
   );
 }
 
-function Trees({ trees }: { trees: Tree[] }) {
+function TreeSet({ trees, shape }: { trees: Tree[]; shape: Tree["shape"] }) {
   const ref = useRef<THREE.InstancedMesh>(null);
   useLayoutEffect(() => {
     const mesh = ref.current;
     if (!mesh) return;
     trees.forEach((t, i) => {
-      const r = Math.max(2.5, t.height * 0.28);
-      tmp.position.set(t.x, t.baseY + t.height - r, t.z);
-      tmp.rotation.set(0, 0, 0);
-      tmp.scale.set(r, r * 1.1, r);
+      const r = Math.max(2.2, t.height * (shape === "cone" ? 0.22 : 0.28));
+      if (shape === "cone") {
+        tmp.position.set(t.x, t.baseY + t.height / 2, t.z);
+        tmp.scale.set(r, t.height, r);
+      } else {
+        tmp.position.set(t.x, t.baseY + t.height - r, t.z);
+        tmp.scale.set(r, r * 1.1, r);
+      }
+      tmp.rotation.set(0, (i * 1.7) % Math.PI, 0);
       tmp.updateMatrix();
       mesh.setMatrixAt(i, tmp.matrix);
     });
     mesh.instanceMatrix.needsUpdate = true;
     mesh.computeBoundingSphere();
-  }, [trees]);
+  }, [trees, shape]);
+  if (trees.length === 0) return null;
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, trees.length]} castShadow receiveShadow>
-      <icosahedronGeometry args={[1, 1]} />
-      <meshStandardMaterial color="#7fa36b" roughness={1} flatShading />
+      {shape === "cone" ? <coneGeometry args={[1, 1, 7]} /> : <icosahedronGeometry args={[1, 1]} />}
+      <meshStandardMaterial color={shape === "cone" ? "#6f9a63" : "#86a973"} roughness={1} flatShading />
     </instancedMesh>
+  );
+}
+
+function Trees({ trees }: { trees: Tree[] }) {
+  const round = useMemo(() => trees.filter((t) => t.shape === "round"), [trees]);
+  const cones = useMemo(() => trees.filter((t) => t.shape === "cone"), [trees]);
+  return (
+    <>
+      <TreeSet trees={round} shape="round" />
+      <TreeSet trees={cones} shape="cone" />
+    </>
+  );
+}
+
+/** Letter-spaced capitals painted flat on the ground, like a map label. */
+function GroundLabel({ text, x, z, angle, width, colour = "#7b857c" }: { text: string; x: number; z: number; angle: number; width: number; colour?: string }) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 96;
+    const ctx = canvas.getContext("2d")!;
+    const family =
+      getComputedStyle(document.documentElement).getPropertyValue("--font-archivo").trim() || "sans-serif";
+    ctx.font = `600 64px ${family}`;
+    ctx.fillStyle = colour;
+    ctx.textBaseline = "middle";
+    const spacing = 14;
+    const chars = [...text.toUpperCase()];
+    const total = chars.reduce((a, c) => a + ctx.measureText(c).width + spacing, -spacing);
+    let cx = (canvas.width - total) / 2;
+    for (const c of chars) {
+      ctx.fillText(c, cx, canvas.height / 2);
+      cx += ctx.measureText(c).width + spacing;
+    }
+    const t = new THREE.CanvasTexture(canvas);
+    t.anisotropy = 4;
+    return t;
+  }, [text, colour]);
+  return (
+    <mesh position={[x, 0.2, z]} rotation={[-Math.PI / 2, 0, angle]} raycast={() => null}>
+      <planeGeometry args={[width, (width * 96) / 1024]} />
+      <meshBasicMaterial map={texture} transparent depthWrite={false} />
+    </mesh>
   );
 }
 
@@ -283,6 +339,12 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
         <boxGeometry args={[44, 0.3, 9]} />
         <meshStandardMaterial color="#6fb0c8" roughness={0.3} />
       </mesh>
+      {scene.lawns.map((l, i) => (
+        <mesh key={i} position={[l.x, l.y, l.z]} receiveShadow>
+          <boxGeometry args={[l.w, l.h, l.d]} />
+          <meshStandardMaterial color="#c3d9b4" roughness={1} />
+        </mesh>
+      ))}
       <PlainBoxes boxes={scene.plinths} colour="#c9d4c2" cast={false} />
       <PlainBoxes boxes={scene.podiums} colour="#bfc7bc" />
       <PlainBoxes boxes={scene.roofs} colour="#b3bbb0" />
@@ -310,6 +372,24 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
           )}
         </mesh>
       )}
+
+      {/* Road names */}
+      {showSurroundings && (
+        <>
+          <GroundLabel text="Reservoir Road" x={60} z={-12} angle={0} width={120} />
+          <GroundLabel text="Wrenfield Avenue" x={252} z={110} angle={Math.PI / 2} width={130} />
+          <GroundLabel text="Kestrel Expressway" x={348} z={40} angle={Math.PI / 2 + Math.atan2(30, 680)} width={170} />
+        </>
+      )}
+
+      {/* Facilities key pins */}
+      {props.facilities?.map((f) => (
+        <Html key={`f-${f.number}`} position={[f.position.x, 7, f.position.y]} center zIndexRange={[12, 0]}>
+          <span className="pointer-events-none grid size-5 place-items-center rounded-full bg-reservoir font-display-normal text-[10px] font-bold text-paper shadow">
+            {f.number}
+          </span>
+        </Html>
+      ))}
 
       {/* Labels */}
       {scene.stackLabels.map((l) => (
@@ -383,6 +463,7 @@ export default function Site3D(props: Site3DProps) {
   return (
     <Canvas
       shadows
+      frameloop="demand"
       dpr={[1, 2]}
       camera={{ position: [scene.centre.x + 50, 360, scene.centre.z + 270], fov: 38, near: 5, far: 5000 }}
       gl={{ antialias: true, preserveDrawingBuffer: true }}

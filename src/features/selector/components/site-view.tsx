@@ -48,13 +48,6 @@ const QUICK_MONTHS = [
   { month: 11, label: "Dec" },
 ];
 
-function mix(hex: string, towards: string, t: number): string {
-  const a = parseInt(hex.slice(1), 16);
-  const b = parseInt(towards.slice(1), 16);
-  const ch = (s: number) => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
-  return `#${((ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).padStart(6, "0")}`;
-}
-
 function webglSupported(): boolean {
   try {
     const c = document.createElement("canvas");
@@ -102,6 +95,16 @@ export function SiteView({
   const [azimuth, setAzimuth] = useState(0);
   const [resetSignal, setResetSignal] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const facilities = useMemo(
+    () =>
+      [
+        ...ds.exposureSources
+          .filter((s) => !["expressway", "main-road", "walkway"].includes(s.kind))
+          .map((s) => ({ name: s.name, position: s.geometry[s.geometry.length - 1] })),
+      ].map((f, i) => ({ ...f, number: i + 1 })),
+    [ds],
+  );
   const minutesRef = useRef(minutes);
   useEffect(() => {
     minutesRef.current = minutes;
@@ -131,7 +134,6 @@ export function SiteView({
       switch (colourMode) {
         case "bedrooms":
           c = BEDROOM_COLOURS[ix.stackLayout(u.stackId).bedrooms] ?? "#cccccc";
-          if (!onSale) c = mix(c, FADED, 0.65);
           break;
         case "budget":
           c = eligible.has(u.id) ? "#2f7d57" : onSale ? "#c6ccc5" : FADED;
@@ -139,7 +141,6 @@ export function SiteView({
         case "view": {
           const cat = levelView(engine.view(u.stackId), u.level)?.category ?? "unknown";
           c = VIEW_COLOURS[cat];
-          if (!onSale) c = mix(c, FADED, 0.65);
           break;
         }
         case "availability":
@@ -170,7 +171,6 @@ export function SiteView({
           { colour: BEDROOM_COLOURS[2], label: "2 bedrooms" },
           { colour: BEDROOM_COLOURS[3], label: "3 bedrooms" },
           { colour: BEDROOM_COLOURS[4], label: "4 bedrooms" },
-          { colour: FADED, label: "Not on sale" },
         ]
       : colourMode === "budget"
         ? [
@@ -220,6 +220,17 @@ export function SiteView({
             Flat plan
           </button>
         </div>
+        {mode === "3d" && canUse3D && (
+          <button
+            type="button"
+            aria-expanded={showKey}
+            aria-controls="facilities-key"
+            onClick={() => setShowKey((v) => !v)}
+            className="font-display-normal text-sm font-medium text-reservoir underline underline-offset-4"
+          >
+            Facilities key
+          </button>
+        )}
         {!canUse3D && (
           <p className="font-display-normal text-sm text-stone">3D needs WebGL, which this browser doesn&apos;t support.</p>
         )}
@@ -234,6 +245,7 @@ export function SiteView({
           >
             <Site3D
               ds={ds}
+              facilities={showKey ? facilities : null}
               colours={colours}
               selectedStackId={selectedStackId}
               selectedUnit={selectedUnit}
@@ -245,7 +257,18 @@ export function SiteView({
               sun={sun}
               resetSignal={resetSignal}
               onAzimuth={setAzimuth}
-              gates={ds.gates.map((g) => ({ name: g.id === "main" ? "Main gate" : "South gate", position: g.position }))}
+              gates={ds.gates.map((g) => {
+                // Sit each gate label just outside the site so it never covers a facility pin.
+                const cx = ds.project.siteBounds.width / 2;
+                const cy = ds.project.siteBounds.height / 2;
+                const dx = g.position.x - cx;
+                const dy = g.position.y - cy;
+                const len = Math.hypot(dx, dy) || 1;
+                return {
+                  name: g.id === "main" ? "Main gate" : "South gate",
+                  position: { x: g.position.x + (dx / len) * 16, y: g.position.y + (dy / len) * 16 },
+                };
+              })}
               mrt={{ name: "MRT Exit B", position: { x: 330, y: 214 } }}
             />
             <button
@@ -264,6 +287,19 @@ export function SiteView({
               </svg>
             </button>
           </div>
+
+          {showKey && (
+            <ol id="facilities-key" className="grid gap-x-6 gap-y-1.5 border-t border-canopy/10 p-4 font-display-normal text-sm sm:grid-cols-2">
+              {facilities.map((f) => (
+                <li key={f.number} className="flex items-center gap-2">
+                  <span aria-hidden="true" className="grid size-5 shrink-0 place-items-center rounded-full bg-reservoir text-[10px] font-bold text-paper">
+                    {f.number}
+                  </span>
+                  {f.name}
+                </li>
+              ))}
+            </ol>
+          )}
 
           <div className="grid gap-4 border-t border-canopy/10 p-4">
             <div role="group" aria-label="Colour units by" className="flex flex-wrap gap-1 self-start rounded-full bg-mist-deep p-1">

@@ -39,6 +39,7 @@ export interface Tree {
   z: number;
   baseY: number;
   height: number;
+  shape: "round" | "cone";
 }
 
 export interface Label {
@@ -57,6 +58,7 @@ export interface SceneData {
   houses: Box[];
   trees: Tree[];
   stackLabels: (Label & { stackId: string })[];
+  lawns: Box[];
   centre: { x: number; z: number };
   radius: number;
 }
@@ -186,6 +188,7 @@ export function buildScene(ds: Dataset): SceneData {
             z: py + (rand() - 0.5) * 8,
             baseY: y(o.baseRL),
             height: (midTop - o.baseRL) * (0.8 + rand() * 0.25),
+            shape: rand() < 0.3 ? "cone" : "round",
           });
         }
       }
@@ -201,14 +204,61 @@ export function buildScene(ds: Dataset): SceneData {
     }
   }
 
-  // A few trees inside the grounds for scale.
-  for (const [tx, tz] of [
-    [100, 130], [120, 150], [80, 170], [200, 140], [210, 20], [30, 90], [150, 90], [190, 175],
-  ]) {
-    trees.push({ x: tx, z: tz, baseY: 4, height: 10 + rand() * 4 });
+  const { width, height } = ds.project.siteBounds;
+  const SITE_Y = 4;
+
+  // Planting along the site boundary, leaving gaps at the gates.
+  const nearGate = (px: number, pz: number) =>
+    ds.gates.some((g) => Math.hypot(g.position.x - px, g.position.y - pz) < 14);
+  const edge: Point[] = [];
+  for (let px = 6; px <= width - 6; px += 9) edge.push({ x: px, y: 5 }, { x: px, y: height - 5 });
+  for (let pz = 14; pz <= height - 14; pz += 9) edge.push({ x: 5, y: pz }, { x: width - 5, y: pz });
+  for (const p of edge) {
+    if (nearGate(p.x, p.y)) continue;
+    trees.push({
+      x: p.x + (rand() - 0.5) * 3,
+      z: p.y + (rand() - 0.5) * 3,
+      baseY: SITE_Y,
+      height: 8 + rand() * 6,
+      shape: rand() < 0.45 ? "cone" : "round",
+    });
   }
 
-  const { width, height } = ds.project.siteBounds;
+  // Garden clusters between the blocks, kept clear of block footprints.
+  const clusters: [number, number][] = [
+    [104, 124], [128, 152], [86, 168], [206, 150], [212, 18], [26, 86], [150, 96], [196, 176], [112, 60], [140, 22],
+  ];
+  for (const [cx, cz] of clusters) {
+    for (let i = 0; i < 4; i++) {
+      trees.push({
+        x: cx + (rand() - 0.5) * 16,
+        z: cz + (rand() - 0.5) * 16,
+        baseY: SITE_Y,
+        height: 7 + rand() * 6,
+        shape: rand() < 0.5 ? "cone" : "round",
+      });
+    }
+  }
+
+  // Scattered trees in the open ground around the site.
+  for (let i = 0; i < 70; i++) {
+    const px = -120 + rand() * 540;
+    const pz = -20 + rand() * 280;
+    const insideSite = px > -6 && px < width + 6 && pz > -6 && pz < height + 6;
+    const onBuilding = ds.obstructions.some((o) => {
+      const b = bounds(o.footprint);
+      return px > b.x1 - 6 && px < b.x2 + 6 && pz > b.y1 - 6 && pz < b.y2 + 6;
+    });
+    const onRoad = Math.abs(px - 252) < 12 || Math.abs(pz + 12) < 10 || Math.abs(px - 350) < 22;
+    if (insideSite || onBuilding || onRoad) continue;
+    trees.push({ x: px, z: pz, baseY: 0, height: 7 + rand() * 7, shape: rand() < 0.6 ? "cone" : "round" });
+  }
+
+  const lawns: Box[] = [
+    { x: 104, y: SITE_Y + 0.08, z: 128, w: 46, h: 0.15, d: 30, rotY: 0 },
+    { x: 196, y: SITE_Y + 0.08, z: 172, w: 60, h: 0.15, d: 22, rotY: 0 },
+    { x: 26, y: SITE_Y + 0.08, z: 72, w: 26, h: 0.15, d: 40, rotY: 0 },
+  ];
   return {
     units,
     podiums,
@@ -218,6 +268,7 @@ export function buildScene(ds: Dataset): SceneData {
     houses,
     trees,
     stackLabels,
+    lawns,
     centre: { x: width / 2, z: height / 2 },
     radius: Math.hypot(width, height) / 2,
   };
