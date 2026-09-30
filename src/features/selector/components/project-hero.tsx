@@ -27,9 +27,9 @@ export function ProjectHero({
         alt={image.alt}
         className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_60%]"
       />
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-[#0b1d14]/90 via-[#0b1d14]/35 to-transparent" />
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0b1d14]/60 via-[#0b1d14]/15 to-transparent" />
-      <div className="mx-auto flex min-h-[min(78vh,720px)] max-w-7xl flex-col justify-end px-4 pb-10 pt-40 sm:px-8 sm:pb-14">
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-[#0b1d14]/85 via-[#0b1d14]/5 via-45% to-transparent" />
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0b1d14]/55 via-[#0b1d14]/10 via-55% to-transparent" />
+      <div className="mx-auto flex min-h-[min(78vh,720px)] max-w-7xl flex-col justify-end px-4 pb-10 pt-40 [text-shadow:0_1px_12px_rgb(11_29_20/0.45)] sm:px-8 sm:pb-14">
         <p className="font-display-normal text-sm font-semibold uppercase tracking-[0.18em] text-white/85">{eyebrow}</p>
         <h1 className="mt-2 font-display text-[3rem] font-extrabold leading-[0.95] tracking-tight sm:text-[5.5rem]">{name}</h1>
         {children}

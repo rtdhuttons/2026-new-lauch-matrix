@@ -143,7 +143,7 @@ export function SelectorApp() {
         <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-white/90 sm:text-xl">
           A sanctuary between the reservoirs and the city. Find your stack and floor, see how the view and the sun change as you rise, and what each level could cost.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap gap-3 [text-shadow:none]">
           <a href="#explore" className="rounded-full bg-white px-5 py-2.5 font-display-normal text-sm font-semibold text-canopy hover:bg-mist">
             Explore stacks and floors
           </a>
