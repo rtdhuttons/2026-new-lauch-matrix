@@ -16,8 +16,8 @@
 //
 // Not yet known, and deliberately left unknown rather than guessed: prices
 // and availability, exact finished floor levels, and the heights of
-// neighbouring buildings (so view clearance is "not assessed" until they are
-// loaded).
+// neighbouring buildings (view clearance uses TRM's on-site assessment and
+// the brief's storey counts instead).
 
 import type {
   Block,
@@ -36,6 +36,7 @@ import type {
 import {
   bearingVector,
   blockTopRL,
+  eyeRL,
   distance,
   normaliseBearing,
   polylineLength,
@@ -357,6 +358,8 @@ for (const seed of blockSeeds) {
 
 // A stack whose main direction first meets another Thomson Reserve block
 // looks across the development, whatever lies beyond.
+/** The Thomson Reserve block each stack looks straight at, if any. */
+const facesBlock = new Map<string, Block>();
 for (const s of stacks) {
   const dir = bearingVector(s.livingBearingDeg, PLAN_NORTH_DEG);
   let hit: { block: Block; near: number } | null = null;
@@ -366,6 +369,7 @@ for (const s of stacks) {
     if (span && span.near < 400 && (!hit || span.near < hit.near)) hit = { block: b, near: span.near };
   }
   if (!hit) continue;
+  facesBlock.set(s.id, hit.block);
   s.mainView = {
     ...s.mainView,
     label: `Across the development to ${hit.block.name}, about ${Math.round(hit.near / 5) * 5} m away`,
@@ -409,8 +413,8 @@ const surroundings = thomsonReserveSurroundings({
 });
 
 // Each stack looks at the nature reserve forest when its main direction
-// reaches it; other directions (Bishan and Sin Ming to the north and east)
-// have no surveyed surroundings yet and stay "not assessed".
+// reaches it; that geometry backs the cross-section. The on-site assessment
+// below sets the floor marker for every outward-facing stack.
 for (const s of stacks) {
   const dir = bearingVector(s.livingBearingDeg, PLAN_NORTH_DEG);
   const target = surroundings.viewTargets.find((t) => rayPolygonSpan(s.position, dir, t.footprint));
@@ -419,8 +423,11 @@ for (const s of stacks) {
 
 // TRM agent's on-site assessment (30 Sep 2026): homes facing south-west look
 // over the landed estates from level 5; homes facing north-east look at the
-// HDB blocks and clear them only from level 21. Stacks that face another
-// Thomson Reserve block keep the geometric estimate.
+// HDB blocks and clear them only from level 21. The site's long side splits
+// the two: a stack belongs to whichever side its living room faces (the
+// south-west half is 130°–310°, centred on the plan's "down", 220°). A stack
+// that looks straight at another Thomson Reserve block must also rise above
+// that block's roof, so its marker is the higher of the two levels.
 const agent = (note: string): Provenance => ({
   source: "TRM agent's on-site assessment",
   updated: UPDATED,
@@ -430,22 +437,34 @@ const agent = (note: string): Provenance => ({
 const inSector = (b: number, from: number, to: number) =>
   from <= to ? b >= from && b < to : b >= from || b < to;
 for (const s of stacks) {
-  if (s.mainView.label.startsWith("Across the development")) continue;
   const b = s.livingBearingDeg;
-  if (inSector(b, 150, 300)) {
-    s.observedClearance = {
-      fromLevel: 5,
-      over: "the 2- and 3-storey landed homes",
-      provenance: agent("South-west-facing homes clear the surrounding landed homes from level 5, with open views beyond."),
-    };
-  } else if (inSector(b, 340, 110)) {
-    s.mainView = { ...s.mainView, label: "Towards the HDB blocks" };
-    s.observedClearance = {
-      fromLevel: 21,
-      over: "the HDB blocks to the north-east",
-      provenance: agent("North-east-facing homes look at the HDB blocks and clear them only from level 21."),
-    };
+  const landedSide = inSector(b, 130, 310);
+  const side = landedSide
+    ? { fromLevel: 5, over: "the 2- and 3-storey landed homes", note: "South-west-facing homes clear the surrounding landed homes from level 5, with open views beyond." }
+    : { fromLevel: 21, over: "the HDB blocks to the north-east", note: "North-east-facing homes look at the HDB blocks and clear them only from level 21." };
+  const facing = facesBlock.get(s.id);
+  if (!facing) {
+    if (!landedSide) s.mainView = { ...s.mainView, label: "Towards the HDB blocks" };
+    s.observedClearance = { fromLevel: side.fromLevel, over: side.over, provenance: agent(side.note) };
+    continue;
   }
+  // First level whose standing eye height is above the facing block's roof.
+  const own = blocks.find((x) => x.id === s.blockId)!;
+  const roof = blockTopRL(facing);
+  let aboveRoof = own.storeys + 1;
+  for (let level = own.firstResidentialLevel; level <= own.storeys; level++) {
+    if (eyeRL(own, level) >= roof) {
+      aboveRoof = level;
+      break;
+    }
+  }
+  s.observedClearance = {
+    fromLevel: Math.max(side.fromLevel, aboveRoof),
+    over: `${facing.name}'s roof and ${side.over}`,
+    provenance: agent(
+      `${side.note} This stack also looks straight at ${facing.name}, so it must rise above that block's roof (about ${Math.round(roof)} m above Upper Thomson Road)${aboveRoof > own.storeys ? ", which no floor here reaches" : `, first reached at level ${aboveRoof}`}.`,
+    ),
+  };
 }
 
 const ownBlocks: Obstruction[] = blocks.map((b) => {
@@ -643,7 +662,7 @@ export const thomsonReserveGaps = [
   "Prices and availability: awaiting the developer's price list.",
   "Surveyed heights of the surrounding landed homes and trees: the View Clearance Floor Marker uses the brief's storey counts and assumed tree and forest heights.",
   "View clearance for south-west and north-east facings comes from TRM's on-site assessment (level 5 over the landed homes, level 21 over the HDB blocks); surveyed heights would confirm it stack by stack.",
-  "Surroundings to the north-west (Sin Ming Avenue) and south-east (Bright Hill Drive), so views that way can be assessed.",
+  "Surveyed heights for the HDB blocks to the north-east, to confirm the level 21 clearance stack by stack.",
   "Exact finished floor levels: first homes use the brief's approximate heights above Upper Thomson Road (8.5 m Luxury, 14.5 m Classic); level 1 to 2 uses the factsheet's 4.3 m; other floors assume 3.15 m.",
   "Walked routes to the MRT: only the 65 m covered linkway outside Side Gate 1 is measured; paths inside the development are estimated.",
   "Room facings: living and master bedroom are assumed to face away from the lift core until each unit plan is keyed in.",

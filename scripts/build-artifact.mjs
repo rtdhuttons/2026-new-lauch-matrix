@@ -2,18 +2,16 @@
 // (dist-artifact/selector.html) for publishing as a claude.ai Artifact.
 // Everything is inlined because artifacts only load scripts from a few CDNs.
 import { execFileSync } from "node:child_process";
-import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { build } from "esbuild";
 
 const out = "dist-artifact";
-// The site plan is embedded as a data URI so the page renders on its own.
-// Floor plans and photos are too large to inline: they are copied to
-// dist-artifact/plans and dist-artifact/images and published next to the
-// page as supporting files.
+// Every image is embedded as a data URI: the Artifact viewer refuses image
+// URLs to the page's own files. The site plan is inlined here; photos, floor
+// plans and the map are compressed by scripts/artifact/embed_assets.py.
 const sitePlan = `data:image/jpeg;base64,${readFileSync("public/thomson-reserve/site-plan.jpg").toString("base64")}`;
 mkdirSync(out, { recursive: true });
-cpSync("public/thomson-reserve/plans", `${out}/plans`, { recursive: true });
-cpSync("public/thomson-reserve/images", `${out}/images`, { recursive: true });
+execFileSync("python3", ["scripts/artifact/embed_assets.py"], { stdio: "inherit" });
 
 const js = await build({
   entryPoints: ["scripts/artifact/entry.tsx"],
@@ -29,8 +27,8 @@ const js = await build({
     "process.env.NEXT_PUBLIC_TR_SITE_PLAN": JSON.stringify(sitePlan),
     "process.env.NEXT_PUBLIC_TR_PLAN_BASE": JSON.stringify("plans"),
     "process.env.NEXT_PUBLIC_TR_IMAGE_BASE": JSON.stringify("images"),
-    // The viewer's CSP blocks <img> URLs to the page's own files; fetch them into blob: URLs instead.
-    "process.env.NEXT_PUBLIC_ASSET_FETCH": JSON.stringify("1"),
+    // The viewer only shows images embedded in the page, so photos and plans ship as data URIs.
+    __TRM_EMBEDDED_ASSETS__: readFileSync(`${out}/embedded-assets.json`, "utf8"),
   },
   legalComments: "none",
 });

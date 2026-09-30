@@ -64,12 +64,12 @@ describe("Thomson Reserve dataset", () => {
     expect(ds.units.every((u) => u.price === null && u.status === "pending")).toBe(true);
   });
 
-  it("keeps view clearance unassessed where the surroundings are unknown", () => {
+  it("scores the view of a north-east-facing home below level 21 as blocked", () => {
     const engine = createEngine(ds, thomsonReserveMrtExit);
-    // Stack 01 faces east-south-east, towards Bishan: no surveyed surroundings.
+    // Stack 01 faces east-south-east, on the HDB side: its lowest home is below the HDB blocks.
     const a = engine.assess(ds.units.find((u) => u.stackId === "01")!);
-    expect(a.level?.category).toBe("unknown");
-    expect(a.scores.view.score).toBeNull();
+    expect(a.level?.category).toBe("below");
+    expect(a.scores.view.score).not.toBeNull();
     expect(a.scores.resale.score).not.toBeNull();
     expect(a.mrt.best).not.toBeNull();
   });
@@ -184,6 +184,9 @@ describe("Thomson Reserve dataset", () => {
     expect(levelView(ne, 20)?.category).toBe("below");
     expect(levelView(ne, 21)?.category).toBe("clear");
 
+    // Every outward stack belongs to one side: stack 01 faces east-south-east, on the HDB side.
+    expect(engine.view("01").observed?.fromLevel).toBe(21);
+    expect(engine.view("11").observed?.fromLevel).toBe(5); // faces south-south-east, landed side
     // A stack looking straight at another Thomson Reserve block keeps the geometric result.
     expect(engine.view("06").observed).toBeUndefined();
   });
