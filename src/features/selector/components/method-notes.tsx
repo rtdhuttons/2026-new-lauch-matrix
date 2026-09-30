@@ -1,0 +1,128 @@
+import { card } from "./ui";
+
+const RULES: { title: string; body: string[] }[] = [
+  {
+    title: "Recommendation rules",
+    body: [
+      "Essentials come first: a unit must be on sale, within budget, match the bedroom count and, if you ask, have an estimated clear main view.",
+      "Lifestyle fit is a weighted average of the criterion scores you weighted, using only criteria that have data. The share of your weights that had data is always shown. Missing values are never replaced with an average.",
+      "Best fit for your lifestyle is the highest fit within your extra-spend limit, with at least 70% of your weights covered.",
+      "Lowest entry price is the cheapest unit that meets your essentials.",
+      "Best supported value is the unit that adds the most fit points per $10,000 over the lowest entry price. It must add at least 5 points, have at least 80% coverage and a view category that is not uncertain at its floor. Otherwise the lowest entry unit is the value pick.",
+      "Appreciation potential is never ranked: there are no verified repeat-sale transactions, so the app says “insufficient evidence”.",
+    ],
+  },
+  {
+    title: "Criterion scores (0–100)",
+    body: [
+      "Afternoon sun: 100 minus the share of 4 hours of average afternoon sun, weighting the living room 60% and the master bedroom 40%.",
+      "Views: below obstruction 10, partially cleared 45, estimated clear 85, clear with limited further gain 90. Uncertain floors use the conservative category.",
+      "Quiet & privacy: 100 minus 22, 10 or 3 points for each higher, moderate or lower potential source or privacy issue in the screening.",
+      "MRT: 100 at 5 minutes' walk or less, falling to 0 at 15 minutes.",
+      "Exit appeal: starts at 100, loses 0.6 points for each similar unit beyond 30 in the development, and gains 8 points for each distinctive benefit.",
+    ],
+  },
+  {
+    title: "View Clearance Floor Marker",
+    body: [
+      "Five sight lines are cast across the main view on the plan. For each one, the eye level needed to see the view target over every obstruction is solved from the obstruction's distance and top level, the target's distance and level, and the unit's floor level above sea datum.",
+      "Obstruction heights are ranges. The low end gives the optimistic floor and the high end the conservative floor; when they differ the marker shows a range.",
+      "Estimated clear view: at least 4 of 5 sight lines clear. Partially cleared: at least one does. Limited further gain: all five clear and the floor is at least 3 above the clearance floor.",
+      "Future view risk is reported separately from current clearance.",
+    ],
+  },
+  {
+    title: "Scenario calculator",
+    body: [
+      "Reference resale = reference price × (1 + growth)^years.",
+      "Compared resale = (size-adjusted base + premium × share kept) × (1 + growth)^years, where the size-adjusted base is the reference PSF × the compared unit's area.",
+      "Required resale price = compared purchase price × (reference resale ÷ reference purchase price).",
+      "Net gain subtracts buyer's stamp duty, any additional buyer's stamp duty, legal fees, loan interest, monthly holding costs, agent fees and seller's stamp duty as entered.",
+    ],
+  },
+];
+
+const DATA_NEEDED: { area: string; items: string[] }[] = [
+  {
+    area: "Project and blocks",
+    items: [
+      "Developer site plan with block footprints, stack positions and north point",
+      "Elevation drawings: ground (platform) levels in metres SHD, level 1 height, typical floor-to-floor height, roof height, sky terraces and other levels without homes",
+      "Unit schedule by stack: layout code, strata area, facing of living room and master bedroom",
+    ],
+  },
+  {
+    area: "Prices and availability",
+    items: [
+      "Current price list with total prices for released units only",
+      "Live availability (available, reserved, sold, not released) with the date updated",
+    ],
+  },
+  {
+    area: "Surroundings and views",
+    items: [
+      "Footprints and heights of neighbouring buildings (survey, URA 3D model or storey counts with roof heights), with sources",
+      "Tree canopy heights where trees block views, ideally surveyed",
+      "View targets: water levels, ridge or canopy levels and distances",
+      "Master Plan zoning and approved developments for nearby land, to assess future view risk",
+    ],
+  },
+  {
+    area: "Sun exposure",
+    items: [
+      "Balcony depths, ledge and fin sizes, and window heights per layout",
+      "Ideally a verified solar or daylight simulation to replace the illustrative geometric estimate",
+    ],
+  },
+  {
+    area: "Noise, privacy and access",
+    items: [
+      "Positions of pools, playgrounds, courts, arrival court, car park ramps and common walkways",
+      "Road and expressway alignments; any measured or modelled noise data if available",
+      "Gate positions and opening hours; walked routes to MRT entrances with distances and covered sections",
+    ],
+  },
+  {
+    area: "Resale and market",
+    items: [
+      "Nearby comparable projects with unit counts by bedroom type and size",
+      "Verified transaction records (URA caveats or equivalent) with unit numbers, dates and prices, for like-for-like and repeat-sale analysis",
+    ],
+  },
+];
+
+export function MethodNotes() {
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <div className={`${card} p-5 sm:p-6`}>
+        <h3 className="font-display text-lg font-extrabold">How the recommendations and calculations work</h3>
+        {RULES.map((r) => (
+          <section key={r.title} className="mt-5">
+            <h4 className="font-display-normal text-base font-semibold">{r.title}</h4>
+            <ul className="mt-2 grid list-disc gap-1.5 pl-5 text-[1rem] text-canopy/85">
+              {r.body.map((b) => (
+                <li key={b}>{b}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      <div className={`${card} p-5 sm:p-6`}>
+        <h3 className="font-display text-lg font-extrabold">Real project data needed to replace the demo</h3>
+        <p className="mt-2 text-[1rem] text-canopy/80">
+          Each dataset is loaded separately, so these can be swapped in one at a time. Every record carries a source, update date and status: verified, estimated, assumed or unknown.
+        </p>
+        {DATA_NEEDED.map((d) => (
+          <section key={d.area} className="mt-5">
+            <h4 className="font-display-normal text-base font-semibold">{d.area}</h4>
+            <ul className="mt-2 grid list-disc gap-1.5 pl-5 text-[1rem] text-canopy/85">
+              {d.items.map((i) => (
+                <li key={i}>{i}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
