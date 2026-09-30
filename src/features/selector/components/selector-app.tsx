@@ -38,6 +38,9 @@ export function SelectorApp() {
   const [month, setMonth] = useState(5);
   const [minutes, setMinutes] = useState(16 * 60);
   const [prefsOpen, setPrefsOpen] = useState(false);
+  const [shadowsSignal, setShadowsSignal] = useState(0);
+  const [unitQuery, setUnitQuery] = useState("");
+  const [unitQueryError, setUnitQueryError] = useState<string | null>(null);
 
   const ranked = useMemo(() => rankUnits(engine, prefs), [engine, prefs]);
   const recs = useMemo(() => recommend(ranked), [ranked]);
@@ -57,6 +60,27 @@ export function SelectorApp() {
     setStackId(u.stackId);
     setLevel(u.level);
     scrollToId("explore");
+  };
+
+  const showShadowsAt4pm = () => {
+    setMinutes(16 * 60);
+    setShadowsSignal((n) => n + 1);
+    scrollToId("site-plan");
+  };
+
+  // "#12-25", "12-25" or "12 25": level 12, stack 25.
+  const goToUnit = (query: string) => {
+    const m = query.match(/(\d{1,2})\s*[-–\s]\s*(\d{1,2})/);
+    const found = m
+      ? ix.unit(`${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`)
+      : undefined;
+    if (!found) {
+      setUnitQueryError(m ? `There is no home #${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}.` : "Type a unit number such as #12-25.");
+      return;
+    }
+    setUnitQueryError(null);
+    setStackId(found.stackId);
+    setLevel(found.level);
   };
 
   const toggleShortlist = (u: Unit) =>
@@ -123,13 +147,36 @@ export function SelectorApp() {
             </aside>
 
             <div className="grid min-w-0 grid-cols-1 gap-6 [&>*]:min-w-0">
-              <div className={`${card} p-4 sm:p-6`}>
+              <div id="site-plan" className={`${card} scroll-mt-20 p-4 sm:p-6`}>
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <h2 className="font-display text-lg font-extrabold">Site plan</h2>
                     <p className="text-sm text-canopy/75">Spin the development around and tap any unit to see its price, or switch to the flat plan for view, noise, privacy and route overlays.</p>
                   </div>
-                  <div>
+                  <div className="flex flex-wrap items-start gap-2">
+                    <form
+                      role="search"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        goToUnit(unitQuery);
+                      }}
+                      className="flex gap-1.5"
+                    >
+                      <label htmlFor="unit-search" className="sr-only">Go to a unit number</label>
+                      <input
+                        id="unit-search"
+                        type="search"
+                        inputMode="numeric"
+                        value={unitQuery}
+                        onChange={(e) => setUnitQuery(e.target.value)}
+                        placeholder="Unit, e.g. #12-25"
+                        aria-describedby={unitQueryError ? "unit-search-error" : undefined}
+                        className="w-40 rounded-md border border-canopy/20 bg-paper px-3 py-2 font-display-normal text-sm"
+                      />
+                      <button type="submit" className="rounded-md bg-canopy px-3 py-2 font-display-normal text-sm font-semibold text-mist">
+                        Go
+                      </button>
+                    </form>
                     <label htmlFor="stack-select" className="sr-only">Choose a stack</label>
                     <select
                       id="stack-select"
@@ -147,6 +194,11 @@ export function SelectorApp() {
                         );
                       })}
                     </select>
+                    {unitQueryError && (
+                      <p id="unit-search-error" role="alert" className="w-full font-display-normal text-sm text-[#9b2f28]">
+                        {unitQueryError}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <SiteView
@@ -164,6 +216,7 @@ export function SelectorApp() {
                   minutes={minutes}
                   onMonth={setMonth}
                   onMinutes={setMinutes}
+                  shadowsSignal={shadowsSignal}
                 />
               </div>
 
@@ -176,6 +229,7 @@ export function SelectorApp() {
                 onSetReference={(u) => setReferenceId(u.id)}
                 shortlist={shortlist}
                 onToggleShortlist={toggleShortlist}
+                onShowShadows={showShadowsAt4pm}
               />
 
               <UnitDetails

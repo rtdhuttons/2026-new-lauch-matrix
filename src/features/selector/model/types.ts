@@ -146,6 +146,8 @@ export interface Unit {
   price: number | null;
   /** Developer's unit type code, e.g. "CP2p", when it differs by level. */
   typeCode?: string;
+  /** The developer's floor plan for this unit's type, when published. */
+  floorPlan?: { src: string; mirrored: boolean; credit: string };
   priceProvenance: Provenance;
 }
 

@@ -451,6 +451,13 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
           </button>
         </Html>
       ))}
+      {scene.blockLabels.map((l) => (
+        <Html key={`b-${l.blockId}`} position={[l.x, l.y, l.z]} center zIndexRange={[11, 0]}>
+          <span className="pointer-events-none whitespace-nowrap rounded bg-[#8a5a14] px-1.5 py-0.5 font-display-normal text-[11px] font-bold tracking-wide text-white shadow-sm">
+            {l.text}
+          </span>
+        </Html>
+      ))}
       {props.gates.map((g) => (
         <Html key={g.name} position={[g.position.x, 8, g.position.y]} center zIndexRange={[10, 0]}>
           <Pill tone="accent">{g.name}</Pill>

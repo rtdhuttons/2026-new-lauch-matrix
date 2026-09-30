@@ -1,8 +1,10 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { thomsonReserveDataset as ds, thomsonReserveMrtExit } from "../../data/thomson-reserve";
 import { createEngine } from "../engine";
 import { screenExposure } from "../exposure";
 import { floorRL } from "../geometry";
+import { facingNote } from "../format";
 import { indexDataset } from "../dataset-index";
 import { rankUnits, recommend, DEFAULT_PREFERENCES } from "../recommend";
 import { buildScene } from "../scene";
@@ -148,5 +150,24 @@ describe("Thomson Reserve dataset", () => {
     expect(across.clearFrom.conservative).toBeNull();
     // Non-GCBA landed estates have unverified zoning, so future risk stays unknown.
     expect(v.futureRisk.level).toBe("unknown");
+  });
+
+  it("gives every home the developer's floor plan for its type", () => {
+    for (const u of ds.units) {
+      expect(u.floorPlan, u.id).toBeDefined();
+      expect(existsSync(`public${u.floorPlan!.src}`), u.floorPlan!.src).toBe(true);
+    }
+    // The level 2 PES home in stack 01 shares Type CP2's page.
+    const pes = ds.units.find((u) => u.id === "01-02")!;
+    const typical = ds.units.find((u) => u.id === "01-10")!;
+    expect(pes.typeCode).toBe("CP2p");
+    expect(pes.floorPlan!.src).toBe(typical.floorPlan!.src);
+    expect(ds.units.find((u) => u.id === "17-10")!.floorPlan!.mirrored).toBe(true);
+  });
+
+  it("describes facings in plain words", () => {
+    expect(facingNote(169)).toMatch(/^North\/south-facing/);
+    expect(facingNote(90)).toMatch(/^East-facing/);
+    expect(facingNote(260)).toMatch(/^West-facing/);
   });
 });

@@ -25,7 +25,7 @@ export default function SelectorPage() {
       <main>
         <SelectorApp />
       </main>
-      <SiteFooter disclaimer="This selector is a TRM prototype. Thomson Reserve's layout is traced from the developer's site plan; prices, unit types and availability are not published yet and nothing here is the developer's information or advice. Always check the developer's brochure, price list and sale and purchase agreement." />
+      <SiteFooter disclaimer="This selector is a TRM prototype. Thomson Reserve's layout is traced from the developer's site plan, with unit types and floor plans from the developer's unit plans; prices and availability are not published yet, and nothing here is the developer's advice. Always check the developer's brochure, price list and sale and purchase agreement." />
     </>
   );
 }

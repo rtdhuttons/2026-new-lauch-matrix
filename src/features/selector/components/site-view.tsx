@@ -83,6 +83,7 @@ export function SiteView({
   minutes,
   onMonth,
   onMinutes,
+  shadowsSignal = 0,
 }: {
   engine: Engine;
   ranked: RankedUnit[];
@@ -95,6 +96,8 @@ export function SiteView({
   minutes: number;
   onMonth: (m: number) => void;
   onMinutes: (m: number) => void;
+  /** Bumped by "See shadows at 4pm": switches to 3D with sun and shadows on. */
+  shadowsSignal?: number;
 }) {
   const ix = engine.ix;
   const ds = ix.ds;
@@ -123,6 +126,14 @@ export function SiteView({
   const [resetSignal, setResetSignal] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [showKey, setShowKey] = useState(false);
+  const [seenSignal, setSeenSignal] = useState(shadowsSignal);
+  if (shadowsSignal !== seenSignal) {
+    // Adjust state during render rather than in an effect (React's recommended pattern).
+    setSeenSignal(shadowsSignal);
+    setMode("3d");
+    setShowSun(true);
+    setPlaying(false);
+  }
   const facilities = useMemo(
     () =>
       [

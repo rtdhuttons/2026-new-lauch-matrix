@@ -63,3 +63,12 @@ export function heightText(project: Project, rl: number, maxRl = rl): string {
   const v = maxRl !== rl ? `${f(rl)}–${f(maxRl)}` : f(rl);
   return project.heightDatum ? `${v} m above ${project.heightDatum}` : `RL ${v} m`;
 }
+
+/** Plain-words sun character of a facing in Singapore, from its compass bearing. */
+export function facingNote(bearingDeg: number): string {
+  const b = ((bearingDeg % 360) + 360) % 360;
+  const offNorthSouth = Math.min(b, Math.abs(180 - b), 360 - b);
+  if (offNorthSouth <= 30) return "North/south-facing: little direct sun, generally the coolest orientation in Singapore.";
+  if (b < 180) return "East-facing: morning sun, shaded in the afternoon.";
+  return "West-facing: afternoon and evening sun, generally the warmest orientation.";
+}

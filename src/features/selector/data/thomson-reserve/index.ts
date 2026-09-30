@@ -41,6 +41,7 @@ import {
   polylineLength,
   rayPolygonSpan,
 } from "../../lib/geometry";
+import { floorPlanPage, mirroredStacks } from "./floor-plans";
 import { thomsonReserveSurroundings } from "./surroundings";
 import { unitSchedule } from "./unit-schedule";
 
@@ -372,6 +373,8 @@ for (const s of stacks) {
   };
 }
 
+const planBase = process.env.NEXT_PUBLIC_TR_PLAN_BASE ?? "/thomson-reserve/plans";
+
 const units: Unit[] = stacks.flatMap((s) => {
   const plan = unitSchedule[s.id];
   const levels = new Map<number, string>();
@@ -386,6 +389,11 @@ const units: Unit[] = stacks.flatMap((s) => {
       status: "pending" as const,
       price: null,
       typeCode: code,
+      floorPlan: {
+        src: `${planBase}/${floorPlanPage[layoutId(code)]}`,
+        mirrored: mirroredStacks.has(s.id),
+        credit: "Developer's unit plans, 18 Sep 2026. Not drawn to scale.",
+      },
       priceProvenance: unknown("The developer's price list has not been released"),
     }));
 });

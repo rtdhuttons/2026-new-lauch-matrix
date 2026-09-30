@@ -6,8 +6,9 @@ import { describeClearFrom, levelView, VIEW_CATEGORY_LABEL } from "../lib/cleara
 import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
-import { compactMoney, heightText, isPesType, layoutSummary, money, psfText, signedMoney } from "../lib/format";
-import { compassWords, floorRL } from "../lib/geometry";
+import { compactMoney, facingNote, heightText, isPesType, layoutSummary, money, psfText, signedMoney } from "../lib/format";
+import { compassWords, compassWords16, floorRL } from "../lib/geometry";
+import { FloorPlan } from "./floor-plan";
 import { clearanceNarrative, premiumOver, psf } from "../lib/pricing";
 import { card, StatusChip, ViewChip, VIEW_COLOURS } from "./ui";
 
@@ -242,6 +243,7 @@ export function StackExplorer({
   onSetReference,
   shortlist,
   onToggleShortlist,
+  onShowShadows,
 }: {
   engine: Engine;
   stackId: string;
@@ -251,6 +253,8 @@ export function StackExplorer({
   onSetReference: (u: Unit) => void;
   shortlist: string[];
   onToggleShortlist: (u: Unit) => void;
+  /** Jump to the 3D site plan with shadows at 4pm. */
+  onShowShadows?: () => void;
 }) {
   const ix = engine.ix;
   const block = ix.stackBlock(stackId);
@@ -387,6 +391,24 @@ export function StackExplorer({
                     {isPesType(unit.typeCode) ? ". Lowest home in the stack, with a private enclosed space (PES)" : ""}
                   </p>
                 )}
+                <div className="mt-3 rounded-lg border-l-4 border-[#c88a12] bg-[#fbf5e8] px-3 py-2">
+                  <p className="font-display-normal text-sm">
+                    <span className="font-semibold">
+                      Living room faces {compassWords16(stack.livingBearingDeg)} ({Math.round(stack.livingBearingDeg)}°).
+                    </span>{" "}
+                    {facingNote(stack.livingBearingDeg)}
+                    {assessment ? ` About ${Math.round(assessment.sun.living.annualAverageMin)} min of direct afternoon sun on an average day (estimate).` : ""}
+                  </p>
+                  {onShowShadows && (
+                    <button
+                      type="button"
+                      onClick={onShowShadows}
+                      className="mt-1 font-display-normal text-sm font-medium text-reservoir underline underline-offset-2"
+                    >
+                      See shadows at 4pm
+                    </button>
+                  )}
+                </div>
                 {stack.notes?.map((n) => (
                   <p key={n} className="mt-1 text-sm text-canopy/80">
                     {n}
@@ -471,7 +493,12 @@ export function StackExplorer({
                     {view.futureRisk.level !== "low" && (
                       <li>
                         <span className="font-display-normal text-sm font-semibold">Future view risk ({view.futureRisk.level}):</span>{" "}
-                        {view.futureRisk.sites.filter((s) => s.risk !== "low").map((s) => s.name).join(", ")}. Clearing today&apos;s buildings doesn&apos;t guarantee a permanent view.
+                        {view.target === null
+                          ? "Not assessed in this direction. "
+                          : view.futureRisk.sites.some((s) => s.risk !== "low")
+                            ? `${view.futureRisk.sites.filter((s) => s.risk !== "low").map((s) => s.name).join(", ")}. `
+                            : ""}
+                        Clearing today&apos;s buildings doesn&apos;t guarantee a permanent view.
                       </li>
                     )}
                   </ul>
@@ -497,6 +524,7 @@ export function StackExplorer({
                     {isRef ? "Reference unit" : "Set as reference"}
                   </button>
                 </div>
+                <FloorPlan unit={unit} />
               </>
             ) : (
               <p className="rounded-lg bg-mist p-4 font-display-normal">

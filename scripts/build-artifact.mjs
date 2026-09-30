@@ -2,14 +2,16 @@
 // (dist-artifact/selector.html) for publishing as a claude.ai Artifact.
 // Everything is inlined because artifacts only load scripts from a few CDNs.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { build } from "esbuild";
 
 const out = "dist-artifact";
-// Images the page needs are embedded as data URIs; artifacts cannot load
-// them from anywhere else.
+// The site plan is embedded as a data URI so the page renders on its own.
+// Floor plans are too large to inline: they are copied to dist-artifact/plans
+// and published next to the page as supporting files.
 const sitePlan = `data:image/jpeg;base64,${readFileSync("public/thomson-reserve/site-plan.jpg").toString("base64")}`;
 mkdirSync(out, { recursive: true });
+cpSync("public/thomson-reserve/plans", `${out}/plans`, { recursive: true });
 
 const js = await build({
   entryPoints: ["scripts/artifact/entry.tsx"],
@@ -23,6 +25,7 @@ const js = await build({
   define: {
     "process.env.NODE_ENV": '"production"',
     "process.env.NEXT_PUBLIC_TR_SITE_PLAN": JSON.stringify(sitePlan),
+    "process.env.NEXT_PUBLIC_TR_PLAN_BASE": JSON.stringify("plans"),
   },
   legalComments: "none",
 });

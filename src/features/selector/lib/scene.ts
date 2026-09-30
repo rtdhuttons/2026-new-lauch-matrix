@@ -58,6 +58,8 @@ export interface SceneData {
   houses: Box[];
   trees: Tree[];
   stackLabels: (Label & { stackId: string })[];
+  /** One name tag per block, floating above its roof. */
+  blockLabels: (Label & { blockId: string })[];
   lawns: Box[];
   centre: { x: number; z: number };
   radius: number;
@@ -98,6 +100,7 @@ export function buildScene(ds: Dataset): SceneData {
   const roofs: Box[] = [];
   const plinths: Box[] = [];
   const stackLabels: SceneData["stackLabels"] = [];
+  const blockLabels: SceneData["blockLabels"] = [];
   const groundY = 0;
   // The lowest block sits on the ground plane, so a site measured from a
   // road datum (or on high ground) still starts at the origin.
@@ -108,6 +111,7 @@ export function buildScene(ds: Dataset): SceneData {
     const blockStacks = ds.stacks.filter((s) => s.blockId === block.id);
     const top = floorRL(block, block.storeys) + block.typicalFloorHeightM;
     const podiumTop = floorRL(block, block.firstResidentialLevel);
+    blockLabels.push({ blockId: block.id, text: block.name.replace(/^Block /, "BLK "), x: block.centre.x, y: y(top) + 14, z: block.centre.y });
 
     if (blockStacks.some((s) => s.footprint)) {
       // Traced layout: each stack is its own column of homes.
@@ -303,6 +307,7 @@ export function buildScene(ds: Dataset): SceneData {
     houses,
     trees,
     stackLabels,
+    blockLabels,
     lawns,
     centre: { x: width / 2, z: height / 2 },
     radius: Math.hypot(width, height) / 2,
