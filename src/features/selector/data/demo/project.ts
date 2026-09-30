@@ -34,6 +34,17 @@ export const project: Project = {
   longitudeDeg: 103.83,
   utcOffsetHours: 8,
   provenance: demo("Fictional project created for the prototype"),
+  display: {
+    roadLabels: [
+      { text: "Reservoir Road", at: { x: 60, y: -12 }, angleDeg: 0, lengthM: 120 },
+      { text: "Wrenfield Avenue", at: { x: 252, y: 110 }, angleDeg: 90, lengthM: 130 },
+      { text: "Kestrel Expressway", at: { x: 348, y: 40 }, angleDeg: 92.5, lengthM: 170 },
+    ],
+    mrtLabel: { text: "MRT Exit B", at: { x: 330, y: 214 } },
+    notice:
+      "Wrenfield Residences is a fictional project. Every price, plan, height, route and exposure figure on this page is illustrative demo data.",
+    pricingNote: "Illustrative demo prices.",
+  },
 };
 
 const typical = {

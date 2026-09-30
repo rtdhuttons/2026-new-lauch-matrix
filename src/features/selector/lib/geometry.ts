@@ -56,6 +56,7 @@ export function rotate(p: Point, deg: number): Point {
 }
 
 export function blockFootprint(block: Block): Point[] {
+  if (block.footprint) return block.footprint;
   const { w, h } = block.size;
   const local = [
     { x: -w / 2, y: -h / 2 },

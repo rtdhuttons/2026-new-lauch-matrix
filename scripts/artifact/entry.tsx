@@ -20,7 +20,7 @@ function Page() {
       <main id="top">
         <SelectorApp />
       </main>
-      <SiteFooter disclaimer="This selector is a prototype built with illustrative demo data for a fictional project. It is not advice and does not describe any real development. Always check the developer's brochure, price list and sale and purchase agreement." />
+      <SiteFooter disclaimer="This selector is a TRM prototype. Thomson Reserve's layout is traced from the developer's site plan; prices, unit types and availability are not published yet and nothing here is the developer's information or advice. Always check the developer's brochure, price list and sale and purchase agreement." />
     </>
   );
 }

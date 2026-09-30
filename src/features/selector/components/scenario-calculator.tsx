@@ -80,6 +80,16 @@ export function ScenarioCalculator({
   const others = priced.filter((u) => u.id !== reference?.id);
   const selected = others.find((u) => u.id === selectedId) ?? others[0] ?? null;
 
+  if (!ix.ds.units.some((u) => u.price !== null)) {
+    return (
+      <div className={`${card} p-6`}>
+        <p className="font-display-normal font-semibold">Awaiting the developer&apos;s price list.</p>
+        <p className="mt-1 text-canopy/75">
+          The premium and resale scenarios compare real purchase prices, so they switch on once the price list is loaded.
+        </p>
+      </div>
+    );
+  }
   if (!reference || reference.price === null) {
     return (
       <div className={`${card} p-6`}>
@@ -97,8 +107,18 @@ export function ScenarioCalculator({
     );
   }
 
-  const refIn = { price: reference.price, areaSqft: ix.stackLayout(reference.stackId).areaSqft };
-  const selIn = { price: selected.price!, areaSqft: ix.stackLayout(selected.stackId).areaSqft };
+  const refArea = ix.stackLayout(reference.stackId).areaSqft;
+  const selArea = ix.stackLayout(selected.stackId).areaSqft;
+  if (refArea === null || selArea === null) {
+    return (
+      <div className={`${card} p-6`}>
+        <p className="font-display-normal font-semibold">Unit sizes are needed for this calculation.</p>
+        <p className="mt-1 text-canopy/75">The premium is split by size, so it needs the developer&apos;s unit schedule.</p>
+      </div>
+    );
+  }
+  const refIn = { price: reference.price, areaSqft: refArea };
+  const selIn = { price: selected.price!, areaSqft: selArea };
   const result = runScenario(refIn, selIn, holdingYears, assumptions, costs);
   const allPresets = (Object.keys(SCENARIO_PRESETS) as PresetKey[]).map((k) => ({
     key: k,

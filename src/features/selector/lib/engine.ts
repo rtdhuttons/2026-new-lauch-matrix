@@ -107,7 +107,7 @@ export function createEngine(ds: Dataset, mrtEntrance: Point | null): Engine {
           status: viewCategory === "unknown" ? "unknown" : v.status,
         },
         mrt: { score: m.score, status: m.status },
-        resale: { score: resale.score, status: "estimated" },
+        resale: { score: resale.score, status: resale.known ? "estimated" : "unknown" },
       },
     };
     assessments.set(unit.id, result);

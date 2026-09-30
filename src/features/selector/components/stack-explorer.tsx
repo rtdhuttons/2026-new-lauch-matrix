@@ -6,7 +6,7 @@ import { describeClearFrom, levelView, VIEW_CATEGORY_LABEL } from "../lib/cleara
 import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
-import { compactMoney, money, psfText, signedMoney } from "../lib/format";
+import { compactMoney, layoutSummary, money, psfText, signedMoney } from "../lib/format";
 import { compassWords, floorRL } from "../lib/geometry";
 import { clearanceNarrative, premiumOver, psf } from "../lib/pricing";
 import { card, StatusChip, ViewChip, VIEW_COLOURS } from "./ui";
@@ -16,6 +16,7 @@ const STATUS_TEXT: Record<UnitStatus, string> = {
   reserved: "Reserved",
   sold: "Sold",
   "not-released": "Not yet released",
+  pending: "Awaiting price list",
 };
 
 const ROW_H = 15;
@@ -110,7 +111,7 @@ function Elevation({
               <rect x="83" y={y - 1} width="120" height={ROW_H + 2} fill="none" stroke="#10291c" strokeWidth="2.2" rx="2" />
             )}
             <text x="208" y={y + 11} fontSize="9.5" className="font-display-normal tabular-nums" fill={unit?.status === "available" ? "#10291c" : "#6f7a71"}>
-              {unit ? (unit.price !== null ? compactMoney(unit.price) : STATUS_TEXT[unit.status]) : ""}
+              {unit ? (unit.price !== null ? compactMoney(unit.price) : unit.status === "pending" ? "Awaiting" : STATUS_TEXT[unit.status]) : ""}
             </text>
           </g>
         );
@@ -266,7 +267,7 @@ export function StackExplorer({
         <h3 className="font-display text-lg font-extrabold">
           Stack {stackId}{" "}
           <span className="font-display-normal text-base font-medium text-stone">
-            {block.name}, {layout.name}, {layout.bedrooms} bedrooms, {layout.areaSqft.toLocaleString("en-SG")} sq ft
+            {block.name}{block.collection ? `, ${block.collection} Collection` : ""}, {layoutSummary(layout)}
           </span>
         </h3>
         <p className="font-display-normal text-sm text-canopy/80">
@@ -282,8 +283,9 @@ export function StackExplorer({
               {describeClearFrom(view, block.storeys)}
             </p>
             <p className="mt-1 text-sm text-canopy/75">
-              The estimated first floor where the main view clears{" "}
-              {view.governing ? view.governing.obstruction.name : "nearby obstructions"}.
+              {view.target === null
+                ? "Needs neighbouring building heights and view targets, which are not loaded yet. The marker appears here once they are."
+                : <>The estimated first floor where the main view clears{" "}{view.governing ? view.governing.obstruction.name : "nearby obstructions"}.</>}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <StatusChip status={view.status} provenance={view.governing?.obstruction.heightProvenance} />
@@ -398,7 +400,9 @@ export function StackExplorer({
                 </dl>
                 {unit.status !== "available" && (
                   <p className="mt-3 text-sm text-canopy/75">
-                    Prices are only shown for units on sale. We don&apos;t estimate this unit&apos;s price from neighbouring floors.
+                    {unit.status === "pending"
+                      ? "Awaiting the developer's price list. Prices and premiums appear here once it is released."
+                      : "Prices are only shown for units on sale. We don't estimate this unit's price from neighbouring floors."}
                   </p>
                 )}
 

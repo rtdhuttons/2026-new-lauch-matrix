@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { dataset, mrtEntrance } from "../../data";
+import { demoDataset as dataset } from "../../data/demo";
+import { mrtEntrance } from "../../data/demo/access";
 import type { Block, Dataset, Obstruction, Stack, Unit, ViewTarget } from "../../model/types";
 import { analyseStackView, levelView, requiredEyeForEdge } from "../clearance";
 import { indexDataset } from "../dataset-index";

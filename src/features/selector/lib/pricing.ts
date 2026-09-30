@@ -8,8 +8,9 @@ import { VIEW_CATEGORY_LABEL, levelView } from "./clearance";
 import type { DatasetIndex } from "./dataset-index";
 
 export function psf(ix: DatasetIndex, unit: Unit): number | null {
-  if (unit.price === null) return null;
-  return unit.price / ix.stackLayout(unit.stackId).areaSqft;
+  const area = ix.stackLayout(unit.stackId).areaSqft;
+  if (unit.price === null || area === null) return null;
+  return unit.price / area;
 }
 
 export interface LikeForLike {
@@ -20,8 +21,10 @@ export interface LikeForLike {
 /** What makes two units' prices not directly comparable. */
 export function compareLayouts(a: Layout, b: Layout): LikeForLike {
   const differences: string[] = [];
-  if (a.bedrooms !== b.bedrooms) differences.push(`${a.bedrooms} vs ${b.bedrooms} bedrooms`);
-  if (a.areaSqft !== b.areaSqft) {
+  if (a.bedrooms === null || b.bedrooms === null || a.areaSqft === null || b.areaSqft === null) {
+    if (a.id !== b.id) differences.push("unit types not confirmed yet");
+  } else if (a.bedrooms !== b.bedrooms) differences.push(`${a.bedrooms} vs ${b.bedrooms} bedrooms`);
+  if (a.areaSqft !== null && b.areaSqft !== null && a.areaSqft !== b.areaSqft) {
     const diff = a.areaSqft - b.areaSqft;
     differences.push(`${diff > 0 ? "+" : "−"}${Math.abs(diff).toLocaleString("en-SG")} sq ft`);
   }

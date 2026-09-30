@@ -30,3 +30,13 @@ export function metres(n: number): string {
 export function levelText(level: number): string {
   return `Level ${level}`;
 }
+
+export function areaText(areaSqft: number | null): string {
+  return areaSqft === null ? "Size not published" : `${areaSqft.toLocaleString("en-SG")} sq ft`;
+}
+
+/** "Type 3A, 3 bedrooms, 947 sq ft", or just the name when not confirmed. */
+export function layoutSummary(layout: { name: string; bedrooms: number | null; areaSqft: number | null }): string {
+  if (layout.bedrooms === null) return layout.name;
+  return `${layout.name}, ${layout.bedrooms} bedrooms${layout.areaSqft !== null ? `, ${areaText(layout.areaSqft)}` : ""}`;
+}

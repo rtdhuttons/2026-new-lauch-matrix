@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { dataset, mrtEntrance } from "../data";
+import { dataGaps, dataset, mrtEntrance } from "../data";
 import type { Unit } from "../model/types";
 import { unitLabel } from "../lib/dataset-index";
 import { createEngine } from "../lib/engine";
@@ -31,7 +31,9 @@ export function SelectorApp() {
   const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [stackId, setStackId] = useState("01");
   const [level, setLevel] = useState(14);
-  const [referenceId, setReferenceId] = useState<string | null>("01-09");
+  const [referenceId, setReferenceId] = useState<string | null>(
+    () => dataset.units.find((u) => u.stackId === "01" && u.price !== null)?.id ?? null,
+  );
   const [shortlist, setShortlist] = useState<string[]>(["01-14", "01-20"]);
   const [month, setMonth] = useState(5);
   const [minutes, setMinutes] = useState(16 * 60);
@@ -75,13 +77,17 @@ export function SelectorApp() {
     <>
       <div className="border-b border-[#e2cf9f] bg-[#f4ead3]">
         <p className="mx-auto max-w-7xl px-4 py-2.5 font-display-normal text-sm text-[#5c3f0b] sm:px-8">
-          <strong className="font-semibold">Illustrative demo data.</strong> {dataset.project.demoNotice}
+          <strong className="font-semibold">{dataset.project.isDemo ? "Illustrative demo data." : "Work in progress."}</strong>{" "}
+          {dataset.project.display?.notice ?? dataset.project.demoNotice}
         </p>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 pb-28 sm:px-8">
         <header className="pb-8 pt-10 sm:pt-14">
-          <p className="font-display-normal text-base text-stone">{dataset.project.name}, a fictional demo project</p>
+          <p className="font-display-normal text-base text-stone">
+            {dataset.project.name}
+            {dataset.project.isDemo ? ", a fictional demo project" : `, ${dataset.project.totalUnits.toLocaleString("en-SG")} homes in ${dataset.blocks.length} blocks`}
+          </p>
           <h1 className="mt-1 font-display text-[2.5rem] font-extrabold leading-[1.02] tracking-tight sm:text-[4rem]">
             Stack &amp; Unit Selector
           </h1>
@@ -135,7 +141,8 @@ export function SelectorApp() {
                         const l = ix.stackLayout(s.id);
                         return (
                           <option key={s.id} value={s.id}>
-                            Stack {s.id}, {ix.block(s.blockId).name}, {l.name} ({l.bedrooms} bed)
+                            Stack {s.id}, {ix.block(s.blockId).name}
+                            {l.bedrooms !== null ? `, ${l.name} (${l.bedrooms} bed)` : ix.block(s.blockId).collection ? `, ${ix.block(s.blockId).collection}` : ""}
                           </option>
                         );
                       })}
@@ -227,7 +234,7 @@ export function SelectorApp() {
 
         <section id="method" aria-labelledby="method-title" className="mt-16 scroll-mt-20">
           <SectionHeading id="method-title" title="Method and data" />
-          <MethodNotes />
+          <MethodNotes gaps={dataGaps} />
         </section>
       </div>
 

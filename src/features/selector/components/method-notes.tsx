@@ -91,7 +91,7 @@ const DATA_NEEDED: { area: string; items: string[] }[] = [
   },
 ];
 
-export function MethodNotes() {
+export function MethodNotes({ gaps = [] }: { gaps?: string[] }) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className={`${card} p-5 sm:p-6`}>
@@ -108,7 +108,14 @@ export function MethodNotes() {
         ))}
       </div>
       <div className={`${card} p-5 sm:p-6`}>
-        <h3 className="font-display text-lg font-extrabold">Real project data needed to replace the demo</h3>
+        <h3 className="font-display text-lg font-extrabold">Project data still needed</h3>
+        {gaps.length > 0 && (
+          <ul className="mt-3 grid list-disc gap-1.5 rounded-lg bg-mist py-3 pl-8 pr-4 text-[1rem] text-canopy/85">
+            {gaps.map((g) => (
+              <li key={g}>{g}</li>
+            ))}
+          </ul>
+        )}
         <p className="mt-2 text-[1rem] text-canopy/80">
           Each dataset is loaded separately, so these can be swapped in one at a time. Every record carries a source, update date and status: verified, estimated, assumed or unknown.
         </p>

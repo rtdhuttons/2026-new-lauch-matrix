@@ -4,8 +4,8 @@
 
 import { Edges, Html, OrbitControls } from "@react-three/drei";
 import type { ThreeEvent } from "@react-three/fiber";
-import { Canvas } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { Canvas, useLoader } from "@react-three/fiber";
+import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Dataset, Point, Unit } from "../model/types";
@@ -37,6 +37,16 @@ export interface Site3DProps {
 }
 
 const tmp = new THREE.Object3D();
+
+/** Default camera: closer for a large real site plan, higher for the compact demo. */
+function cameraStart(scene: SceneData, hasPlanImage: boolean): THREE.Vector3 {
+  const [side, up, back] = hasPlanImage ? [0.12, 1.25, 0.95] : [0.33, 2.35, 1.76];
+  return new THREE.Vector3(
+    scene.centre.x + scene.radius * side,
+    scene.radius * up,
+    scene.centre.z + scene.radius * back,
+  );
+}
 const tmpColour = new THREE.Color();
 
 function useInstanced(ref: React.RefObject<THREE.InstancedMesh | null>, boxes: Box[]) {
@@ -149,6 +159,24 @@ function Trees({ trees }: { trees: Tree[] }) {
   );
 }
 
+/** The developer's site plan laid flat on the ground at its true scale. */
+function PlanImage({ src, widthM, heightM }: { src: string; widthM: number; heightM: number }) {
+  const loaded = useLoader(THREE.TextureLoader, src);
+  const texture = useMemo(() => {
+    const t = loaded.clone();
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    t.needsUpdate = true;
+    return t;
+  }, [loaded]);
+  return (
+    <mesh position={[widthM / 2, 0.05, heightM / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow raycast={() => null}>
+      <planeGeometry args={[widthM, heightM]} />
+      <meshStandardMaterial map={texture} roughness={1} />
+    </mesh>
+  );
+}
+
 /** Letter-spaced capitals painted flat on the ground, like a map label. */
 function GroundLabel({ text, x, z, angle, width, colour = "#7b857c" }: { text: string; x: number; z: number; angle: number; width: number; colour?: string }) {
   const texture = useMemo(() => {
@@ -245,9 +273,10 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
   const controls = useRef<OrbitControlsImpl>(null);
   const centre = new THREE.Vector3(scene.centre.x, 20, scene.centre.z);
 
+  const hasPlanImage = !!ds.project.display?.planImage;
   const initialCamera = useMemo(
-    () => new THREE.Vector3(scene.centre.x + 50, 360, scene.centre.z + 270),
-    [scene.centre.x, scene.centre.z],
+    () => cameraStart(scene, hasPlanImage),
+    [scene, hasPlanImage],
   );
 
   useLayoutEffect(() => {
@@ -261,13 +290,17 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
   }, [props.resetSignal]);
 
   const sunUp = sun.altitudeDeg > 0;
-  const lightDir = showSun && sunUp ? sunVector(sun.azimuthDeg, sun.altitudeDeg) : sunVector(150, 55);
+  const north = ds.project.planNorthDeg;
+  const reach = Math.max(600, scene.radius * 4);
+  const lightDir = showSun && sunUp ? sunVector(sun.azimuthDeg, sun.altitudeDeg, north) : sunVector(150, 55, north);
   const lightPos: [number, number, number] = [
-    centre.x + lightDir.x * 600,
-    lightDir.y * 600,
-    centre.z + lightDir.z * 600,
+    centre.x + lightDir.x * reach,
+    lightDir.y * reach,
+    centre.z + lightDir.z * reach,
   ];
-  const sunMarker = sunVector(sun.azimuthDeg, Math.max(sun.altitudeDeg, 2));
+  const sunMarker = sunVector(sun.azimuthDeg, Math.max(sun.altitudeDeg, 2), north);
+  const shadowExtent = Math.max(380, scene.radius * 1.3);
+  const planImage = ds.project.display?.planImage;
 
   const selectedBox = props.selectedUnit
     ? scene.units.find((b) => b.unit.id === props.selectedUnit!.id)
@@ -296,12 +329,12 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
         color={showSun && sunUp && sun.altitudeDeg < 20 ? "#ffd9a0" : "#ffffff"}
         castShadow={showSun && sunUp}
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-380}
-        shadow-camera-right={380}
-        shadow-camera-top={380}
-        shadow-camera-bottom={-380}
+        shadow-camera-left={-shadowExtent}
+        shadow-camera-right={shadowExtent}
+        shadow-camera-top={shadowExtent}
+        shadow-camera-bottom={-shadowExtent}
         shadow-camera-near={10}
-        shadow-camera-far={1600}
+        shadow-camera-far={reach * 2.5}
         shadow-bias={-0.0004}
       >
         <object3D attach="target" position={[centre.x, 0, centre.z]} />
@@ -309,7 +342,7 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
 
       {/* Ground, water and roads */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[centre.x, 0, centre.z]} receiveShadow>
-        <planeGeometry args={[2400, 2400]} />
+        <planeGeometry args={[Math.max(2400, scene.radius * 8), Math.max(2400, scene.radius * 8)]} />
         <meshStandardMaterial color="#e6e9e3" roughness={1} />
       </mesh>
       {showSurroundings && (
@@ -331,14 +364,22 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
       <Trees trees={showSurroundings ? scene.trees : scene.trees.filter((t) => t.baseY > 3)} />
 
       {/* The site */}
-      <mesh position={[centre.x, 2, centre.z]} receiveShadow>
-        <boxGeometry args={[ds.project.siteBounds.width, 4, ds.project.siteBounds.height]} />
-        <meshStandardMaterial color="#d6e3cf" roughness={1} />
-      </mesh>
-      <mesh position={[112, 4.15, 93]} rotation={[0, -Math.atan2(10, 40), 0]} receiveShadow>
-        <boxGeometry args={[44, 0.3, 9]} />
-        <meshStandardMaterial color="#6fb0c8" roughness={0.3} />
-      </mesh>
+      {planImage ? (
+        <Suspense fallback={null}>
+          <PlanImage src={planImage.src} widthM={planImage.widthM} heightM={planImage.heightM} />
+        </Suspense>
+      ) : (
+        <>
+          <mesh position={[centre.x, 2, centre.z]} receiveShadow>
+            <boxGeometry args={[ds.project.siteBounds.width, 4, ds.project.siteBounds.height]} />
+            <meshStandardMaterial color="#d6e3cf" roughness={1} />
+          </mesh>
+          <mesh position={[112, 4.15, 93]} rotation={[0, -Math.atan2(10, 40), 0]} receiveShadow>
+            <boxGeometry args={[44, 0.3, 9]} />
+            <meshStandardMaterial color="#6fb0c8" roughness={0.3} />
+          </mesh>
+        </>
+      )}
       {scene.lawns.map((l, i) => (
         <mesh key={i} position={[l.x, l.y, l.z]} receiveShadow>
           <boxGeometry args={[l.w, l.h, l.d]} />
@@ -376,9 +417,9 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
       {/* Road names */}
       {showSurroundings && (
         <>
-          <GroundLabel text="Reservoir Road" x={60} z={-12} angle={0} width={120} />
-          <GroundLabel text="Wrenfield Avenue" x={252} z={110} angle={Math.PI / 2} width={130} />
-          <GroundLabel text="Kestrel Expressway" x={348} z={40} angle={Math.PI / 2 + Math.atan2(30, 680)} width={170} />
+          {ds.project.display?.roadLabels?.map((r) => (
+            <GroundLabel key={r.text} text={r.text} x={r.at.x} z={r.at.y} angle={(r.angleDeg * Math.PI) / 180} width={r.lengthM} />
+          ))}
         </>
       )}
 
@@ -397,8 +438,12 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
           <button
             type="button"
             onClick={() => props.onPickStack(l.stackId)}
-            className={`rounded px-1 font-display-normal text-[11px] font-bold leading-4 ${
-              l.stackId === props.selectedStackId ? "bg-canopy text-mist" : "bg-paper/85 text-canopy"
+            className={`rounded px-1 font-display-normal font-bold leading-4 ${
+              l.stackId === props.selectedStackId
+                ? "bg-canopy text-[12px] text-mist"
+                : scene.stackLabels.length > 30
+                  ? "text-[10px] text-canopy [text-shadow:0_0_2px_#fff,0_0_2px_#fff,0_0_3px_#fff]"
+                  : "bg-paper/85 text-[11px] text-canopy"
             }`}
             aria-label={`Select stack ${l.stackId}`}
           >
@@ -434,8 +479,8 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
 
       {/* Sun glow */}
       {showSun && sunUp && (
-        <mesh position={[centre.x + sunMarker.x * 520, sunMarker.y * 520, centre.z + sunMarker.z * 520]} raycast={() => null}>
-          <sphereGeometry args={[14, 24, 24]} />
+        <mesh position={[centre.x + sunMarker.x * reach * 0.85, sunMarker.y * reach * 0.85, centre.z + sunMarker.z * reach * 0.85]} raycast={() => null}>
+          <sphereGeometry args={[14 * (reach / 600), 24, 24]} />
           <meshBasicMaterial color="#ffc94d" />
         </mesh>
       )}
@@ -445,8 +490,8 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
         makeDefault
         enableDamping
         dampingFactor={0.12}
-        minDistance={120}
-        maxDistance={1100}
+        minDistance={80}
+        maxDistance={Math.max(1100, scene.radius * 5)}
         maxPolarAngle={1.32}
         target={[scene.centre.x, 20, scene.centre.z]}
         onChange={() => {
@@ -465,7 +510,12 @@ export default function Site3D(props: Site3DProps) {
       shadows
       frameloop="demand"
       dpr={[1, 2]}
-      camera={{ position: [scene.centre.x + 50, 360, scene.centre.z + 270], fov: 38, near: 5, far: 5000 }}
+      camera={{
+        position: cameraStart(scene, !!props.ds.project.display?.planImage).toArray(),
+        fov: 38,
+        near: 5,
+        far: Math.max(5000, scene.radius * 20),
+      }}
       gl={{ antialias: true, preserveDrawingBuffer: true }}
     >
       <Scene {...props} scene={scene} />

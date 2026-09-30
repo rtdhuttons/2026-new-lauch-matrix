@@ -13,6 +13,8 @@ import type { DatasetIndex } from "./dataset-index";
 export const SIMILAR_SIZE_SHARE = 0.1;
 
 export interface ResaleCompetition {
+  /** False until the unit's type and size are known. */
+  known: boolean;
   sameLayoutCount: number;
   similarCount: number;
   /** Comparable units that share this unit's view category. */
@@ -24,7 +26,7 @@ export interface ResaleCompetition {
     note: string;
   };
   /** 0–100; fewer comparables and more distinctive traits score higher. */
-  score: number;
+  score: number | null;
 }
 
 export function resaleCompetition(
@@ -33,12 +35,29 @@ export function resaleCompetition(
   viewOf: (stackId: string) => StackViewAnalysis,
 ): ResaleCompetition {
   const layout = ix.stackLayout(unit.stackId);
+  const area = layout.areaSqft;
+  if (layout.bedrooms === null || area === null) {
+    return {
+      known: false,
+      sameLayoutCount: 0,
+      similarCount: 0,
+      sameViewCategoryCount: 0,
+      distinctive: [],
+      nearby: [],
+      evidence: {
+        transactions: [],
+        note: "Unit types and sizes are not published yet, so similar units cannot be counted.",
+      },
+      score: null,
+    };
+  }
   const comparables = ix.ds.units.filter((u) => {
     if (u.id === unit.id) return false;
     const l = ix.stackLayout(u.stackId);
     return (
       l.bedrooms === layout.bedrooms &&
-      Math.abs(l.areaSqft - layout.areaSqft) <= layout.areaSqft * SIMILAR_SIZE_SHARE
+      l.areaSqft !== null &&
+      Math.abs(l.areaSqft - area) <= area * SIMILAR_SIZE_SHARE
     );
   });
   const sameLayout = comparables.filter((u) => ix.stackLayout(u.stackId).id === layout.id);
@@ -85,6 +104,7 @@ export function resaleCompetition(
   const score = Math.max(0, Math.min(100, base + distinctive.length * 8));
 
   return {
+    known: true,
     sameLayoutCount: sameLayout.length,
     similarCount: comparables.length,
     sameViewCategoryCount: sameView.length,

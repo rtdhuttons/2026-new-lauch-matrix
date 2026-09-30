@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dataset } from "../../data";
+import { demoDataset as dataset } from "../../data/demo";
 import { floorRL } from "../geometry";
 import { BASE_RL, buildScene, planRotationToY, sunVector } from "../scene";
 

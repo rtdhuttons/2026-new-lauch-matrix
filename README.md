@@ -37,6 +37,8 @@ In cloud sessions, remote servers only connect if their hosts are allowed in the
 
 ## Stack & Unit Selector
 
+The selector runs on **Thomson Reserve** (`src/features/selector/data/thomson-reserve/`). Its layout is traced from the developer's site plan (`public/thomson-reserve/site-plan.jpg`): six blocks (Classic 1, 3, 9, 11 at 21 storeys; Luxury 5, 7 at 30 storeys) and stacks 01–55, with the plan's own scale bar and north point (plan up is 40° east of north). Classic blocks place exactly the reported 740 homes. Prices, unit types and availability are shown as "awaiting price list"; neighbouring building heights are not loaded, so view clearance is "not assessed". The known gaps are listed in the dataset and on the page. The fictional Wrenfield Residences demo (`data/demo/`) remains for tests.
+
 Helps a buyer decide which stack and floor suit them, what changes as they move up, and whether the extra price for a better floor, facing or view is worth paying. **Every figure is illustrative demo data for "Wrenfield Residences", a fictional project.**
 
 ### Where things live

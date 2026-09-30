@@ -23,14 +23,25 @@ const Site3D = dynamic(() => import("./site-3d"), {
   ),
 });
 
-type ColourMode = "bedrooms" | "budget" | "view" | "availability";
+type ColourMode = "bedrooms" | "collection" | "sun" | "budget" | "view" | "availability";
 
 const COLOUR_MODES: { id: ColourMode; label: string }[] = [
   { id: "bedrooms", label: "Bedroom type" },
+  { id: "collection", label: "Collection" },
   { id: "budget", label: "Within budget" },
   { id: "view", label: "View clearance" },
+  { id: "sun", label: "Afternoon sun" },
   { id: "availability", label: "Availability" },
 ];
+
+const COLLECTION_COLOURS = ["#9cc2cb", "#d3b27a", "#b98fb2", "#8fae8a"];
+
+/** Pale to deep amber for none to 4 hours of average afternoon sun. */
+function sunColour(minutes: number): string {
+  const t = Math.min(1, minutes / 240);
+  const mix = (a: number, b: number) => Math.round(a + (b - a) * t);
+  return `rgb(${mix(236, 214)}, ${mix(238, 120)}, ${mix(228, 18)})`;
+}
 
 const BEDROOM_COLOURS: Record<number, string> = { 2: "#8fbac6", 3: "#dcc08a", 4: "#b98fb2" };
 const STATUS_COLOURS: Record<UnitStatus, string> = {
@@ -38,6 +49,7 @@ const STATUS_COLOURS: Record<UnitStatus, string> = {
   reserved: "#dcc08a",
   sold: "#b4bab3",
   "not-released": "#e3e6e1",
+  pending: "#d9ded6",
 };
 const FADED = "#eceee9";
 
@@ -88,7 +100,22 @@ export function SiteView({
   const ds = ix.ds;
   const canUse3D = useSyncExternalStore(noSubscribe, webglSupported, () => true);
   const [mode, setMode] = useState<"3d" | "flat">("3d");
-  const [colourMode, setColourMode] = useState<ColourMode>("bedrooms");
+  const modes = useMemo(() => {
+    const has: Record<ColourMode, boolean> = {
+      bedrooms: ds.layouts.some((l) => l.bedrooms !== null),
+      collection: ds.blocks.some((b) => b.collection),
+      budget: ds.units.some((u) => u.price !== null),
+      view: ds.viewTargets.length > 0,
+      sun: true,
+      availability: new Set(ds.units.map((u) => u.status)).size > 1,
+    };
+    return COLOUR_MODES.filter((m) => has[m.id]);
+  }, [ds]);
+  const collections = useMemo(
+    () => [...new Set(ds.blocks.map((b) => b.collection).filter((c): c is string => !!c))],
+    [ds],
+  );
+  const [colourMode, setColourMode] = useState<ColourMode>(modes[0]?.id ?? "sun");
   const [showSurroundings, setShowSurroundings] = useState(true);
   const [showSun, setShowSun] = useState(true);
   const [overlays, setOverlays] = useState<Set<Overlay>>(new Set(["views"]));
@@ -132,8 +159,18 @@ export function SiteView({
       const onSale = u.status === "available";
       let c: string;
       switch (colourMode) {
-        case "bedrooms":
-          c = BEDROOM_COLOURS[ix.stackLayout(u.stackId).bedrooms] ?? "#cccccc";
+        case "bedrooms": {
+          const beds = ix.stackLayout(u.stackId).bedrooms;
+          c = beds === null ? "#d9ded6" : BEDROOM_COLOURS[beds] ?? "#cccccc";
+          break;
+        }
+        case "collection": {
+          const col = ix.stackBlock(u.stackId).collection;
+          c = col ? COLLECTION_COLOURS[collections.indexOf(col) % COLLECTION_COLOURS.length] : "#d9ded6";
+          break;
+        }
+        case "sun":
+          c = sunColour(engine.sunProvider.estimate(u).living.annualAverageMin);
           break;
         case "budget":
           c = eligible.has(u.id) ? "#2f7d57" : onSale ? "#c6ccc5" : FADED;
@@ -150,23 +187,38 @@ export function SiteView({
       map.set(u.id, c);
     }
     return map;
-  }, [ds.units, colourMode, eligible, engine, ix]);
+  }, [ds.units, colourMode, eligible, engine, ix, collections]);
 
   const tooltip = selectedUnit
     ? {
         title: unitLabel(ix, selectedUnit),
-        detail: `${ix.stackLayout(selectedUnit.stackId).name}, ${
+        detail: `${
+          ix.stackLayout(selectedUnit.stackId).bedrooms === null && ix.stackBlock(selectedUnit.stackId).collection
+            ? `${ix.stackBlock(selectedUnit.stackId).collection} Collection`
+            : ix.stackLayout(selectedUnit.stackId).name
+        }, ${
           selectedUnit.price !== null
             ? compactMoney(selectedUnit.price)
             : selectedUnit.status === "not-released"
               ? "not yet released"
-              : selectedUnit.status
+              : selectedUnit.status === "pending"
+                ? "awaiting price list"
+                : selectedUnit.status
         }`,
       }
     : null;
 
   const legend: { colour: string; label: string }[] =
-    colourMode === "bedrooms"
+    colourMode === "collection"
+      ? collections.map((c, i) => ({ colour: COLLECTION_COLOURS[i % COLLECTION_COLOURS.length], label: `${c} Collection` }))
+      : colourMode === "sun"
+        ? [
+            { colour: sunColour(0), label: "No afternoon sun" },
+            { colour: sunColour(60), label: "About 1 hour" },
+            { colour: sunColour(150), label: "About 2.5 hours" },
+            { colour: sunColour(240), label: "4 hours or more (living room, yearly average, estimated)" },
+          ]
+        : colourMode === "bedrooms"
       ? [
           { colour: BEDROOM_COLOURS[2], label: "2 bedrooms" },
           { colour: BEDROOM_COLOURS[3], label: "3 bedrooms" },
@@ -190,6 +242,7 @@ export function SiteView({
               { colour: STATUS_COLOURS.reserved, label: "Reserved" },
               { colour: STATUS_COLOURS.sold, label: "Sold" },
               { colour: STATUS_COLOURS["not-released"], label: "Not yet released" },
+              { colour: STATUS_COLOURS.pending, label: "Awaiting price list" },
             ];
 
   const toggleOverlay = (o: Overlay) =>
@@ -265,11 +318,11 @@ export function SiteView({
                 const dy = g.position.y - cy;
                 const len = Math.hypot(dx, dy) || 1;
                 return {
-                  name: g.id === "main" ? "Main gate" : "South gate",
+                  name: g.name,
                   position: { x: g.position.x + (dx / len) * 16, y: g.position.y + (dy / len) * 16 },
                 };
               })}
-              mrt={{ name: "MRT Exit B", position: { x: 330, y: 214 } }}
+              mrt={ds.project.display?.mrtLabel ? { name: ds.project.display.mrtLabel.text, position: ds.project.display.mrtLabel.at } : null}
             />
             <button
               type="button"
@@ -277,7 +330,7 @@ export function SiteView({
               aria-label="Compass. Select to reset the view with north up."
               className="absolute right-3 top-3 grid size-16 place-items-center rounded-full bg-paper/90 font-display-normal shadow-md"
             >
-              <svg viewBox="-30 -30 60 60" className="size-14" style={{ transform: `rotate(${azimuth}deg)` }} aria-hidden="true">
+              <svg viewBox="-30 -30 60 60" className="size-14" style={{ transform: `rotate(${azimuth - ds.project.planNorthDeg}deg)` }} aria-hidden="true">
                 <line x1="0" y1="-19" x2="0" y2="19" stroke="#6f7a71" strokeWidth="2.5" />
                 <line x1="0" y1="-19" x2="0" y2="0" stroke="#b3532e" strokeWidth="3" />
                 <text x="0" y="-21" textAnchor="middle" fontSize="10" fontWeight="700" fill="#b3532e">N</text>
@@ -303,7 +356,7 @@ export function SiteView({
 
           <div className="grid gap-4 border-t border-canopy/10 p-4">
             <div role="group" aria-label="Colour units by" className="flex flex-wrap gap-1 self-start rounded-full bg-mist-deep p-1">
-              {COLOUR_MODES.map((m) => (
+              {modes.map((m) => (
                 <button key={m.id} type="button" aria-pressed={colourMode === m.id} onClick={() => setColourMode(m.id)} className={segButton(colourMode === m.id)}>
                   {m.label}
                 </button>
@@ -383,7 +436,9 @@ export function SiteView({
           <div className="border-t border-canopy/10 bg-mist px-4 py-3 text-sm text-canopy/80">
             <p>Drag to spin it around, pinch or scroll to zoom, and tap a unit for its price. The floor slider below follows your selection.</p>
             <p className="mt-1">
-              Illustrative massing from the demo data. Sun positions are real for Singapore on the 21st of each month; buildings and trees are simplified, so treat shadows as indicative.
+              {ds.project.display?.planImage
+                ? `${ds.project.display.planImage.credit}, laid at its own scale. Towers are simple massing from the reported storeys; neighbouring buildings are not drawn yet. Sun positions are real for Singapore on the 21st of each month, so treat shadows between the blocks as indicative.`
+                : "Illustrative massing from the demo data. Sun positions are real for Singapore on the 21st of each month; buildings and trees are simplified, so treat shadows as indicative."}
             </p>
           </div>
         </div>

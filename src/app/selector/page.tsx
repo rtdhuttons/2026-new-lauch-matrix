@@ -4,9 +4,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SelectorApp } from "@/features/selector/components/selector-app";
 
 export const metadata: Metadata = {
-  title: "Stack & Unit Selector (illustrative demo) | TRM — The Realty Master",
+  title: "Thomson Reserve Stack & Unit Selector | TRM — The Realty Master",
   description:
-    "Compare stacks and floors by price premium, sun, view clearance, noise and privacy, MRT access and resale competition. Illustrative demo data.",
+    "Explore Thomson Reserve stack by stack: the site plan in 3D, sun and shadows, noise and privacy screening, and walking time to Upper Thomson MRT.",
 };
 
 export default function SelectorPage() {
@@ -25,7 +25,7 @@ export default function SelectorPage() {
       <main>
         <SelectorApp />
       </main>
-      <SiteFooter disclaimer="This selector is a prototype built with illustrative demo data for a fictional project. It is not advice and does not describe any real development. Always check the developer's brochure, price list and sale and purchase agreement." />
+      <SiteFooter disclaimer="This selector is a TRM prototype. Thomson Reserve's layout is traced from the developer's site plan; prices, unit types and availability are not published yet and nothing here is the developer's information or advice. Always check the developer's brochure, price list and sale and purchase agreement." />
     </>
   );
 }

@@ -103,9 +103,35 @@ export function buildScene(ds: Dataset): SceneData {
   const groundY = 0;
 
   for (const block of ds.blocks) {
+    const blockStacks = ds.stacks.filter((s) => s.blockId === block.id);
+    const top = floorRL(block, block.storeys) + block.typicalFloorHeightM;
+    const podiumTop = floorRL(block, block.firstResidentialLevel);
+
+    if (blockStacks.some((s) => s.footprint)) {
+      // Traced layout: each stack is its own column of homes.
+      for (const stack of blockStacks) {
+        const fp = stack.footprint ?? { w: 9, d: 9, rotationDeg: 0 };
+        const rotY = planRotationToY(fp.rotationDeg);
+        const base = { x: stack.position.x, z: stack.position.y, w: fp.w, d: fp.d, rotY };
+        podiums.push({ ...base, y: (y(block.groundRL) + y(podiumTop)) / 2, h: podiumTop - block.groundRL });
+        roofs.push({ ...base, w: fp.w * 0.9, d: fp.d * 0.9, y: y(top) + 0.4, h: 0.8 });
+        for (const unit of ds.units.filter((u) => u.stackId === stack.id)) {
+          units.push({
+            unit,
+            ...base,
+            w: fp.w - GAP,
+            d: fp.d - GAP,
+            y: y(floorRL(block, unit.level)) + block.typicalFloorHeightM / 2,
+            h: block.typicalFloorHeightM - 0.35,
+          });
+        }
+        stackLabels.push({ stackId: stack.id, text: stack.id, x: stack.position.x, y: y(top) + 3, z: stack.position.y });
+      }
+      continue;
+    }
+
     const rotY = planRotationToY(block.rotationDeg);
     const { w, h } = block.size;
-    const top = floorRL(block, block.storeys) + block.typicalFloorHeightM;
 
     // Platform the block stands on, from the base ground up to its own level.
     if (y(block.groundRL) > groundY + 0.2) {
@@ -119,7 +145,6 @@ export function buildScene(ds: Dataset): SceneData {
         rotY,
       });
     }
-    const podiumTop = floorRL(block, block.firstResidentialLevel);
     podiums.push({
       x: block.centre.x,
       z: block.centre.y,
@@ -139,7 +164,7 @@ export function buildScene(ds: Dataset): SceneData {
       rotY,
     });
 
-    for (const stack of ds.stacks.filter((s) => s.blockId === block.id)) {
+    for (const stack of blockStacks) {
       const local = localOf(block, stack.position);
       const qx = Math.sign(local.x) * (w / 4);
       const qy = Math.sign(local.y) * (h / 4);
@@ -206,6 +231,9 @@ export function buildScene(ds: Dataset): SceneData {
 
   const { width, height } = ds.project.siteBounds;
   const SITE_Y = 4;
+  // A real site plan image already shows the landscape, so only the
+  // illustrative demo gets generated planting.
+  const decorate = !ds.project.display?.planImage;
 
   // Planting along the site boundary, leaving gaps at the gates.
   const nearGate = (px: number, pz: number) =>
@@ -214,6 +242,7 @@ export function buildScene(ds: Dataset): SceneData {
   for (let px = 6; px <= width - 6; px += 9) edge.push({ x: px, y: 5 }, { x: px, y: height - 5 });
   for (let pz = 14; pz <= height - 14; pz += 9) edge.push({ x: 5, y: pz }, { x: width - 5, y: pz });
   for (const p of edge) {
+    if (!decorate) break;
     if (nearGate(p.x, p.y)) continue;
     trees.push({
       x: p.x + (rand() - 0.5) * 3,
@@ -229,6 +258,7 @@ export function buildScene(ds: Dataset): SceneData {
     [104, 124], [128, 152], [86, 168], [206, 150], [212, 18], [26, 86], [150, 96], [196, 176], [112, 60], [140, 22],
   ];
   for (const [cx, cz] of clusters) {
+    if (!decorate) break;
     for (let i = 0; i < 4; i++) {
       trees.push({
         x: cx + (rand() - 0.5) * 16,
@@ -242,6 +272,7 @@ export function buildScene(ds: Dataset): SceneData {
 
   // Scattered trees in the open ground around the site.
   for (let i = 0; i < 70; i++) {
+    if (!decorate) break;
     const px = -120 + rand() * 540;
     const pz = -20 + rand() * 280;
     const insideSite = px > -6 && px < width + 6 && pz > -6 && pz < height + 6;
@@ -254,7 +285,7 @@ export function buildScene(ds: Dataset): SceneData {
     trees.push({ x: px, z: pz, baseY: 0, height: 7 + rand() * 7, shape: rand() < 0.6 ? "cone" : "round" });
   }
 
-  const lawns: Box[] = [
+  const lawns: Box[] = !decorate ? [] : [
     { x: 104, y: SITE_Y + 0.08, z: 128, w: 46, h: 0.15, d: 30, rotY: 0 },
     { x: 196, y: SITE_Y + 0.08, z: 172, w: 60, h: 0.15, d: 22, rotY: 0 },
     { x: 26, y: SITE_Y + 0.08, z: 72, w: 26, h: 0.15, d: 40, rotY: 0 },
@@ -274,9 +305,16 @@ export function buildScene(ds: Dataset): SceneData {
   };
 }
 
-/** Unit vector pointing towards the sun, for a light or shadow direction. */
-export function sunVector(azimuthDeg: number, altitudeDeg: number): { x: number; y: number; z: number } {
-  const az = (azimuthDeg * Math.PI) / 180;
+/**
+ * Unit vector pointing towards the sun in world space. `planNorthDeg` is the
+ * true bearing of plan "up", so a rotated site plan still gets the real sun.
+ */
+export function sunVector(
+  azimuthDeg: number,
+  altitudeDeg: number,
+  planNorthDeg = 0,
+): { x: number; y: number; z: number } {
+  const az = ((azimuthDeg - planNorthDeg) * Math.PI) / 180;
   const alt = (altitudeDeg * Math.PI) / 180;
   return {
     x: Math.sin(az) * Math.cos(alt),

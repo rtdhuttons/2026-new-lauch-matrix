@@ -189,7 +189,10 @@ export function recommend(ranked: RankedUnit[]): Recommendation[] {
   });
 
   if (eligible.length === 0) {
-    const why = "No available unit meets your essentials. Try a higher budget or another bedroom type.";
+    const noPrices = ranked.every((r) => r.assessment.unit.price === null);
+    const why = noPrices
+      ? "No prices are published yet. Recommendations appear once the developer's price list is loaded."
+      : "No available unit meets your essentials. Try a higher budget or another bedroom type.";
     return [
       empty("best-fit", "Best fit for your lifestyle", why),
       empty("lowest-entry", "Lowest entry price", why),

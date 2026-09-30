@@ -6,7 +6,7 @@ import { describeClearFrom, VIEW_CATEGORY_LABEL } from "../lib/clearance";
 import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
-import { metres, money, psfText, signedMoney } from "../lib/format";
+import { areaText, metres, money, psfText, signedMoney } from "../lib/format";
 import { compassWords } from "../lib/geometry";
 import { clearanceCost, premiumOver, psf } from "../lib/pricing";
 import type { Facade, SunState } from "../lib/solar";
@@ -265,7 +265,7 @@ export function UnitDetails({
             <div className="flex flex-wrap items-center gap-2">
               <StatusChip status={a.exposure.status} />
               <p className="text-sm text-canopy/75">
-                Screening assessment from the illustrative plan. Qualitative only: no measured or modelled sound levels.
+                Screening assessment from the site plan. Qualitative only: no measured or modelled sound levels.
               </p>
             </div>
             <div className="overflow-x-auto">
@@ -326,7 +326,7 @@ export function UnitDetails({
               <>
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusChip status={a.mrt.status} provenance={a.mrt.best.external.provenance} />
-                  <p className="text-sm text-canopy/75">Illustrative routes; not walked or timed.</p>
+                  <p className="text-sm text-canopy/75">{a.mrt.best.internal.provenance.note ?? "Estimated route; not walked or timed."}</p>
                 </div>
                 <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div>
@@ -380,9 +380,11 @@ export function UnitDetails({
             <dl className="grid gap-4 sm:grid-cols-3">
               <div>
                 <dt className="font-display-normal text-sm text-stone">Similar units in this development</dt>
-                <dd className="font-display-normal text-lg font-semibold">{a.resale.similarCount}</dd>
+                <dd className="font-display-normal text-lg font-semibold">{a.resale.known ? a.resale.similarCount : "Unknown"}</dd>
                 <dd className="text-sm text-canopy/75">
-                  {layout.bedrooms} bedrooms within 10% of {layout.areaSqft.toLocaleString("en-SG")} sq ft; {a.resale.sameLayoutCount} of them are the same {layout.name} layout
+                  {a.resale.known
+                    ? `${layout.bedrooms} bedrooms within 10% of ${areaText(layout.areaSqft)}; ${a.resale.sameLayoutCount} of them are the same ${layout.name} layout`
+                    : "Needs unit types and sizes from the developer"}
                 </dd>
               </div>
               <div>
@@ -415,7 +417,7 @@ export function UnitDetails({
         )}
       </div>
       <p className="mt-6 font-display-normal text-sm text-stone">
-        Showing {unitLabel(ix, unit)}. All figures are illustrative demo data.
+        Showing {unitLabel(ix, unit)}. {ix.ds.project.isDemo ? "All figures are illustrative demo data." : "Estimates are marked with their data status."}
       </p>
     </div>
   );
@@ -432,7 +434,9 @@ function PricePanel({ engine, unit, reference }: { engine: Engine; unit: Unit; r
     <div className="grid gap-5">
       <div className="flex flex-wrap items-center gap-2">
         <StatusChip status={unit.priceProvenance.status} provenance={unit.priceProvenance} />
-        <p className="text-sm text-canopy/75">Illustrative list prices. Only units on sale have prices; none are interpolated.</p>
+        <p className="text-sm text-canopy/75">
+          {ix.ds.project.display?.pricingNote ?? "Only units on sale have prices; none are interpolated."}
+        </p>
       </div>
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
@@ -442,7 +446,7 @@ function PricePanel({ engine, unit, reference }: { engine: Engine; unit: Unit; r
         <div>
           <dt className="font-display-normal text-sm text-stone">Area and PSF</dt>
           <dd className="font-display-normal text-lg font-semibold">
-            {ix.stackLayout(unit.stackId).areaSqft.toLocaleString("en-SG")} sq ft{psf(ix, unit) !== null && `, ${psfText(psf(ix, unit)!)}`}
+            {areaText(ix.stackLayout(unit.stackId).areaSqft)}{psf(ix, unit) !== null && `, ${psfText(psf(ix, unit)!)}`}
           </dd>
         </div>
         <div>

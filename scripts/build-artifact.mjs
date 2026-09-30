@@ -6,6 +6,9 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { build } from "esbuild";
 
 const out = "dist-artifact";
+// Images the page needs are embedded as data URIs; artifacts cannot load
+// them from anywhere else.
+const sitePlan = `data:image/jpeg;base64,${readFileSync("public/thomson-reserve/site-plan.jpg").toString("base64")}`;
 mkdirSync(out, { recursive: true });
 
 const js = await build({
@@ -17,7 +20,10 @@ const js = await build({
   jsx: "automatic",
   write: false,
   alias: { "next/dynamic": "./scripts/artifact/next-dynamic-shim.tsx" },
-  define: { "process.env.NODE_ENV": '"production"' },
+  define: {
+    "process.env.NODE_ENV": '"production"',
+    "process.env.NEXT_PUBLIC_TR_SITE_PLAN": JSON.stringify(sitePlan),
+  },
   legalComments: "none",
 });
 const script = js.outputFiles[0].text.replaceAll("</script", "<\\/script");

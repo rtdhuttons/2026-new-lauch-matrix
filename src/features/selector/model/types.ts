@@ -41,6 +41,19 @@ export interface Project {
   /** UTC offset of local clock time, in hours. */
   utcOffsetHours: number;
   provenance: Provenance;
+  /** Optional map furniture for drawing the site. */
+  display?: ProjectDisplay;
+}
+
+export interface ProjectDisplay {
+  /** Site plan image laid under the plan, covering (0,0)–(widthM,heightM). */
+  planImage?: { src: string; widthM: number; heightM: number; credit: string };
+  roadLabels?: { text: string; at: Point; angleDeg: number; lengthM: number }[];
+  mrtLabel?: { text: string; at: Point };
+  /** Short banner shown above the selector. */
+  notice: string;
+  /** What the prices and unit types currently are, in plain words. */
+  pricingNote: string;
 }
 
 export interface Block {
@@ -60,6 +73,10 @@ export interface Block {
   /** Levels without homes (sky terraces, M&E floors). */
   noUnitLevels: number[];
   firstResidentialLevel: number;
+  /** e.g. "Classic" or "Luxury" collection. */
+  collection?: string;
+  /** Traced outline when the block is not a simple rectangle. */
+  footprint?: Point[];
   provenance: Provenance;
 }
 
@@ -74,8 +91,9 @@ export type LayoutFeature =
 export interface Layout {
   id: string;
   name: string;
-  bedrooms: number;
-  areaSqft: number;
+  /** Null until the developer's unit schedule is known. */
+  bedrooms: number | null;
+  areaSqft: number | null;
   features: LayoutFeature[];
   /** Depth of the balcony that overhangs the living room glass, metres. */
   livingOverhangM: number;
@@ -103,10 +121,12 @@ export interface Stack {
   livingBearingDeg: number;
   masterBearingDeg: number;
   mainView: ViewSpec;
+  /** Plan footprint of one home on this stack, centred on `position`. */
+  footprint?: { w: number; d: number; rotationDeg: number };
   provenance: Provenance;
 }
 
-export type UnitStatus = "available" | "reserved" | "sold" | "not-released";
+export type UnitStatus = "available" | "reserved" | "sold" | "not-released" | "pending";
 
 export interface Unit {
   id: string;

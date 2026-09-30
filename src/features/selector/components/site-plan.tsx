@@ -18,7 +18,7 @@ export const OVERLAYS: { id: Overlay; label: string }[] = [
   { id: "future", label: "Future development" },
 ];
 
-const VIEWBOX = { x: -125, y: -245, w: 545, h: 520 };
+const DEMO_VIEWBOX = { x: -125, y: -245, w: 545, h: 520 };
 
 const POTENTIAL_COLOUR: Record<Potential, string> = {
   higher: "#7b3f9b",
@@ -28,8 +28,8 @@ const POTENTIAL_COLOUR: Record<Potential, string> = {
 
 const pts = (p: Point[]) => p.map((q) => `${q.x},${q.y}`).join(" ");
 
-function along(p: Point, bearing: number, d: number): Point {
-  const v = bearingVector(bearing);
+function alongPlan(p: Point, bearing: number, d: number, planNorthDeg: number): Point {
+  const v = bearingVector(bearing, planNorthDeg);
   return { x: p.x + v.x * d, y: p.y + v.y * d };
 }
 
@@ -62,6 +62,16 @@ export function SitePlan({
   minutes: number;
 }) {
   const { ds } = engine.ix;
+  const planImage = ds.project.display?.planImage;
+  const { width: siteW, height: siteH } = ds.project.siteBounds;
+  const VIEWBOX = planImage
+    ? { x: -12, y: -12, w: siteW + 24, h: siteH + 24 }
+    : DEMO_VIEWBOX;
+  const along = (p: Point, bearing: number, d: number) => alongPlan(p, bearing, d, ds.project.planNorthDeg);
+  const dense = ds.stacks.length > 30;
+  const markerR = dense ? 4.2 : 6;
+  const siteCentre = { x: siteW / 2, y: siteH / 2 };
+  const sunReach = Math.max(siteW, siteH) * 0.3;
   const on = (o: Overlay) => overlays.has(o);
   const selectedStack = engine.ix.stack(selectedStackId);
   const view = engine.view(selectedStackId);
@@ -136,12 +146,16 @@ export function SitePlan({
               fill={t.id === "reservoir" ? "#cfe2e7" : "#d9e4d2"}
             />
           ))}
-          <text x={120} y={-236} textAnchor="middle" className="fill-reservoir font-display-normal" fontSize="11" fontStyle="italic">
-            Wrenfield Reservoir
-          </text>
-          <text x={-120} y={-120} className="fill-canopy/60 font-display-normal" fontSize="10" fontStyle="italic">
-            Western woodland park
-          </text>
+          {ds.project.isDemo && (
+            <>
+              <text x={120} y={-236} textAnchor="middle" className="fill-reservoir font-display-normal" fontSize="11" fontStyle="italic">
+                Wrenfield Reservoir
+              </text>
+              <text x={-120} y={-120} className="fill-canopy/60 font-display-normal" fontSize="10" fontStyle="italic">
+                Western woodland park
+              </text>
+            </>
+          )}
 
           {/* Obstructions and surroundings */}
           {ds.obstructions
@@ -165,12 +179,14 @@ export function SitePlan({
                 </g>
               );
             })}
-          <text x={110} y={236} textAnchor="middle" className="fill-canopy/55 font-display-normal" fontSize="10" fontStyle="italic">
-            Landed estate
-          </text>
+          {ds.project.isDemo && (
+            <text x={110} y={236} textAnchor="middle" className="fill-canopy/55 font-display-normal" fontSize="10" fontStyle="italic">
+              Landed estate
+            </text>
+          )}
 
-          {/* Roads */}
-          {ds.exposureSources
+          {/* Roads (the site plan image already draws its own) */}
+          {!planImage && ds.exposureSources
             .filter((s) => s.kind === "expressway" || s.kind === "main-road")
             .map((s) => (
               <g key={s.id}>
@@ -198,17 +214,23 @@ export function SitePlan({
             ))}
 
           {/* Site boundary and facilities */}
-          <rect
-            x={0}
-            y={0}
-            width={ds.project.siteBounds.width}
-            height={ds.project.siteBounds.height}
-            fill="#eef2ec"
-            stroke="#10291c"
-            strokeDasharray="4 3"
-            strokeWidth="0.8"
-          />
-          <polyline points="92,88 132,98" stroke="#9cc2cb" strokeWidth="9" strokeLinecap="round" fill="none" />
+          {planImage ? (
+            <image href={planImage.src} x={0} y={0} width={planImage.widthM} height={planImage.heightM} preserveAspectRatio="none" opacity={overlays.size > 0 ? 0.85 : 1} />
+          ) : (
+            <>
+              <rect
+                x={0}
+                y={0}
+                width={ds.project.siteBounds.width}
+                height={ds.project.siteBounds.height}
+                fill="#eef2ec"
+                stroke="#10291c"
+                strokeDasharray="4 3"
+                strokeWidth="0.8"
+              />
+              <polyline points="92,88 132,98" stroke="#9cc2cb" strokeWidth="9" strokeLinecap="round" fill="none" />
+            </>
+          )}
 
           {/* Future development */}
           {on("future") &&
@@ -256,9 +278,18 @@ export function SitePlan({
                   color="#1d7a4f"
                 />
               ))}
-              <text x={VIEWBOX.x + VIEWBOX.w - 8} y={228} textAnchor="end" fontSize="10" fill="#1d7a4f" className="font-display-normal">
-                to Wrenfield MRT, Exit B
-              </text>
+              {ds.project.display?.mrtLabel && (
+                <text
+                  x={Math.min(ds.project.display.mrtLabel.at.x, VIEWBOX.x + VIEWBOX.w - 8)}
+                  y={ds.project.display.mrtLabel.at.y + 14}
+                  textAnchor="end"
+                  fontSize="10"
+                  fill="#1d7a4f"
+                  className="font-display-normal"
+                >
+                  {ds.project.display.mrtLabel.text}
+                </text>
+              )}
               {ds.gates.map((g) => (
                 <g key={g.id}>
                   <rect x={g.position.x - 5} y={g.position.y - 5} width="10" height="10" fill="#1d7a4f" />
@@ -352,7 +383,7 @@ export function SitePlan({
               const block = engine.ix.block(o.blockId!);
               return (
                 <g key={o.id}>
-                  <polygon points={pts(o.footprint)} fill="#dfe6dc" stroke="#10291c" strokeWidth="1" />
+                  <polygon points={pts(o.footprint)} fill={planImage ? "none" : "#dfe6dc"} stroke="#10291c" strokeWidth={planImage ? 0.5 : 1} strokeDasharray={planImage ? "2 2" : undefined} />
                   <text
                     x={block.centre.x}
                     y={Math.max(...o.footprint.map((p) => p.y)) + 17}
@@ -372,7 +403,7 @@ export function SitePlan({
             const selected = s.id === selectedStackId;
             const u = on("sun") ? unitNear(s.id) : null;
             const sunMin = u ? engine.sunProvider.estimate(u).living.annualAverageMin : 0;
-            const tip = along(s.position, s.livingBearingDeg, selected ? 16 : 11);
+            const tip = along(s.position, s.livingBearingDeg, (selected ? 16 : 11) * (dense ? 0.6 : 1));
             const layout = engine.ix.stackLayout(s.id);
             return (
               <g
@@ -398,7 +429,7 @@ export function SitePlan({
                 <circle
                   cx={s.position.x}
                   cy={s.position.y}
-                  r={selected ? 7.5 : 6}
+                  r={selected ? markerR + 1.5 : markerR}
                   fill={on("sun") ? sunColour(sunMin) : selected ? "#10291c" : "#ffffff"}
                   stroke="#10291c"
                   strokeWidth={selected ? 2.5 : 1}
@@ -407,7 +438,7 @@ export function SitePlan({
                   x={s.position.x}
                   y={s.position.y + 3}
                   textAnchor="middle"
-                  fontSize="6.5"
+                  fontSize={dense ? 4.4 : 6.5}
                   fontWeight="700"
                   className="pointer-events-none font-display-normal"
                   fill={selected && !on("sun") ? "#edf0ea" : "#10291c"}
@@ -422,17 +453,17 @@ export function SitePlan({
           {on("sun") && sun.altitudeDeg > 0 && (
             <g color="#c88a12">
               <line
-                x1={along({ x: 120, y: 95 }, sun.azimuthDeg, 150).x}
-                y1={along({ x: 120, y: 95 }, sun.azimuthDeg, 150).y}
-                x2={along({ x: 120, y: 95 }, sun.azimuthDeg, 95).x}
-                y2={along({ x: 120, y: 95 }, sun.azimuthDeg, 95).y}
+                x1={along(siteCentre, sun.azimuthDeg, sunReach).x}
+                y1={along(siteCentre, sun.azimuthDeg, sunReach).y}
+                x2={along(siteCentre, sun.azimuthDeg, sunReach * 0.63).x}
+                y2={along(siteCentre, sun.azimuthDeg, sunReach * 0.63).y}
                 stroke="#c88a12"
                 strokeWidth="2.5"
                 markerEnd="url(#arrow)"
               />
               <circle
-                cx={along({ x: 120, y: 95 }, sun.azimuthDeg, 160).x}
-                cy={along({ x: 120, y: 95 }, sun.azimuthDeg, 160).y}
+                cx={along(siteCentre, sun.azimuthDeg, sunReach * 1.07).x}
+                cy={along(siteCentre, sun.azimuthDeg, sunReach * 1.07).y}
                 r="9"
                 fill="#f2c14e"
               />
@@ -479,7 +510,7 @@ export function SitePlan({
             <text x="100" y="-7" fontSize="9" textAnchor="middle" className="fill-canopy font-display-normal">100 m</text>
           </g>
           <text x={VIEWBOX.x + VIEWBOX.w - 10} y={VIEWBOX.y + VIEWBOX.h - 10} textAnchor="end" fontSize="9" className="fill-stone font-display-normal">
-            Illustrative plan, not to scale of any real site
+            {planImage ? planImage.credit : "Illustrative plan, not to scale of any real site"}
           </text>
         </svg>
       </div>

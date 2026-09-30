@@ -7,7 +7,7 @@ import { unitLabel, weakestStatus } from "../lib/dataset-index";
 import type { Criterion, Engine, UnitAssessment } from "../lib/engine";
 import { CRITERIA } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
-import { compactMoney, money, psfText, signedMoney } from "../lib/format";
+import { areaText, compactMoney, money, psfText, signedMoney } from "../lib/format";
 import { compassPoint } from "../lib/geometry";
 import { clearanceCost, compareLayouts, premiumOver, psf } from "../lib/pricing";
 import type { Preferences } from "../lib/recommend";
@@ -68,8 +68,8 @@ export function Comparison({
     {
       title: "Layout",
       rows: [
-        { label: "Layout", cells: layouts.map((l) => `${l.name}, ${l.bedrooms} bedrooms`) },
-        { label: "Area", cells: layouts.map((l) => `${l.areaSqft.toLocaleString("en-SG")} sq ft`) },
+        { label: "Layout", cells: layouts.map((l) => (l.bedrooms === null ? l.name : `${l.name}, ${l.bedrooms} bedrooms`)) },
+        { label: "Area", cells: layouts.map((l) => areaText(l.areaSqft)) },
         {
           label: "Features",
           cells: layouts.map((l) => (l.features.length ? l.features.join(", ") : "None listed")),
@@ -305,7 +305,7 @@ export function Comparison({
         </table>
       </div>
       <p className="border-t border-canopy/10 px-4 py-3 text-sm text-canopy/75">
-        Green cells mark the best of the shortlist where the difference is meaningful. Prices, sun, view and noise figures are illustrative demo data.
+        Green cells mark the best of the shortlist where the difference is meaningful. Sun, noise and route figures are estimates; check each row&apos;s data status.
       </p>
     </div>
   );

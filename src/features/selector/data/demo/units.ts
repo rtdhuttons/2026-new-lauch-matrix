@@ -72,7 +72,7 @@ export const units: Unit[] = stacks.flatMap((stack) => {
       psf += pricing.viewStepPsf ?? 0;
     }
     const jitter = Math.round((next() - 0.5) * 12) * 1000;
-    const price = Math.round((layout.areaSqft * psf) / 1000) * 1000 + jitter;
+    const price = Math.round((layout.areaSqft! * psf) / 1000) * 1000 + jitter;
 
     const roll = next();
     const topReserved = level > block.storeys - 2;
