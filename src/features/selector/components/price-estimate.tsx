@@ -124,7 +124,10 @@ export function PriceEstimateSection({
   onEnabled,
   estimate,
   onEstimate,
+  bedrooms = "any",
 }: {
+  /** Show only unit types with this many bedrooms. */
+  bedrooms?: number | "any";
   /** The dataset without estimates, for the level range. */
   base: Dataset;
   /** The dataset with estimates applied (when enabled). */
@@ -136,7 +139,11 @@ export function PriceEstimateSection({
 }) {
   const baseLevel = lowestHomeLevel(base);
   const topLevel = Math.max(...base.blocks.map((b) => b.storeys));
-  const rows = useMemo(() => (enabled ? typeRows(priced) : []), [enabled, priced]);
+  const rows = useMemo(
+    () => (enabled ? typeRows(priced) : []).filter((r) => bedrooms === "any" || r.bedrooms === bedrooms),
+    [enabled, priced, bedrooms],
+  );
+  const [view, setView] = useState<"table" | "chart">("table");
   const [hover, setHover] = useState<string | null>(null);
 
   const lo = rows.length ? Math.floor(Math.min(...rows.map((r) => r.price[0])) / 500_000) * 500_000 : 0;
@@ -237,28 +244,41 @@ export function PriceEstimateSection({
       </div>
 
       <div className={`${card} p-5 sm:p-6`}>
-        <h3 className="font-display text-lg font-extrabold">Price by level and unit type</h3>
-        <p className="mt-1 text-sm text-canopy/75">
-          Every level from {topLevel} down to {baseLevel}, at {describeEstimate(estimate, baseLevel)}. Scroll sideways for the larger homes.
-        </p>
-        <div className="mt-4">
-          {enabled ? (
-            <PriceMatrix base={base} estimate={estimate} />
-          ) : (
-            <p className="text-[1rem] text-canopy/80">Turn on illustrative prices to see the full price table.</p>
-          )}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="font-display text-lg font-extrabold">{view === "table" ? "Price by level" : "Price range by unit type"}</h3>
+            <p className="mt-1 text-sm text-canopy/75">
+              {bedrooms === "any" ? "All unit types" : `${bedrooms}-bedroom types`} at {describeEstimate(estimate, baseLevel)}.
+            </p>
+          </div>
+          <div role="group" aria-label="Show prices as" className="flex rounded-full bg-mist-deep p-1">
+            {(["table", "chart"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className={`rounded-full px-4 py-1.5 font-display-normal text-sm font-medium ${view === v ? "bg-canopy text-mist" : "text-canopy/75 hover:text-canopy"}`}
+              >
+                {v === "table" ? "Table" : "Chart"}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className={`${card} p-5 sm:p-6 lg:col-span-2`}>
-        <h3 className="font-display text-lg font-extrabold">Illustrative price by unit type</h3>
+        <div className="mt-4">
+          {view === "table" ? (
+            enabled ? (
+              <PriceMatrix base={base} estimate={estimate} bedrooms={bedrooms} />
+            ) : (
+              <p className="text-[1rem] text-canopy/80">Turn on illustrative prices to see the full price table.</p>
+            )
+          ) : (
+            <>
         {!enabled ? (
           <p className="mt-2 text-[1rem] text-canopy/80">Turn on illustrative prices to see the range for each unit type.</p>
         ) : (
           <>
-            <p className="mt-1 text-sm text-canopy/75">
-              Each bar runs from the type&apos;s lowest home to its highest, at {describeEstimate(estimate, baseLevel)}.
-            </p>
+            <p className="text-sm text-canopy/75">Each bar runs from the type&apos;s lowest home to its highest.</p>
             <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-display-normal text-sm text-canopy/85" aria-label="Legend">
               {bedroomsShown.map((b) => (
                 <li key={b} className="flex items-center gap-1.5">
@@ -367,6 +387,9 @@ export function PriceEstimateSection({
             </details>
           </>
         )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

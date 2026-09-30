@@ -48,8 +48,21 @@ function build(ds: Dataset) {
 }
 
 /** Every level with its PSF and the price of each unit type found on it. */
-export function PriceMatrix({ base, estimate }: { base: Dataset; estimate: PriceEstimate }) {
-  const { columns, cells, levels, lowest } = useMemo(() => build(base), [base]);
+export function PriceMatrix({
+  base,
+  estimate,
+  bedrooms = "any",
+}: {
+  base: Dataset;
+  estimate: PriceEstimate;
+  /** Show only unit types with this many bedrooms. */
+  bedrooms?: number | "any";
+}) {
+  const built = useMemo(() => build(base), [base]);
+  const { cells, lowest } = built;
+  const columns = built.columns.filter((c) => bedrooms === "any" || c.bedrooms === bedrooms);
+  // Keep only levels where a shown type has homes.
+  const levels = built.levels.filter((l) => columns.some((c) => cells.has(`${l}|${c.key}`)));
   const avg = averagePsf(base, estimate);
   const avgLevel = levels.reduce((best, l) =>
     Math.abs(estimatedPsf(l, estimate, lowest) - avg) < Math.abs(estimatedPsf(best, estimate, lowest) - avg) ? l : best,

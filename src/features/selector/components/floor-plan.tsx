@@ -5,24 +5,24 @@ import type { Unit } from "../model/types";
 import { AssetImg } from "./asset-image";
 
 /** Floor plan thumbnail that opens the full page in a dialog. */
-export function FloorPlan({ unit }: { unit: Unit }) {
+export function FloorPlan({ unit, compact = false }: { unit: Unit; compact?: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const plan = unit.floorPlan;
   if (!plan) return null;
   const title = `Floor plan, Type ${unit.typeCode ?? ""}`.trim();
 
   return (
-    <figure className="mt-4">
+    <figure className={compact ? "" : "mt-4"}>
       <button
         type="button"
         onClick={() => dialog.current?.showModal()}
-        className="block w-full overflow-hidden rounded-lg border border-canopy/15 bg-white hover:border-canopy/40"
+        className={`block w-full overflow-hidden rounded-lg bg-white ${compact ? "" : "border border-canopy/15 hover:border-canopy/40"}`}
         aria-label={`${title}. Open larger`}
       >
         <AssetImg src={plan.src} alt="" loading="lazy" className="block h-auto w-full" />
       </button>
-      <figcaption className="mt-1.5 text-sm text-canopy/75">
-        {title}. Tap to enlarge.{plan.mirrored ? " This stack is a mirror image of the plan shown." : ""} {plan.credit}
+      <figcaption className={compact ? "px-1 pb-0.5 pt-1.5 font-display-normal text-xs text-canopy/70" : "mt-1.5 text-sm text-canopy/75"}>
+        {title}. Tap to enlarge.{plan.mirrored ? " This stack is a mirror image of the plan shown." : ""}{compact ? "" : ` ${plan.credit}`}
       </figcaption>
       <dialog
         ref={dialog}

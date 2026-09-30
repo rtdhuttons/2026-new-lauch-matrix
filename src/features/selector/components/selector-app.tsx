@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { dataGaps, dataset, gallery, heroImage, locationMap, mrtEntrance } from "../data";
 import type { Unit } from "../model/types";
 import { unitLabel } from "../lib/dataset-index";
@@ -13,7 +13,9 @@ import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
 import { Comparison } from "./comparison";
 import { MethodNotes } from "./method-notes";
 import { LocationSection } from "./location";
+import { FilterBar } from "./filter-bar";
 import { PreferencesPanel } from "./preferences-panel";
+import { UnitPanel } from "./unit-panel";
 import { Gallery, ProjectHero } from "./project-hero";
 import { PriceEstimateSection } from "./price-estimate";
 import { Recommendations } from "./recommendations";
@@ -46,7 +48,12 @@ export function SelectorApp() {
     ? { min: Math.floor(Math.min(...prices) / 50_000) * 50_000, max: Math.ceil(Math.max(...prices) / 50_000) * 50_000 }
     : { min: 1_300_000, max: 3_600_000 };
 
-  const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFERENCES);
+  const [prefs, setPrefs] = useState<Preferences>(() => {
+    const start = estimatable ? applyPriceEstimate(dataset, DEFAULT_ESTIMATE) : dataset;
+    const top = Math.max(0, ...start.units.map((u) => u.price ?? 0));
+    return top > 0 ? { ...DEFAULT_PREFERENCES, budget: Math.ceil(top / 50_000) * 50_000 } : DEFAULT_PREFERENCES;
+  });
+  const [analysisOpen, setAnalysisOpen] = useState(false);
   const [stackId, setStackId] = useState("01");
   const [level, setLevel] = useState(14);
   const [referenceId, setReferenceId] = useState<string | null>(
@@ -58,7 +65,6 @@ export function SelectorApp() {
   const [shortlist, setShortlist] = useState<string[]>(["01-14", "01-20"]);
   const [month, setMonth] = useState(5);
   const [minutes, setMinutes] = useState(16 * 60);
-  const [prefsOpen, setPrefsOpen] = useState(false);
   const [shadowsSignal, setShadowsSignal] = useState(0);
   const [unitQuery, setUnitQuery] = useState("");
   const [unitQueryError, setUnitQueryError] = useState<string | null>(null);
@@ -113,6 +119,21 @@ export function SelectorApp() {
           : [...list, u.id],
     );
 
+  // Homes that match the bedroom and budget filters, highlighted in 3D.
+  const focus = useCallback(
+    (u: Unit) =>
+      (prefs.bedrooms === "any" || ix.stackLayout(u.stackId).bedrooms === prefs.bedrooms) &&
+      (u.price === null || u.price <= prefs.budget),
+    [ix, prefs.bedrooms, prefs.budget],
+  );
+  const matches = priced.units.filter(focus).length;
+  const bedroomOptions = [...new Set(dataset.layouts.map((l) => l.bedrooms).filter((b): b is number => b !== null))].sort();
+
+  const openAnalysis = () => {
+    setAnalysisOpen(true);
+    requestAnimationFrame(() => scrollToId("analysis"));
+  };
+
   const candidates = [
     ...(unit ? [unit] : []),
     ...shortlistUnits.filter((u) => u.id !== unit?.id),
@@ -160,105 +181,99 @@ export function SelectorApp() {
 
 
         <section id="explore" aria-labelledby="explore-title" className="scroll-mt-20">
-          <h2 id="explore-title" className="sr-only">Explore stacks and floors</h2>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-            <aside aria-label="Your preferences" className="lg:sticky lg:top-20 lg:self-start">
-              <div className={`${card} p-4 sm:p-5`}>
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-display text-lg font-extrabold">Your preferences</h2>
-                  <button
-                    type="button"
-                    aria-expanded={prefsOpen}
-                    aria-controls="prefs-body"
-                    onClick={() => setPrefsOpen((o) => !o)}
-                    className="rounded-full border border-canopy/20 px-3 py-1 font-display-normal text-sm lg:hidden"
-                  >
-                    {prefsOpen ? "Hide" : "Edit"}
-                  </button>
-                </div>
-                <p className="mt-1 font-display-normal text-sm text-stone lg:hidden">
-                  {prefs.bedrooms === "any" ? "Any bedrooms" : `${prefs.bedrooms} bedrooms`}, up to {compactMoney(prefs.budget)}, {eligibleCount} units match
-                </p>
-                <div id="prefs-body" className={`${prefsOpen ? "block" : "hidden"} mt-4 lg:block lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1`}>
-                  <PreferencesPanel prefs={prefs} onChange={setPrefs} eligibleCount={eligibleCount} budgetRange={budgetRange} />
-                </div>
-              </div>
-            </aside>
-
-            <div className="grid min-w-0 grid-cols-1 gap-6 [&>*]:min-w-0">
-              <div id="site-plan" className={`${card} scroll-mt-20 p-4 sm:p-6`}>
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <h2 className="font-display text-lg font-extrabold">Site plan</h2>
-                    <p className="text-sm text-canopy/75">Spin the development around and tap any unit to see its price, or switch to the flat plan for view, noise, privacy and route overlays.</p>
-                  </div>
-                  <div className="flex flex-wrap items-start gap-2">
-                    <form
-                      role="search"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        goToUnit(unitQuery);
-                      }}
-                      className="flex gap-1.5"
-                    >
-                      <label htmlFor="unit-search" className="sr-only">Go to a unit number</label>
-                      <input
-                        id="unit-search"
-                        type="search"
-                        inputMode="numeric"
-                        value={unitQuery}
-                        onChange={(e) => setUnitQuery(e.target.value)}
-                        placeholder="Unit, e.g. #12-25"
-                        aria-describedby={unitQueryError ? "unit-search-error" : undefined}
-                        className="w-40 rounded-md border border-canopy/20 bg-paper px-3 py-2 font-display-normal text-sm"
-                      />
-                      <button type="submit" className="rounded-md bg-canopy px-3 py-2 font-display-normal text-sm font-semibold text-mist">
-                        Go
-                      </button>
-                    </form>
-                    <label htmlFor="stack-select" className="sr-only">Choose a stack</label>
-                    <select
-                      id="stack-select"
-                      value={stackId}
-                      onChange={(e) => selectStack(e.target.value)}
-                      className="rounded-md border border-canopy/20 bg-paper px-3 py-2 font-display-normal text-sm"
-                    >
-                      {dataset.stacks.map((s) => {
-                        const l = ix.stackLayout(s.id);
-                        return (
-                          <option key={s.id} value={s.id}>
-                            Stack {s.id}, {ix.block(s.blockId).name}
-                            {l.bedrooms !== null ? `, ${l.name} (${l.bedrooms} bed)` : ix.block(s.blockId).collection ? `, ${ix.block(s.blockId).collection}` : ""}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    {unitQueryError && (
-                      <p id="unit-search-error" role="alert" className="w-full font-display-normal text-sm text-[#9b2f28]">
-                        {unitQueryError}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <SiteView
-                  engine={engine}
-                  ranked={ranked}
-                  selectedStackId={stackId}
-                  selectedUnit={unit}
-                  level={level}
-                  onSelectStack={selectStack}
-                  onSelectUnit={(u) => {
-                    setStackId(u.stackId);
-                    setLevel(u.level);
-                  }}
-                  month={month}
-                  minutes={minutes}
-                  onMonth={setMonth}
-                  onMinutes={setMinutes}
-                  shadowsSignal={shadowsSignal}
+          <SectionHeading
+            id="explore-title"
+            title="Find your home"
+            lede="Choose a bedroom count or budget, then tap any home on the model to see its price and floor plan."
+          />
+          <FilterBar
+            prefs={prefs}
+            onChange={setPrefs}
+            bedroomOptions={bedroomOptions}
+            budgetMax={budgetRange.max}
+            matches={matches}
+            unitSearch={
+              <form
+                role="search"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  goToUnit(unitQuery);
+                }}
+                className="flex flex-wrap items-center gap-1.5"
+              >
+                <label htmlFor="unit-search" className="sr-only">Go to a unit number</label>
+                <input
+                  id="unit-search"
+                  type="search"
+                  inputMode="numeric"
+                  value={unitQuery}
+                  onChange={(e) => setUnitQuery(e.target.value)}
+                  placeholder="Unit no., e.g. #12-25"
+                  aria-describedby={unitQueryError ? "unit-search-error" : undefined}
+                  className="w-44 rounded-full border border-canopy/15 bg-paper px-4 py-2 font-display-normal text-sm"
                 />
-              </div>
+                <button type="submit" className="rounded-full bg-canopy px-4 py-2 font-display-normal text-sm font-semibold text-mist">
+                  Go
+                </button>
+                {unitQueryError && (
+                  <p id="unit-search-error" role="alert" className="w-full font-display-normal text-sm text-[#9b2f28]">
+                    {unitQueryError}
+                  </p>
+                )}
+              </form>
+            }
+          />
 
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
+            <div id="site-plan" className={`${card} scroll-mt-20 p-3 sm:p-4`}>
+              <SiteView
+                engine={engine}
+                ranked={ranked}
+                selectedStackId={stackId}
+                selectedUnit={unit}
+                level={level}
+                onSelectStack={selectStack}
+                onSelectUnit={(u) => {
+                  setStackId(u.stackId);
+                  setLevel(u.level);
+                }}
+                month={month}
+                minutes={minutes}
+                onMonth={setMonth}
+                onMinutes={setMinutes}
+                shadowsSignal={shadowsSignal}
+                focus={focus}
+              />
+            </div>
+            <div className="lg:sticky lg:top-20 lg:self-start">
+              <UnitPanel
+                engine={engine}
+                stackId={stackId}
+                unit={unit}
+                level={level}
+                onLevel={setLevel}
+                onCompare={toggleShortlist}
+                inCompare={unit ? shortlist.includes(unit.id) : false}
+                compareFull={shortlist.length >= MAX_SHORTLIST}
+                onFullAnalysis={openAnalysis}
+              />
+            </div>
+          </div>
+
+          <details
+            id="analysis"
+            open={analysisOpen}
+            onToggle={(e) => setAnalysisOpen(e.currentTarget.open)}
+            className="group mt-6 scroll-mt-20 rounded-2xl border border-canopy/10 bg-paper"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-display-normal [&::-webkit-details-marker]:hidden">
+              <span>
+                <span className="block font-display text-lg font-extrabold">Full analysis of stack {stackId}</span>
+                <span className="block text-sm text-canopy/75">Every floor&apos;s price and view, sun, noise and privacy, MRT walk and resale competition.</span>
+              </span>
+              <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full border border-canopy/20 text-lg transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <div className="grid grid-cols-1 gap-6 border-t border-canopy/10 p-3 sm:p-5 [&>*]:min-w-0">
               <StackExplorer
                 engine={engine}
                 stackId={stackId}
@@ -270,7 +285,6 @@ export function SelectorApp() {
                 onToggleShortlist={toggleShortlist}
                 onShowShadows={showShadowsAt4pm}
               />
-
               <UnitDetails
                 engine={engine}
                 unit={unit}
@@ -281,8 +295,27 @@ export function SelectorApp() {
                 onMinutes={setMinutes}
               />
             </div>
-          </div>
+          </details>
         </section>
+
+        {estimatable && (
+          <section id="prices" aria-labelledby="prices-title" className="mt-16 scroll-mt-20">
+            <SectionHeading
+              id="prices-title"
+              title="Illustrative prices"
+              lede="The price list isn't out yet. Set a starting PSF and a step per floor to see what each unit type could cost; every price in the selector follows these assumptions."
+            />
+            <PriceEstimateSection
+              base={dataset}
+              priced={priced}
+              enabled={estimateOn}
+              onEnabled={setEstimateOn}
+              estimate={estimate}
+              onEstimate={setEstimate}
+              bedrooms={prefs.bedrooms}
+            />
+          </section>
+        )}
 
         <section id="gallery" aria-labelledby="gallery-title" className="mt-16 scroll-mt-20">
           <SectionHeading
@@ -302,23 +335,6 @@ export function SelectorApp() {
           <LocationSection map={locationMap} />
         </section>
 
-        {estimatable && (
-          <section id="prices" aria-labelledby="prices-title" className="mt-16 scroll-mt-20">
-            <SectionHeading
-              id="prices-title"
-              title="Illustrative prices"
-              lede="The price list isn't out yet. Set a starting PSF and a step per floor to see what each unit type could cost; every price in the selector follows these assumptions."
-            />
-            <PriceEstimateSection
-              base={dataset}
-              priced={priced}
-              enabled={estimateOn}
-              onEnabled={setEstimateOn}
-              estimate={estimate}
-              onEstimate={setEstimate}
-            />
-          </section>
-        )}
 
         <section id="recommendations" aria-labelledby="rec-title" className="mt-16 scroll-mt-20">
           <SectionHeading
@@ -327,6 +343,14 @@ export function SelectorApp() {
             lede="Three separate answers, each with its reasons and trade-offs, based on your preferences and the rules explained below."
           />
           <Recommendations engine={engine} recs={recs} shortlist={shortlist} onOpen={openUnit} onToggleShortlist={toggleShortlist} />
+          <details className="mt-4 rounded-2xl border border-canopy/10 bg-paper">
+            <summary className="cursor-pointer px-5 py-4 font-display-normal text-sm font-semibold">
+              Fine-tune your preferences ({eligibleCount} homes meet them)
+            </summary>
+            <div className="border-t border-canopy/10 p-5">
+              <PreferencesPanel prefs={prefs} onChange={setPrefs} eligibleCount={eligibleCount} budgetRange={budgetRange} />
+            </div>
+          </details>
         </section>
 
         <section id="compare" aria-labelledby="compare-title" className="mt-16 scroll-mt-20">
@@ -362,8 +386,14 @@ export function SelectorApp() {
         </section>
 
         <section id="method" aria-labelledby="method-title" className="mt-16 scroll-mt-20">
-          <SectionHeading id="method-title" title="Method and data" />
-          <MethodNotes gaps={dataGaps} />
+          <details className="rounded-2xl border border-canopy/10 bg-paper">
+            <summary className="cursor-pointer px-5 py-4">
+              <span id="method-title" className="font-display text-lg font-extrabold">How this works and where the data comes from</span>
+            </summary>
+            <div className="border-t border-canopy/10 p-3 sm:p-5">
+              <MethodNotes gaps={dataGaps} />
+            </div>
+          </details>
         </section>
       </div>
 

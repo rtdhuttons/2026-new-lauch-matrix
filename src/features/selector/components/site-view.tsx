@@ -84,6 +84,7 @@ export function SiteView({
   onMonth,
   onMinutes,
   shadowsSignal = 0,
+  focus,
 }: {
   engine: Engine;
   ranked: RankedUnit[];
@@ -98,6 +99,8 @@ export function SiteView({
   onMinutes: (m: number) => void;
   /** Bumped by "See shadows at 4pm": switches to 3D with sun and shadows on. */
   shadowsSignal?: number;
+  /** Homes that match the buyer's filters; the rest are faded. */
+  focus?: (u: Unit) => boolean;
 }) {
   const ix = engine.ix;
   const ds = ix.ds;
@@ -120,7 +123,7 @@ export function SiteView({
   );
   const [colourMode, setColourMode] = useState<ColourMode>(modes[0]?.id ?? "sun");
   const [showSurroundings, setShowSurroundings] = useState(true);
-  const [showSun, setShowSun] = useState(true);
+  const [showSun, setShowSun] = useState(false);
   const [overlays, setOverlays] = useState<Set<Overlay>>(new Set(["views"]));
   const [azimuth, setAzimuth] = useState(0);
   const [resetSignal, setResetSignal] = useState(0);
@@ -195,10 +198,11 @@ export function SiteView({
           c = STATUS_COLOURS[u.status];
           break;
       }
+      if (focus && !focus(u) && u.id !== selectedUnit?.id) c = FADED;
       map.set(u.id, c);
     }
     return map;
-  }, [ds.units, colourMode, eligible, engine, ix, collections]);
+  }, [ds.units, colourMode, eligible, engine, ix, collections, focus, selectedUnit]);
 
   const tooltip = selectedUnit
     ? {
@@ -446,14 +450,9 @@ export function SiteView({
             )}
           </div>
 
-          <div className="border-t border-canopy/10 bg-mist px-4 py-3 text-sm text-canopy/80">
-            <p>Drag to spin it around, pinch or scroll to zoom, and tap a unit for its price. The floor slider below follows your selection.</p>
-            <p className="mt-1">
-              {ds.project.display?.planImage
-                ? `${ds.project.display.planImage.credit}, laid at its own scale. Every home is placed by stack and level from the developer's elevation charts; towers are simple massing and neighbouring buildings are not drawn yet. Sun positions are real for Singapore on the 21st of each month, so treat shadows between the blocks as indicative.`
-                : "Illustrative massing from the demo data. Sun positions are real for Singapore on the 21st of each month; buildings and trees are simplified, so treat shadows as indicative."}
-            </p>
-          </div>
+          <p className="border-t border-canopy/10 bg-mist px-4 py-2.5 text-[0.8125rem] text-canopy/75">
+            Drag to spin, pinch to zoom, tap a home for its price and floor plan. Towers are simple massing on the developer&apos;s site plan; shadows are indicative.
+          </p>
         </div>
       ) : (
         <SitePlan
