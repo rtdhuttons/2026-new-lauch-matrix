@@ -25,7 +25,7 @@ const RULES: { title: string; body: string[] }[] = [
   {
     title: "View Clearance Floor Marker",
     body: [
-      "Five sight lines are cast across the main view on the plan. For each one, the eye level needed to see the view target over every obstruction is solved from the obstruction's distance and top level, the target's distance and level, and the unit's floor level above sea datum.",
+      "Five sight lines are cast across the main view on the plan. For each one, the eye level needed to see the view target over every obstruction is solved from the obstruction's distance and top level, the target's distance and level, and the unit's floor level, all measured from the same height datum (sea level, or the adjoining road where only heights above it are known).",
       "Obstruction heights are ranges. The low end gives the optimistic floor and the high end the conservative floor; when they differ the marker shows a range.",
       "Estimated clear view: at least 4 of 5 sight lines clear. Partially cleared: at least one does. Limited further gain: all five clear and the floor is at least 3 above the clearance floor.",
       "Future view risk is reported separately from current clearance.",

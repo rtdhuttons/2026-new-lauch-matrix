@@ -6,7 +6,7 @@ import { describeClearFrom, levelView, VIEW_CATEGORY_LABEL } from "../lib/cleara
 import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
-import { compactMoney, isPesType, layoutSummary, money, psfText, signedMoney } from "../lib/format";
+import { compactMoney, heightText, isPesType, layoutSummary, money, psfText, signedMoney } from "../lib/format";
 import { compassWords, floorRL } from "../lib/geometry";
 import { clearanceNarrative, premiumOver, psf } from "../lib/pricing";
 import { card, StatusChip, ViewChip, VIEW_COLOURS } from "./ui";
@@ -138,7 +138,7 @@ function Elevation({
       )}
       <line x1="80" x2="206" y1={height - 22} y2={height - 22} stroke="#10291c" />
       <text x="143" y={height - 8} textAnchor="middle" fontSize="9" className="fill-stone font-display-normal">
-        Ground level RL {block.groundRL} m
+        Ground {heightText(engine.ix.ds.project, block.groundRL)}
       </text>
     </svg>
   );
@@ -495,7 +495,7 @@ export function StackExplorer({
           <div className="mt-6">
             <p className="font-display-normal text-sm font-semibold">Cross-section along the main view at level {level}</p>
             <p className="text-sm text-stone">
-              Sight line from standing eye height (RL {lv.eyeRL.toFixed(1)} m) to {view.target?.name ?? "the view"}. Shaded band: uncertain obstruction height.
+              Sight line from standing eye height ({heightText(ix.ds.project, lv.eyeRL)}) to {view.target?.name ?? "the view"}. Shaded band: uncertain obstruction height.
             </p>
             <div className="mt-2">
               <ViewSection engine={engine} view={view} stackId={stackId} lv={lv} />

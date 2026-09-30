@@ -63,8 +63,6 @@ export interface SceneData {
   radius: number;
 }
 
-const y = (rl: number) => rl - BASE_RL;
-
 /** Rotation about the vertical axis that matches a clockwise plan rotation. */
 export const planRotationToY = (deg: number) => (-deg * Math.PI) / 180;
 
@@ -101,6 +99,10 @@ export function buildScene(ds: Dataset): SceneData {
   const plinths: Box[] = [];
   const stackLabels: SceneData["stackLabels"] = [];
   const groundY = 0;
+  // The lowest block sits on the ground plane, so a site measured from a
+  // road datum (or on high ground) still starts at the origin.
+  const baseRL = Math.min(BASE_RL, ...ds.blocks.map((b) => b.groundRL));
+  const y = (rl: number) => rl - baseRL;
 
   for (const block of ds.blocks) {
     const blockStacks = ds.stacks.filter((s) => s.blockId === block.id);
@@ -113,7 +115,8 @@ export function buildScene(ds: Dataset): SceneData {
         const fp = stack.footprint ?? { w: 9, d: 9, rotationDeg: 0 };
         const rotY = planRotationToY(fp.rotationDeg);
         const base = { x: stack.position.x, z: stack.position.y, w: fp.w, d: fp.d, rotY };
-        podiums.push({ ...base, y: (y(block.groundRL) + y(podiumTop)) / 2, h: podiumTop - block.groundRL });
+        // Podium from the ground plane up to the first homes (car park decks, raised platforms).
+        if (y(podiumTop) > 0.2) podiums.push({ ...base, y: y(podiumTop) / 2, h: y(podiumTop) });
         roofs.push({ ...base, w: fp.w * 0.9, d: fp.d * 0.9, y: y(top) + 0.4, h: 0.8 });
         for (const unit of ds.units.filter((u) => u.stackId === stack.id)) {
           units.push({

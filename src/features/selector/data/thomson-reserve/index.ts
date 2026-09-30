@@ -7,7 +7,12 @@
 //
 // Unit types by stack and level come from the developer's elevation charts
 // (unit-schedule.ts); sizes, collections, storeys and heights from the
-// developer factsheet of 22 Sep 2026.
+// developer factsheet of 22 Sep 2026. Platform heights above Upper Thomson
+// Road, road buffers, gates, driveways, distances between blocks and the
+// towers' intended outlooks come from the architect's agent brief.
+//
+// Heights are measured from Upper Thomson Road beside the site (0 m), because
+// the brief gives levels relative to the road, not to sea datum.
 //
 // Not yet known, and deliberately left unknown rather than guessed: prices
 // and availability, exact finished floor levels, and the heights of
@@ -28,7 +33,14 @@ import type {
   Stack,
   Unit,
 } from "../../model/types";
-import { blockTopRL, distance, normaliseBearing, polylineLength } from "../../lib/geometry";
+import {
+  bearingVector,
+  blockTopRL,
+  distance,
+  normaliseBearing,
+  polylineLength,
+  rayPolygonSpan,
+} from "../../lib/geometry";
 import { unitSchedule } from "./unit-schedule";
 
 const UPDATED = "2026-09-30";
@@ -49,6 +61,13 @@ const factsheet = (note: string): Provenance => ({
   source: "Developer factsheet, 22 Sep 2026",
   updated: "2026-09-22",
   status: "verified",
+  note,
+});
+
+const brief = (note: string, status: Provenance["status"] = "verified"): Provenance => ({
+  source: "Architect's agent brief",
+  updated: UPDATED,
+  status,
   note,
 });
 
@@ -126,13 +145,19 @@ const blockSeeds: BlockSeed[] = [
 
 // Classic blocks: level 1 is a car park, homes from level 2. Luxury blocks:
 // car park in the basement, homes from level 1 in six stacks per block.
+// Site section (architect's brief): the Classic blocks' level 2 deck is about
+// 14.5 m (5 storeys) above Upper Thomson Road; the Luxury blocks' level 1 deck
+// about 8.5 m (3 storeys) above it.
 const COLLECTION = {
-  Classic: { storeys: 21, firstResidentialLevel: 2, homeSizeM: 9.5 },
-  Luxury: { storeys: 30, firstResidentialLevel: 1, homeSizeM: 11 },
+  Classic: { storeys: 21, firstResidentialLevel: 2, homeSizeM: 9.5, firstHomesAboveRoadM: 14.5 },
+  Luxury: { storeys: 30, firstResidentialLevel: 1, homeSizeM: 11, firstHomesAboveRoadM: 8.5 },
 } as const;
 
 /** Level 1 to level 2 landscape decks differ by about 4.3 m (factsheet FAQ). */
 const LEVEL1_HEIGHT_M = 4.3;
+
+/** Height datum: Upper Thomson Road beside the site. */
+const ROAD_RL = 0;
 /** 2.85 m floor-to-ceiling (factsheet) plus an assumed 0.3 m slab and finishes. */
 const TYPICAL_FLOOR_M = 3.15;
 
@@ -184,12 +209,49 @@ function layoutFor(code: string): Layout {
   };
 }
 
-const STACK_NOTES: Record<string, string[]> = Object.fromEntries(
-  ["19", "20", "21", "22"].map((id) => [
-    id,
-    ["Acoustic ceiling at the balcony, provided by the developer for this stack only (factsheet FAQ)."],
-  ]),
-);
+const STACK_NOTES: Record<string, string[]> = {};
+const note = (ids: string[], text: string) => {
+  for (const id of ids) (STACK_NOTES[id] ??= []).push(text);
+};
+note(["19", "20", "21", "22"], "Acoustic ceiling at the balcony, provided by the developer for this stack only (factsheet FAQ).");
+// Dimensions marked on the architect's "distance between blocks" plan.
+note(["19"], "Block 5 is about 19 m from the Upper Thomson Road site boundary at this corner (architect's brief).");
+note(["28", "36"], "Block 7 is about 26 m from the Upper Thomson Road site boundary here (architect's brief).");
+note(["29"], "About 37 m to the western site boundary (architect's brief).");
+note(["32"], "About 70 m to the tennis courts at the Wellness Club (architect's brief).");
+note(["33"], "About 17 m to the northern site boundary; about 190 m across the pools to Block 9 (architect's brief).");
+note(["45"], "About 60 m from the Upper Thomson Road site boundary (architect's brief).");
+note(["14"], "About 24 m from the Upper Thomson Road site boundary; about 171 m across the pools to Block 5 (architect's brief).");
+note(["37"], "About 28 m to the northern site boundary (architect's brief).");
+note(["50"], "About 10 m from the Bright Hill Drive site boundary (architect's brief).");
+note(["02"], "About 24 m from the Bright Hill Drive site boundary (architect's brief).");
+note(["51", "09"], "Blocks 1 and 11 are about 40 m apart here, the closest pair of blocks in the development (architect's brief).");
+note(["55", "15"], "About 77 m between Blocks 3 and 11 here (architect's brief).");
+note(["54", "16"], "About 80 m between Blocks 3 and 11 here (architect's brief).");
+note(["18"], "About 63 m to Block 11 (architect's brief).");
+
+// The brief orients the towers to three outlooks west of Upper Thomson Road.
+// Directions (true bearings) are read from its orientation diagram; whether a
+// floor actually sees over the landed homes and trees in between is not
+// assessed until their heights are loaded.
+const OUTLOOKS = [
+  { from: 190, to: 245, label: "Towards MacRitchie Reservoir" },
+  { from: 245, to: 290, label: "Towards Windsor Nature Park" },
+  { from: 290, to: 335, label: "Towards the Singapore Island Country Club golf course" },
+];
+
+function outlookFor(bearing: number): Stack["mainView"] {
+  const o = OUTLOOKS.find((x) => bearing >= x.from && bearing < x.to);
+  return {
+    label: o?.label ?? "Outward view",
+    bearingDeg: bearing,
+    coneHalfWidthDeg: 12,
+    targetId: "",
+    provenance: o
+      ? brief("Direction only, from the brief's tower orientation diagram. Neighbouring heights are not loaded, so clearance is not assessed.", "estimated")
+      : unknown("View targets and neighbouring building heights are not loaded yet"),
+  };
+}
 
 /** Principal axis of a block's stacks, degrees clockwise on plan. */
 function principalAxisDeg(points: Point[]): number {
@@ -258,7 +320,7 @@ for (const seed of blockSeeds) {
     size: { w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) },
     rotationDeg: 0,
     storeys: cfg.storeys,
-    groundRL: 22,
+    groundRL: ROAD_RL + cfg.firstHomesAboveRoadM - (cfg.firstResidentialLevel - 1) * LEVEL1_HEIGHT_M,
     level1HeightM: LEVEL1_HEIGHT_M,
     typicalFloorHeightM: TYPICAL_FLOOR_M,
     roofAllowanceM: 4,
@@ -267,7 +329,7 @@ for (const seed of blockSeeds) {
     collection: seed.collection,
     footprint: hull,
     provenance: factsheet(
-      `${seed.collection} Collection, ${cfg.storeys} storeys. Level 1 to 2 about 4.3 m (factsheet FAQ); typical floor-to-floor 3.15 m assumed from the 2.85 m ceiling; ground level assumed.`,
+      `${seed.collection} Collection, ${cfg.storeys} storeys. First homes about ${cfg.firstHomesAboveRoadM} m above Upper Thomson Road (architect's brief site section). Level 1 to 2 about 4.3 m (factsheet FAQ); typical floor-to-floor 3.15 m assumed from the 2.85 m ceiling.`,
     ),
   });
 
@@ -282,18 +344,30 @@ for (const seed of blockSeeds) {
       position,
       livingBearingDeg: living,
       masterBearingDeg: living,
-      mainView: {
-        label: "Outward view",
-        bearingDeg: living,
-        coneHalfWidthDeg: 12,
-        targetId: "",
-        provenance: unknown("View targets and neighbouring building heights are not loaded yet"),
-      },
+      mainView: outlookFor(living),
       footprint: { w: cfg.homeSizeM, d: cfg.homeSizeM, rotationDeg: axis },
       notes: STACK_NOTES[id],
       provenance: traced("Stack position from its label on the site plan; facing assumed to point away from the lift core"),
     });
   }
+}
+
+// A stack whose main direction first meets another Thomson Reserve block
+// looks across the development, whatever lies beyond.
+for (const s of stacks) {
+  const dir = bearingVector(s.livingBearingDeg, PLAN_NORTH_DEG);
+  let hit: { block: Block; near: number } | null = null;
+  for (const b of blocks) {
+    if (b.id === s.blockId) continue;
+    const span = rayPolygonSpan(s.position, dir, b.footprint!);
+    if (span && span.near < 400 && (!hit || span.near < hit.near)) hit = { block: b, near: span.near };
+  }
+  if (!hit) continue;
+  s.mainView = {
+    ...s.mainView,
+    label: `Across the development to ${hit.block.name}, about ${Math.round(hit.near / 5) * 5} m away`,
+    provenance: traced("Direction and distance measured on the site plan; neighbouring heights beyond are not loaded"),
+  };
 }
 
 const units: Unit[] = stacks.flatMap((s) => {
@@ -329,6 +403,7 @@ const obstructions: Obstruction[] = blocks.map((b) => {
 });
 
 const plan = traced("Drawn from the site plan; road centrelines are approximate");
+const briefPlan = brief("Drawn onto the site plan from the architect's circulation and vehicle plans; positions approximate", "estimated");
 
 const exposureSources: ExposureSource[] = [
   {
@@ -336,7 +411,10 @@ const exposureSources: ExposureSource[] = [
     kind: "main-road",
     name: "Upper Thomson Road",
     geometry: [P(-40, 160), P(40, 330), P(200, 520), P(450, 632), P(800, 668), P(1200, 662), P(1480, 640)],
+    levelRL: ROAD_RL,
     activity: "Heavy traffic and buses through the day; busiest at morning and evening peaks",
+    context:
+      "The site sits about 8.5 m (Luxury blocks) to 14.5 m (Classic blocks) above the road, behind a 5 m green buffer, a 15 m road buffer and a planted forest band meant to shield the homes from the road (architect's brief). Not modelled as screening here.",
     provenance: plan,
   },
   {
@@ -360,16 +438,45 @@ const exposureSources: ExposureSource[] = [
   { id: "pool-east", kind: "pool", name: "Island Club pools", geometry: [P(1010, 440)], activity: "Island Pool and 50 m lap pool; busier at weekends and in school holidays", provenance: plan },
   { id: "wellness", kind: "pool", name: "Wellness Club hydro pools", geometry: [P(250, 330)], activity: "Spa and hydrotherapy pools; quieter use", provenance: plan },
   { id: "courts", kind: "tennis", name: "Tennis and multi-purpose courts (Wellness Club)", geometry: [P(150, 170)], activity: "Evenings and weekends; likely floodlit", provenance: plan },
-  { id: "drop-off", kind: "arrival-court", name: "Drop-off, Bright Hill Drive", geometry: [P(1175, 300)], activity: "School and work drop-offs, deliveries, taxis", provenance: plan },
+  {
+    id: "drop-off",
+    kind: "arrival-court",
+    name: "Drop-off court, off Bright Hill Drive",
+    geometry: [P(1177, 330)],
+    activity: "School and work drop-offs, deliveries, taxis",
+    context: "Residents' and visitors' arrival from Bright Hill Drive; cars also enter and leave the level 1 car park here (architect's brief).",
+    provenance: briefPlan,
+  },
+  {
+    id: "sin-ming-carpark",
+    kind: "vehicle-ramp",
+    name: "Car park entrance, Sin Ming Avenue",
+    geometry: [P(165, 75), P(215, 160)],
+    activity: "Residents' cars to and from the basement car park; busiest at morning and evening peaks",
+    context: "Residents only; visitors use Bright Hill Drive (architect's brief).",
+    provenance: briefPlan,
+  },
+  {
+    id: "service-route",
+    kind: "service-road",
+    name: "Service vehicle route to the bin centre",
+    geometry: [P(1256, 262), P(1168, 180), P(1045, 163), P(1015, 230)],
+    activity: "Refuse collection and service vehicles, usually early morning",
+    context: "Runs from Bright Hill Drive round the north of Block 11 to the bin centre at basement level (architect's brief).",
+    provenance: briefPlan,
+  },
 ];
 
 const gates: Gate[] = [
-  { id: "bright-hill", name: "Guardhouse, Bright Hill Drive", position: P(1272, 240), opening: "Main entrance with guardhouse (factsheet)" },
-  { id: "sin-ming", name: "Guardpost, Sin Ming Avenue", position: P(152, 72), opening: "Second entrance with guardpost (factsheet)" },
-  { id: "side", name: "Pedestrian side gate by MRT Exit 2", position: P(1340, 478), opening: "Proximity card access (factsheet); hours not published" },
+  { id: "bright-hill", name: "Main entrance, Bright Hill Drive", position: P(1272, 240), opening: "Guardhouse; residents' and visitors' vehicle entrance (factsheet, architect's brief)" },
+  { id: "sin-ming", name: "Side Gate 2, Sin Ming Avenue", position: P(152, 72), opening: "Pedestrian gate beside the guardpost and residents-only car park entrance (architect's brief); hours not published" },
+  { id: "side", name: "Side Gate 1, Bright Hill Drive", position: P(1300, 300), opening: "Pedestrian gate onto the LTA covered linkway to Upper Thomson MRT (architect's brief); proximity card access (factsheet)" },
 ];
 
 const mrtExit = P(1368, 470);
+/** LTA covered linkway from Side Gate 1 to the station, as drawn in the brief. */
+const linkway = [gates[2].position, P(1335, 355), P(1358, 420), mrtExit];
+const LINKWAY_M = 65;
 
 const internalRoutes: InternalRoute[] = blocks.flatMap((b) =>
   gates.map((g) => ({
@@ -383,7 +490,10 @@ const internalRoutes: InternalRoute[] = blocks.flatMap((b) =>
       source: "TRM estimate from the site plan",
       updated: UPDATED,
       status: "estimated" as const,
-      note: "Straight line from the lift core to the gate plus 25%; not a walked route",
+      note:
+        b.collection === "Classic"
+          ? "Straight line from the lift core to the gate plus 25%; not a walked route. The Classic blocks' level 2 deck links to level 1 by a lift beside the drop-off (architect's brief)."
+          : "Straight line from the lift core to the gate plus 25%; not a walked route. The Luxury blocks' level 1 paths link to the level 2 deck by a lift beside the Grand Clubhouse (architect's brief).",
     },
   })),
 );
@@ -404,8 +514,16 @@ const outside = (gateId: string, path: Point[], crossings: string): ExternalRout
 });
 
 const externalRoutes: ExternalRoute[] = [
-  outside("side", [gates[2].position, mrtExit], "None expected; the exit sits beside the side gate"),
-  outside("bright-hill", [gates[0].position, P(1330, 300), P(1360, 420), mrtExit], "Along Bright Hill Drive; crossing details not confirmed"),
+  {
+    gateId: "side",
+    destination: "Upper Thomson MRT (TE8), Exit 2",
+    path: linkway,
+    distanceM: LINKWAY_M,
+    coveredM: LINKWAY_M,
+    crossings: "None shown; the covered linkway runs along Bright Hill Drive to the station",
+    provenance: brief("65 m LTA covered linkway from Side Gate 1 to the station, as marked on the circulation plan"),
+  },
+  outside("bright-hill", [gates[0].position, ...linkway], "Along Bright Hill Drive to Side Gate 1, then the covered linkway"),
   outside("sin-ming", [gates[1].position, P(40, 330), P(450, 632), P(1200, 662), mrtExit], "Along Upper Thomson Road; crossing details not confirmed"),
 ];
 
@@ -424,6 +542,7 @@ export const thomsonReserveDataset: Dataset = {
     latitudeDeg: 1.354,
     longitudeDeg: 103.832,
     utcOffsetHours: 8,
+    heightDatum: "Upper Thomson Road",
     provenance: factsheet("1,268 homes: 2 blocks of 30 storeys and 4 blocks of 21 storeys"),
     display: {
       planImage: {
@@ -435,7 +554,7 @@ export const thomsonReserveDataset: Dataset = {
       roadLabels: [],
       mrtLabel: { text: "Upper Thomson MRT, Exit 2", at: mrtExit },
       notice:
-        "Thomson Reserve, from the developer's site plan, elevation charts and factsheet: every stack and level with its unit type. Prices and availability are not published yet, and neighbouring building heights are not loaded, so view clearance is not assessed.",
+        "Thomson Reserve, from the developer's site plan, elevation charts, factsheet and the architect's brief: every stack and level with its unit type, heights above Upper Thomson Road, gates and driveways. Prices and availability are not published yet, and neighbouring building heights are not loaded, so view clearance is not assessed.",
       pricingNote:
         "Awaiting the developer's price list. Prices, premiums and resale scenarios appear once it is loaded.",
     },
@@ -461,6 +580,7 @@ export const thomsonReserveMrtExit = mrtExit;
 export const thomsonReserveGaps = [
   "Prices and availability: awaiting the developer's price list.",
   "Neighbouring building heights and view targets, needed for the View Clearance Floor Marker.",
-  "Exact finished floor levels: level 1 to 2 uses the factsheet's 4.3 m; other floors assume 3.15 m.",
+  "Exact finished floor levels: first homes use the brief's approximate heights above Upper Thomson Road (8.5 m Luxury, 14.5 m Classic); level 1 to 2 uses the factsheet's 4.3 m; other floors assume 3.15 m.",
+  "Walked routes to the MRT: only the 65 m covered linkway outside Side Gate 1 is measured; paths inside the development are estimated.",
   "Room facings: living and master bedroom are assumed to face away from the lift core until each unit plan is keyed in.",
 ];

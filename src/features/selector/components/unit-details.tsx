@@ -6,7 +6,7 @@ import { describeClearFrom, VIEW_CATEGORY_LABEL } from "../lib/clearance";
 import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
-import { areaText, metres, money, psfText, signedMoney } from "../lib/format";
+import { areaText, heightText, metres, money, psfText, signedMoney } from "../lib/format";
 import { compassWords } from "../lib/geometry";
 import { clearanceCost, premiumOver, psf } from "../lib/pricing";
 import type { Facade, SunState } from "../lib/solar";
@@ -234,7 +234,7 @@ export function UnitDetails({
               <div>
                 <dt className="font-display-normal text-sm text-stone">Ground and eye level</dt>
                 <dd className="font-display-normal font-semibold">
-                  Ground RL {block.groundRL} m; eye RL {a.level?.eyeRL.toFixed(1)} m at level {unit.level}
+                  Ground {heightText(engine.ix.ds.project, block.groundRL)}; eye level {heightText(engine.ix.ds.project, a.level?.eyeRL ?? 0)} at level {unit.level}
                 </dd>
               </div>
               <div>
@@ -285,6 +285,9 @@ export function UnitDetails({
                       <td className="py-2 pr-3">
                         <span className="font-semibold">{n.source.name}</span>
                         <span className="block text-canopy/75">{n.description}</span>
+                        {n.source.context && (
+                          <span className="mt-1 block text-canopy/75">{n.source.context}</span>
+                        )}
                       </td>
                       <td className="py-2 pr-3 tabular-nums">
                         {metres(n.distanceM)} {n.direction}
@@ -295,6 +298,9 @@ export function UnitDetails({
                         <span className="block text-canopy/75">
                           {n.lineOfSight === "direct" ? "Direct line of sight" : `Screened by ${n.screenedBy}`}
                         </span>
+                        {n.heightAboveM !== null && (
+                          <span className="block text-canopy/75">Eye level about {n.heightAboveM} m above it</span>
+                        )}
                       </td>
                       <td className="py-2">{n.source.activity}</td>
                     </tr>
@@ -352,10 +358,15 @@ export function UnitDetails({
                   <div>
                     <dt className="font-display-normal text-sm text-stone">Covered</dt>
                     <dd className="font-display-normal font-semibold">
-                      {a.mrt.best.coveredM === null
-                        ? "Unknown for part of the route"
-                        : `${metres(a.mrt.best.coveredM)} of ${metres(a.mrt.best.totalM)}`}
+                      {a.mrt.best.coveredM !== null
+                        ? `${metres(a.mrt.best.coveredM)} of ${metres(a.mrt.best.totalM)}`
+                        : a.mrt.best.external.coveredM
+                          ? `${metres(a.mrt.best.external.coveredM)} outside the gate`
+                          : "Unknown for part of the route"}
                     </dd>
+                    {a.mrt.best.coveredM === null && a.mrt.best.external.coveredM ? (
+                      <dd className="text-sm text-canopy/75">Shelter inside the development not confirmed</dd>
+                    ) : null}
                   </div>
                 </dl>
                 <p className="text-[1rem]">Crossings: {a.mrt.best.external.crossings}.</p>

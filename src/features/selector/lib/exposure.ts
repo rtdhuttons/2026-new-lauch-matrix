@@ -85,6 +85,13 @@ const KIND_RULES: Record<
     describe: "Potential vehicle ramp noise",
     floorNote: "Mostly affects lower floors close to the ramp entrance.",
   },
+  "service-road": {
+    higherWithin: 30,
+    moderateWithin: 70,
+    ignoreBeyond: 110,
+    describe: "Potential refuse truck and service vehicle noise",
+    floorNote: "Mostly affects lower floors; collections are usually early in the morning.",
+  },
   walkway: {
     higherWithin: 10,
     moderateWithin: 20,
@@ -103,6 +110,8 @@ export interface NoiseFinding {
   distanceM: number;
   direction: string;
   exposedRooms: string[];
+  /** How far this floor's eye level is above the source, when the source level is known. */
+  heightAboveM: number | null;
   lineOfSight: "direct" | "screened";
   screenedBy: string | null;
   potential: Potential;
@@ -137,6 +146,7 @@ function blockerBetween(
   fromRL: number,
   to: Point,
   ownBlockId: string,
+  sourceRL: number | undefined,
 ): Obstruction | null {
   const dist = Math.hypot(to.x - from.x, to.y - from.y);
   if (dist < 1) return null;
@@ -147,7 +157,7 @@ function blockerBetween(
     const span = rayPolygonSpan(from, dir, o.footprint);
     if (!span || span.near >= dist) continue;
     // Straight sound path from the window down to a ground-level source.
-    const targetRL = o.baseRL + SOURCE_HEIGHT_M;
+    const targetRL = (sourceRL ?? o.baseRL) + SOURCE_HEIGHT_M;
     const pathAtNear = fromRL + ((targetRL - fromRL) * span.near) / dist;
     if (o.topRL.min > pathAtNear) return o;
   }
@@ -172,7 +182,7 @@ export function screenExposure(ix: DatasetIndex, unit: Unit): ExposureScreening 
     const rooms: string[] = [];
     if (Math.abs(angleDiff(bearing, stack.livingBearingDeg)) <= 90) rooms.push("Living room");
     if (Math.abs(angleDiff(bearing, stack.masterBearingDeg)) <= 90) rooms.push("Master bedroom");
-    const blocker = blockerBetween(ix, stack.position, eye, nearest.point, stack.blockId);
+    const blocker = blockerBetween(ix, stack.position, eye, nearest.point, stack.blockId, source.levelRL);
 
     let potential: Potential =
       nearest.distance <= rule.higherWithin
@@ -189,6 +199,7 @@ export function screenExposure(ix: DatasetIndex, unit: Unit): ExposureScreening 
       distanceM: Math.round(nearest.distance),
       direction: compassWords(bearing),
       exposedRooms: rooms,
+      heightAboveM: source.levelRL === undefined ? null : Math.round(eye - source.levelRL),
       lineOfSight: blocker ? "screened" : "direct",
       screenedBy: blocker?.name ?? null,
       potential,

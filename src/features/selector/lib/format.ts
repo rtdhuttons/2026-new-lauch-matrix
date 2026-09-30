@@ -1,3 +1,5 @@
+import type { Project } from "../model/types";
+
 export function money(n: number): string {
   return `$${Math.round(n).toLocaleString("en-SG")}`;
 }
@@ -50,4 +52,10 @@ export function layoutSummary(layout: {
 /** True for a developer "p" type: the lowest-level home with a private enclosed space. */
 export function isPesType(typeCode: string | undefined): boolean {
   return !!typeCode && /p( \(L\))?$/.test(typeCode);
+}
+
+/** A level in the project's height datum, e.g. "14.5 m above Upper Thomson Road" or "RL 26 m". */
+export function heightText(project: Project, rl: number): string {
+  const v = Number.isInteger(rl) ? String(rl) : rl.toFixed(1);
+  return project.heightDatum ? `${v} m above ${project.heightDatum}` : `RL ${v} m`;
 }

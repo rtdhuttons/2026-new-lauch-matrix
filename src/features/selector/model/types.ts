@@ -40,6 +40,11 @@ export interface Project {
   longitudeDeg: number;
   /** UTC offset of local clock time, in hours. */
   utcOffsetHours: number;
+  /**
+   * What RL values are measured from when it is not Singapore Height Datum,
+   * e.g. "Upper Thomson Road" when only heights above the road are known.
+   */
+  heightDatum?: string;
   provenance: Provenance;
   /** Optional map furniture for drawing the site. */
   display?: ProjectDisplay;
@@ -65,7 +70,7 @@ export interface Block {
   /** Clockwise rotation of the footprint on plan, degrees. */
   rotationDeg: number;
   storeys: number;
-  /** Finished ground level at the block, metres above Singapore Height Datum. */
+  /** Finished ground level at the block, metres above SHD (or `Project.heightDatum`). */
   groundRL: number;
   level1HeightM: number;
   typicalFloorHeightM: number;
@@ -191,6 +196,7 @@ export type ExposureKind =
   | "tennis"
   | "arrival-court"
   | "vehicle-ramp"
+  | "service-road"
   | "walkway";
 
 export interface ExposureSource {
@@ -199,7 +205,11 @@ export interface ExposureSource {
   name: string;
   /** A point or a polyline; distance is measured to the nearest segment. */
   geometry: Point[];
+  /** Level the source sits at, metres; when unknown, sound paths use the obstruction's base. */
+  levelRL?: number;
   activity: string;
+  /** Buffers, planting or design measures between the source and the homes. */
+  context?: string;
   provenance: Provenance;
 }
 

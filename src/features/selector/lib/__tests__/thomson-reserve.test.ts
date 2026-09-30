@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { thomsonReserveDataset as ds, thomsonReserveMrtExit } from "../../data/thomson-reserve";
 import { createEngine } from "../engine";
+import { screenExposure } from "../exposure";
+import { floorRL } from "../geometry";
+import { indexDataset } from "../dataset-index";
 import { rankUnits, recommend, DEFAULT_PREFERENCES } from "../recommend";
 import { buildScene } from "../scene";
 
@@ -80,5 +83,53 @@ describe("Thomson Reserve dataset", () => {
       const box = scene.units.find((b) => b.unit.stackId === s.id)!;
       expect(Math.hypot(box.x - s.position.x, box.z - s.position.y)).toBeLessThan(0.01);
     }
+  });
+
+  it("matches the architect's block-to-block dimensions within 8%", () => {
+    // Gap between the homes at each end, from the brief's distance plan.
+    const brief: [string, string, number][] = [
+      ["33", "37", 190], ["35", "45", 182], ["35", "15", 240], ["27", "14", 171],
+      ["51", "09", 40], ["55", "15", 77], ["54", "16", 80], ["51", "18", 63],
+    ];
+    for (const [a, b, metres] of brief) {
+      const A = ds.stacks.find((s) => s.id === a)!;
+      const B = ds.stacks.find((s) => s.id === b)!;
+      const gap =
+        Math.hypot(A.position.x - B.position.x, A.position.y - B.position.y) -
+        (A.footprint!.w + B.footprint!.w) / 2;
+      expect(Math.abs(gap / metres - 1), `${a}–${b}`).toBeLessThan(0.08);
+    }
+  });
+
+  it("puts the first homes at the brief's heights above Upper Thomson Road", () => {
+    expect(ds.project.heightDatum).toBe("Upper Thomson Road");
+    for (const b of ds.blocks) {
+      expect(floorRL(b, b.firstResidentialLevel)).toBeCloseTo(b.collection === "Luxury" ? 8.5 : 14.5, 5);
+    }
+  });
+
+  it("reports the covered linkway from Side Gate 1 to the MRT", () => {
+    const engine = createEngine(ds, thomsonReserveMrtExit);
+    const unit = ds.units.find((u) => u.stackId === "05" && u.level === 10)!;
+    const best = engine.assess(unit).mrt.best!;
+    expect(best.gate.name).toMatch(/Side Gate 1/);
+    expect(best.external.distanceM).toBe(65);
+    expect(best.external.coveredM).toBe(65);
+  });
+
+  it("gives road findings a height above the road", () => {
+    const ix = indexDataset(ds);
+    const unit = ds.units.find((u) => u.stackId === "19" && u.level === 10)!;
+    const road = screenExposure(ix, unit).noise.find((n) => n.source.id === "upper-thomson")!;
+    const block = ix.stackBlock("19");
+    expect(road.heightAboveM).toBe(Math.round(floorRL(block, 10) + 1.5));
+    expect(road.source.context).toMatch(/forest band/);
+  });
+
+  it("labels view directions without implying clearance", () => {
+    const labels = new Set(ds.stacks.map((s) => s.mainView.label));
+    expect([...labels].some((l) => l.startsWith("Towards MacRitchie"))).toBe(true);
+    expect([...labels].some((l) => l.startsWith("Across the development"))).toBe(true);
+    for (const s of ds.stacks) expect(s.mainView.targetId).toBe("");
   });
 });
