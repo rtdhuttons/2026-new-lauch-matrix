@@ -12,6 +12,7 @@ function Page() {
         nav={[
           { href: "#explore", label: "Explore" },
           { href: "#prices", label: "Prices" },
+          { href: "#location", label: "Location" },
           { href: "#recommendations", label: "Recommendations" },
           { href: "#scenario", label: "Scenarios" },
           { href: "#method", label: "Method" },

@@ -47,7 +47,7 @@ export function ProjectHero({
   );
 }
 
-/** One large and four small images, each opening larger on tap. */
+/** One large image and up to eight smaller ones, each opening larger on tap. */
 export function Gallery({ images }: { images: GalleryImage[] }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState<GalleryImage | null>(null);
@@ -55,17 +55,17 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
     setOpen(img);
     dialog.current?.showModal();
   };
-  const [feature, ...rest] = images.slice(0, 5);
+  const [feature, ...rest] = images.slice(0, 9);
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:grid-rows-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:auto-rows-[210px] lg:grid-cols-4">
         {[feature, ...rest].map((img, i) => (
           <figure
             key={img.src}
             className={`group relative overflow-hidden rounded-xl bg-canopy ${
               i === 0 ? "col-span-2 row-span-2 aspect-[4/3] lg:aspect-auto" : "aspect-[4/3] lg:aspect-auto"
-            } lg:min-h-[210px]`}
+            }`}
           >
             <button
               type="button"

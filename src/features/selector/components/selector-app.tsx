@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { dataGaps, dataset, gallery, heroImage, mrtEntrance } from "../data";
+import { dataGaps, dataset, gallery, heroImage, locationMap, mrtEntrance } from "../data";
 import type { Unit } from "../model/types";
 import { unitLabel } from "../lib/dataset-index";
 import { createEngine } from "../lib/engine";
@@ -12,6 +12,7 @@ import type { Preferences } from "../lib/recommend";
 import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
 import { Comparison } from "./comparison";
 import { MethodNotes } from "./method-notes";
+import { LocationSection } from "./location";
 import { PreferencesPanel } from "./preferences-panel";
 import { Gallery, ProjectHero } from "./project-hero";
 import { PriceEstimateSection } from "./price-estimate";
@@ -290,6 +291,15 @@ export function SelectorApp() {
             lede="Three clubs, a chain of pools shaped like the reservoirs next door, and towers set to face the green."
           />
           <Gallery images={gallery} />
+        </section>
+
+        <section id="location" aria-labelledby="location-title" className="mt-16 scroll-mt-20">
+          <SectionHeading
+            id="location-title"
+            title="Where city meets reserve"
+            lede="On Upper Thomson Road, with the MRT at the gate, the Central Catchment forest to the west and Bishan's schools and malls to the east."
+          />
+          <LocationSection map={locationMap} />
         </section>
 
         {estimatable && (

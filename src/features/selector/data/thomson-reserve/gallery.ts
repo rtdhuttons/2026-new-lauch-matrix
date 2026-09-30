@@ -25,6 +25,12 @@ export const gallery: GalleryImage[] = [
     alt: "Sunset over the forest, golf course and reservoir beyond landed homes, seen from a high balcony. Artist's impression.",
   },
   {
+    src: src("pools-lawn.jpg"),
+    title: "Pools, lawns and forest",
+    caption: "A chain of pools and gardens runs the length of the site, with the towers rising behind.",
+    alt: "A long infinity pool and lawn framed by tropical trees, with residential towers behind. Artist's impression.",
+  },
+  {
     src: src("grand-clubhouse.jpg"),
     title: "The Grand Clubhouse",
     caption: "A pool deck and planted roof at the heart of the development.",
@@ -43,6 +49,24 @@ export const gallery: GalleryImage[] = [
     alt: "A long gym with treadmills and cross-trainers behind floor-to-ceiling glass facing the garden. Artist's impression.",
   },
   {
+    src: src("spa-pavilion.jpg"),
+    title: "Hydrotherapy pools",
+    caption: "Spa pools under a timber pavilion, wrapped in greenery.",
+    alt: "Bubbling spa pools beneath a curved timber-slatted pavilion, surrounded by trees. Artist's impression.",
+  },
+  {
+    src: src("lounge.jpg"),
+    title: "Garden lounge",
+    caption: "A quiet room to read or meet friends, looking onto the garden.",
+    alt: "A lounge with curved sofas, striped cushions and a green tiled wall, opening onto a garden. Artist's impression.",
+  },
+  {
+    src: src("yoga.jpg"),
+    title: "Yoga studio",
+    caption: "Timber floors and full-height glass onto the trees.",
+    alt: "A yoga studio laid with mats and blocks, with a mirrored wall and glass onto a garden deck. Artist's impression.",
+  },
+  {
     src: src("towers.jpg"),
     title: "Towers of 21 and 30 storeys",
     caption: "Two Luxury towers of 30 storeys and four Classic towers of 21, set in parkland.",
@@ -56,8 +80,14 @@ export function levelImage(level: number): GalleryImage {
   if (level >= 21) return find("sunset-1920.jpg");
   if (level >= 5) return find("towers.jpg");
   return {
-    ...find("grand-clubhouse.jpg"),
+    ...find("pools-lawn.jpg"),
     title: "Close to the gardens",
     caption: "The lowest homes sit just above the pools and landscaped decks.",
   };
 }
+
+export const locationMap = {
+  src: src("location-map-2000.jpg"),
+  srcSet: `${src("location-map-1200.jpg")} 1200w, ${src("location-map-2000.jpg")} 2000w`,
+  alt: "Location map: Thomson Reserve on Upper Thomson Road beside Upper Thomson MRT, with the Central Catchment Nature Reserve, MacRitchie Reservoir, Windsor Nature Park and the Singapore Island Country Club to the west, and Bishan, Ang Mo Kio and nearby schools to the east.",
+};
