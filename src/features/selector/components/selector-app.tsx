@@ -150,7 +150,7 @@ export function SelectorApp() {
           </a>
           {estimatable && (
             <a href="#prices" className="rounded-full border border-white/60 px-5 py-2.5 font-display-normal text-sm font-semibold text-white hover:bg-white/10">
-              See prices from level 1 to 30
+              See prices by level
             </a>
           )}
         </div>

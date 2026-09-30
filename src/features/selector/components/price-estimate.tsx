@@ -5,7 +5,6 @@ import type { Dataset } from "../model/types";
 import type { PriceEstimate } from "../lib/estimate";
 import { averagePsf, baseFromAverage, DEFAULT_ESTIMATE, describeEstimate, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
 import { compactMoney } from "../lib/format";
-import { LevelLadder } from "./level-ladder";
 import { PriceMatrix } from "./price-matrix";
 import { BEDROOM_COLOURS, card, Segmented } from "./ui";
 
@@ -238,20 +237,6 @@ export function PriceEstimateSection({
       </div>
 
       <div className={`${card} p-5 sm:p-6`}>
-        <h3 className="font-display text-lg font-extrabold">From level 1 to level 30</h3>
-        <p className="mt-1 text-sm text-canopy/75">
-          PSF rises {money(estimate.stepPsf)} with every floor. Pick a level to see what each home on it could cost.
-        </p>
-        <div className="mt-4">
-          {enabled ? (
-            <LevelLadder base={base} estimate={estimate} />
-          ) : (
-            <p className="text-[1rem] text-canopy/80">Turn on illustrative prices to see prices level by level.</p>
-          )}
-        </div>
-      </div>
-
-      <div className={`${card} p-5 sm:p-6 lg:col-span-2`}>
         <h3 className="font-display text-lg font-extrabold">Price by level and unit type</h3>
         <p className="mt-1 text-sm text-canopy/75">
           Every level from {topLevel} down to {baseLevel}, at {describeEstimate(estimate, baseLevel)}. Scroll sideways for the larger homes.

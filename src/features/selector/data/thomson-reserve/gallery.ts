@@ -98,14 +98,6 @@ export const gallery: GalleryImage[] = [
   },
 ];
 
-/** Image shown beside the level illustration, by height band. */
-export function levelImage(level: number): GalleryImage {
-  const find = (file: string) => gallery.find((g) => g.src.endsWith(file))!;
-  if (level >= 21) return find("sunset-1920.jpg");
-  if (level >= 5) return find("towers.jpg");
-  return find("poolside-homes.jpg");
-}
-
 export const locationMap = {
   src: src("location-map-2000.jpg"),
   srcSet: `${src("location-map-1200.jpg")} 1200w, ${src("location-map-2000.jpg")} 2000w`,
