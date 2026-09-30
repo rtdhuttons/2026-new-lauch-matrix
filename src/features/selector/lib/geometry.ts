@@ -166,3 +166,15 @@ export function blockTopRL(block: Block): number {
     floorRL(block, block.storeys) + block.typicalFloorHeightM + block.roofAllowanceM
   );
 }
+
+const COMPASS_16 = [
+  "north", "north-north-east", "north-east", "east-north-east",
+  "east", "east-south-east", "south-east", "south-south-east",
+  "south", "south-south-west", "south-west", "west-south-west",
+  "west", "west-north-west", "north-west", "north-north-west",
+];
+
+/** Sixteen-point compass direction in words, e.g. "west-south-west". */
+export function compassWords16(bearingDeg: number): string {
+  return COMPASS_16[Math.round(normaliseBearing(bearingDeg) / 22.5) % 16];
+}

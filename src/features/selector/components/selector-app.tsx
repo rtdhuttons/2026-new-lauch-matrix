@@ -13,8 +13,7 @@ import { MethodNotes } from "./method-notes";
 import { PreferencesPanel } from "./preferences-panel";
 import { Recommendations } from "./recommendations";
 import { ScenarioCalculator } from "./scenario-calculator";
-import type { Overlay } from "./site-plan";
-import { SitePlan } from "./site-plan";
+import { SiteView } from "./site-view";
 import { StackExplorer } from "./stack-explorer";
 import { card, SectionHeading } from "./ui";
 import { UnitDetails } from "./unit-details";
@@ -34,7 +33,6 @@ export function SelectorApp() {
   const [level, setLevel] = useState(14);
   const [referenceId, setReferenceId] = useState<string | null>("01-09");
   const [shortlist, setShortlist] = useState<string[]>(["01-14", "01-20"]);
-  const [overlays, setOverlays] = useState<Set<Overlay>>(new Set(["views"]));
   const [month, setMonth] = useState(5);
   const [minutes, setMinutes] = useState(16 * 60);
   const [prefsOpen, setPrefsOpen] = useState(false);
@@ -67,14 +65,6 @@ export function SelectorApp() {
           ? list
           : [...list, u.id],
     );
-
-  const toggleOverlay = (o: Overlay) =>
-    setOverlays((s) => {
-      const next = new Set(s);
-      if (next.has(o)) next.delete(o);
-      else next.add(o);
-      return next;
-    });
 
   const candidates = [
     ...(unit ? [unit] : []),
@@ -131,7 +121,7 @@ export function SelectorApp() {
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <h2 className="font-display text-lg font-extrabold">Site plan</h2>
-                    <p className="text-sm text-canopy/75">Select a stack. Turn on overlays to see sun, views, noise, privacy, routes and future development.</p>
+                    <p className="text-sm text-canopy/75">Spin the development around and tap any unit to see its price, or switch to the flat plan for view, noise, privacy and route overlays.</p>
                   </div>
                   <div>
                     <label htmlFor="stack-select" className="sr-only">Choose a stack</label>
@@ -152,16 +142,21 @@ export function SelectorApp() {
                     </select>
                   </div>
                 </div>
-                <SitePlan
+                <SiteView
                   engine={engine}
+                  ranked={ranked}
                   selectedStackId={stackId}
-                  onSelectStack={selectStack}
-                  overlays={overlays}
-                  onToggleOverlay={toggleOverlay}
-                  level={level}
                   selectedUnit={unit}
+                  level={level}
+                  onSelectStack={selectStack}
+                  onSelectUnit={(u) => {
+                    setStackId(u.stackId);
+                    setLevel(u.level);
+                  }}
                   month={month}
                   minutes={minutes}
+                  onMonth={setMonth}
+                  onMinutes={setMinutes}
                 />
               </div>
 
