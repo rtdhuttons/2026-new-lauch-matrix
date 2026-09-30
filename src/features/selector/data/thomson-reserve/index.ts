@@ -616,7 +616,7 @@ export const thomsonReserveDataset: Dataset = {
       roadLabels: [],
       mrtLabel: { text: "Upper Thomson MRT, Exit 2", at: mrtExit },
       notice:
-        "Thomson Reserve, from the developer's site plan, elevation charts, factsheet and the architect's brief: every stack and level with its unit type, heights above Upper Thomson Road, gates and driveways. View clearance uses TRM's on-site assessment (south-west-facing homes clear the landed homes from level 5; north-east-facing homes clear the HDB blocks from level 21) and the brief's surroundings; north-west and south-east views are not assessed. Prices and availability are not published yet.",
+        "Built from the developer's site plan, elevation charts, unit plans and factsheet, the architect's brief and TRM's on-site assessment. Prices are illustrative until the price list is released; see Method for what is still estimated.",
       pricingNote:
         "Awaiting the developer's price list. Prices, premiums and resale scenarios appear once it is loaded.",
     },

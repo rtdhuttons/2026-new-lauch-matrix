@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { dataGaps, dataset, mrtEntrance } from "../data";
+import { dataGaps, dataset, gallery, heroImage, mrtEntrance } from "../data";
 import type { Unit } from "../model/types";
 import { unitLabel } from "../lib/dataset-index";
 import { createEngine } from "../lib/engine";
@@ -13,6 +13,7 @@ import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
 import { Comparison } from "./comparison";
 import { MethodNotes } from "./method-notes";
 import { PreferencesPanel } from "./preferences-panel";
+import { Gallery, ProjectHero } from "./project-hero";
 import { PriceEstimateSection } from "./price-estimate";
 import { Recommendations } from "./recommendations";
 import { ScenarioCalculator } from "./scenario-calculator";
@@ -125,19 +126,37 @@ export function SelectorApp() {
         </p>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pb-28 sm:px-8">
-        <header className="pb-8 pt-10 sm:pt-14">
-          <p className="font-display-normal text-base text-stone">
-            {dataset.project.name}
-            {dataset.project.isDemo ? ", a fictional demo project" : `, ${dataset.project.totalUnits.toLocaleString("en-SG")} homes in ${dataset.blocks.length} blocks`}
-          </p>
-          <h1 className="mt-1 font-display text-[2.5rem] font-extrabold leading-[1.02] tracking-tight sm:text-[4rem]">
-            Stack &amp; Unit Selector
-          </h1>
-          <p className="mt-4 max-w-[62ch] text-lg leading-relaxed text-canopy/85">
-            Find the stack and floor that suit you, see what changes as you go up, and check whether the extra price for a better floor, facing or view is worth paying.
-          </p>
-        </header>
+      <ProjectHero
+        image={heroImage}
+        name={dataset.project.name}
+        eyebrow="Bright Hill Drive · Upper Thomson · Stack & Unit Selector"
+        facts={[
+          { label: "Homes", value: dataset.project.totalUnits.toLocaleString("en-SG") },
+          { label: "Towers", value: `${dataset.blocks.length}, of 21 and 30 storeys` },
+          {
+            label: estimatable && estimateOn ? "Illustrative price from" : "Tenure",
+            value: estimatable && estimateOn ? `$${deferredEstimate.basePsf.toLocaleString("en-SG")} psf` : dataset.project.tenure,
+          },
+          { label: "Upper Thomson MRT", value: "65 m covered link" },
+        ]}
+      >
+        <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-white/90 sm:text-xl">
+          A sanctuary between the reservoirs and the city. Find your stack and floor, see how the view and the sun change as you rise, and what each level could cost.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a href="#explore" className="rounded-full bg-white px-5 py-2.5 font-display-normal text-sm font-semibold text-canopy hover:bg-mist">
+            Explore stacks and floors
+          </a>
+          {estimatable && (
+            <a href="#prices" className="rounded-full border border-white/60 px-5 py-2.5 font-display-normal text-sm font-semibold text-white hover:bg-white/10">
+              See prices from level 1 to 30
+            </a>
+          )}
+        </div>
+      </ProjectHero>
+
+      <div className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-8">
+
 
         <section id="explore" aria-labelledby="explore-title" className="scroll-mt-20">
           <h2 id="explore-title" className="sr-only">Explore stacks and floors</h2>
@@ -262,6 +281,15 @@ export function SelectorApp() {
               />
             </div>
           </div>
+        </section>
+
+        <section id="gallery" aria-labelledby="gallery-title" className="mt-16 scroll-mt-20">
+          <SectionHeading
+            id="gallery-title"
+            title="Life at Thomson Reserve"
+            lede="Three clubs, a chain of pools shaped like the reservoirs next door, and towers set to face the green."
+          />
+          <Gallery images={gallery} />
         </section>
 
         {estimatable && (

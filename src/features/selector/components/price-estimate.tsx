@@ -5,6 +5,7 @@ import type { Dataset } from "../model/types";
 import type { PriceEstimate } from "../lib/estimate";
 import { DEFAULT_ESTIMATE, describeEstimate, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
 import { compactMoney } from "../lib/format";
+import { LevelLadder } from "./level-ladder";
 import { BEDROOM_COLOURS, card } from "./ui";
 
 interface TypeRow {
@@ -195,6 +196,20 @@ export function PriceEstimateSection({
       </div>
 
       <div className={`${card} p-5 sm:p-6`}>
+        <h3 className="font-display text-lg font-extrabold">From level 1 to level 30</h3>
+        <p className="mt-1 text-sm text-canopy/75">
+          PSF rises {money(estimate.stepPsf)} with every floor. Pick a level to see what each home on it could cost.
+        </p>
+        <div className="mt-4">
+          {enabled ? (
+            <LevelLadder base={base} estimate={estimate} />
+          ) : (
+            <p className="text-[1rem] text-canopy/80">Turn on illustrative prices to see prices level by level.</p>
+          )}
+        </div>
+      </div>
+
+      <div className={`${card} p-5 sm:p-6 lg:col-span-2`}>
         <h3 className="font-display text-lg font-extrabold">Illustrative price by unit type</h3>
         {!enabled ? (
           <p className="mt-2 text-[1rem] text-canopy/80">Turn on illustrative prices to see the range for each unit type.</p>

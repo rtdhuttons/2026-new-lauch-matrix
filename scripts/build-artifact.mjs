@@ -7,11 +7,13 @@ import { build } from "esbuild";
 
 const out = "dist-artifact";
 // The site plan is embedded as a data URI so the page renders on its own.
-// Floor plans are too large to inline: they are copied to dist-artifact/plans
-// and published next to the page as supporting files.
+// Floor plans and photos are too large to inline: they are copied to
+// dist-artifact/plans and dist-artifact/images and published next to the
+// page as supporting files.
 const sitePlan = `data:image/jpeg;base64,${readFileSync("public/thomson-reserve/site-plan.jpg").toString("base64")}`;
 mkdirSync(out, { recursive: true });
 cpSync("public/thomson-reserve/plans", `${out}/plans`, { recursive: true });
+cpSync("public/thomson-reserve/images", `${out}/images`, { recursive: true });
 
 const js = await build({
   entryPoints: ["scripts/artifact/entry.tsx"],
@@ -26,6 +28,7 @@ const js = await build({
     "process.env.NODE_ENV": '"production"',
     "process.env.NEXT_PUBLIC_TR_SITE_PLAN": JSON.stringify(sitePlan),
     "process.env.NEXT_PUBLIC_TR_PLAN_BASE": JSON.stringify("plans"),
+    "process.env.NEXT_PUBLIC_TR_IMAGE_BASE": JSON.stringify("images"),
   },
   legalComments: "none",
 });
