@@ -43,7 +43,7 @@ function sunColour(minutes: number): string {
   return `rgb(${mix(236, 214)}, ${mix(238, 120)}, ${mix(228, 18)})`;
 }
 
-const BEDROOM_COLOURS: Record<number, string> = { 2: "#8fbac6", 3: "#dcc08a", 4: "#b98fb2" };
+const BEDROOM_COLOURS: Record<number, string> = { 2: "#8fbac6", 3: "#dcc08a", 4: "#b98fb2", 5: "#7f9f7a" };
 const STATUS_COLOURS: Record<UnitStatus, string> = {
   available: "#2f7d57",
   reserved: "#dcc08a",
@@ -195,7 +195,9 @@ export function SiteView({
         detail: `${
           ix.stackLayout(selectedUnit.stackId).bedrooms === null && ix.stackBlock(selectedUnit.stackId).collection
             ? `${ix.stackBlock(selectedUnit.stackId).collection} Collection`
-            : ix.stackLayout(selectedUnit.stackId).name
+            : selectedUnit.typeCode
+              ? `Type ${selectedUnit.typeCode}`
+              : ix.stackLayout(selectedUnit.stackId).name
         }, ${
           selectedUnit.price !== null
             ? compactMoney(selectedUnit.price)
@@ -220,9 +222,9 @@ export function SiteView({
           ]
         : colourMode === "bedrooms"
       ? [
-          { colour: BEDROOM_COLOURS[2], label: "2 bedrooms" },
-          { colour: BEDROOM_COLOURS[3], label: "3 bedrooms" },
-          { colour: BEDROOM_COLOURS[4], label: "4 bedrooms" },
+          ...[2, 3, 4, 5]
+            .filter((b) => ds.layouts.some((l) => l.bedrooms === b))
+            .map((b) => ({ colour: BEDROOM_COLOURS[b], label: `${b} bedrooms` })),
         ]
       : colourMode === "budget"
         ? [
@@ -437,7 +439,7 @@ export function SiteView({
             <p>Drag to spin it around, pinch or scroll to zoom, and tap a unit for its price. The floor slider below follows your selection.</p>
             <p className="mt-1">
               {ds.project.display?.planImage
-                ? `${ds.project.display.planImage.credit}, laid at its own scale. Towers are simple massing from the reported storeys; neighbouring buildings are not drawn yet. Sun positions are real for Singapore on the 21st of each month, so treat shadows between the blocks as indicative.`
+                ? `${ds.project.display.planImage.credit}, laid at its own scale. Every home is placed by stack and level from the developer's elevation charts; towers are simple massing and neighbouring buildings are not drawn yet. Sun positions are real for Singapore on the 21st of each month, so treat shadows between the blocks as indicative.`
                 : "Illustrative massing from the demo data. Sun positions are real for Singapore on the 21st of each month; buildings and trees are simplified, so treat shadows as indicative."}
             </p>
           </div>

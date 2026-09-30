@@ -36,7 +36,18 @@ export function areaText(areaSqft: number | null): string {
 }
 
 /** "Type 3A, 3 bedrooms, 947 sq ft", or just the name when not confirmed. */
-export function layoutSummary(layout: { name: string; bedrooms: number | null; areaSqft: number | null }): string {
+export function layoutSummary(layout: {
+  name: string;
+  category?: string;
+  bedrooms: number | null;
+  areaSqft: number | null;
+}): string {
   if (layout.bedrooms === null) return layout.name;
-  return `${layout.name}, ${layout.bedrooms} bedrooms${layout.areaSqft !== null ? `, ${areaText(layout.areaSqft)}` : ""}`;
+  const kind = layout.category ?? `${layout.bedrooms} bedrooms`;
+  return `${layout.name}, ${kind}${layout.areaSqft !== null ? `, ${areaText(layout.areaSqft)}` : ""}`;
+}
+
+/** True for a developer "p" type: the lowest-level home with a private enclosed space. */
+export function isPesType(typeCode: string | undefined): boolean {
+  return !!typeCode && /p( \(L\))?$/.test(typeCode);
 }

@@ -6,7 +6,7 @@ import { describeClearFrom, levelView, VIEW_CATEGORY_LABEL } from "../lib/cleara
 import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { POTENTIAL_LABEL } from "../lib/exposure";
-import { compactMoney, layoutSummary, money, psfText, signedMoney } from "../lib/format";
+import { compactMoney, isPesType, layoutSummary, money, psfText, signedMoney } from "../lib/format";
 import { compassWords, floorRL } from "../lib/geometry";
 import { clearanceNarrative, premiumOver, psf } from "../lib/pricing";
 import { card, StatusChip, ViewChip, VIEW_COLOURS } from "./ui";
@@ -366,6 +366,19 @@ export function StackExplorer({
                     {STATUS_TEXT[unit.status]}
                   </span>
                 </div>
+                {unit.typeCode && (
+                  <p className="mt-1 font-display-normal text-base text-canopy/85">
+                    Type {unit.typeCode}
+                    {layout.category ? `, ${layout.category}` : ""}
+                    {layout.areaSqft !== null ? `, ${layout.areaSqft.toLocaleString("en-SG")} sq ft` : ""}
+                    {isPesType(unit.typeCode) ? ". Lowest home in the stack, with a private enclosed space (PES)" : ""}
+                  </p>
+                )}
+                {stack.notes?.map((n) => (
+                  <p key={n} className="mt-1 text-sm text-canopy/80">
+                    {n}
+                  </p>
+                ))}
                 <dl className="mt-3 grid grid-cols-2 gap-4">
                   <div>
                     <dt className="font-display-normal text-sm text-stone">Price</dt>
@@ -408,10 +421,12 @@ export function StackExplorer({
 
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   <ViewChip category={lv.category} uncertain={lv.uncertain} />
+{lv.category !== "unknown" && (
                   <span className="font-display-normal text-sm text-canopy/75">
                     {Math.round(lv.clearedShare.conservative * 100)}% of tested sight lines clear
                     {lv.uncertain ? ` (up to ${Math.round(lv.clearedShare.optimistic * 100)}% if the obstruction is lower)` : ""}
                   </span>
+)}
                 </div>
 
                 {narrative.length > 0 && (

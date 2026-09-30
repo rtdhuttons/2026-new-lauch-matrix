@@ -3,13 +3,16 @@
 // Layout traced from the developer's site plan image (public/thomson-reserve/
 // site-plan.jpg): stack positions are the centres of the numbered stack
 // labels, converted with the plan's own scale bar (266 px = 100 m) and north
-// point (plan "up" is 40° east of true north). Block collections and storeys
-// come from public reports (see docs/research/thomson-reserve.md).
+// point (plan "up" is 40° east of true north).
 //
-// Not yet known, and deliberately left unknown rather than guessed:
-// unit types and sizes per stack, prices and availability, finished floor
-// levels, and the heights of neighbouring buildings (so view clearance is
-// "not assessed" until they are loaded).
+// Unit types by stack and level come from the developer's elevation charts
+// (unit-schedule.ts); sizes, collections, storeys and heights from the
+// developer factsheet of 22 Sep 2026.
+//
+// Not yet known, and deliberately left unknown rather than guessed: prices
+// and availability, exact finished floor levels, and the heights of
+// neighbouring buildings (so view clearance is "not assessed" until they are
+// loaded).
 
 import type {
   Block,
@@ -26,6 +29,7 @@ import type {
   Unit,
 } from "../../model/types";
 import { blockTopRL, distance, normaliseBearing, polylineLength } from "../../lib/geometry";
+import { unitSchedule } from "./unit-schedule";
 
 const UPDATED = "2026-09-30";
 const PX_PER_M = 266 / 100;
@@ -41,12 +45,13 @@ const traced = (note: string): Provenance => ({
   status: "estimated",
   note,
 });
-const reported = (note: string): Provenance => ({
-  source: "Public reports (EdgeProp, 99.co, Stacked Homes)",
-  updated: UPDATED,
-  status: "estimated",
+const factsheet = (note: string): Provenance => ({
+  source: "Developer factsheet, 22 Sep 2026",
+  updated: "2026-09-22",
+  status: "verified",
   note,
 });
+
 const unknown = (note: string): Provenance => ({
   source: "Not published yet",
   updated: UPDATED,
@@ -119,10 +124,72 @@ const blockSeeds: BlockSeed[] = [
   },
 ];
 
+// Classic blocks: level 1 is a car park, homes from level 2. Luxury blocks:
+// car park in the basement, homes from level 1 in six stacks per block.
 const COLLECTION = {
   Classic: { storeys: 21, firstResidentialLevel: 2, homeSizeM: 9.5 },
-  Luxury: { storeys: 30, firstResidentialLevel: 3, homeSizeM: 11 },
+  Luxury: { storeys: 30, firstResidentialLevel: 1, homeSizeM: 11 },
 } as const;
+
+/** Level 1 to level 2 landscape decks differ by about 4.3 m (factsheet FAQ). */
+const LEVEL1_HEIGHT_M = 4.3;
+/** 2.85 m floor-to-ceiling (factsheet) plus an assumed 0.3 m slab and finishes. */
+const TYPICAL_FLOOR_M = 3.15;
+
+interface TypeFamily {
+  match: RegExp;
+  label: string;
+  bedrooms: number;
+  areaSqft: number;
+  areaSqm: number;
+  features: Layout["features"];
+}
+
+// Order matters: longer prefixes first. Sizes from the factsheet unit mix.
+const FAMILIES: TypeFamily[] = [
+  { match: /^BPS4/, label: "2-Bedroom Premium + Study", bedrooms: 2, areaSqft: 775, areaSqm: 72, features: ["study"] },
+  { match: /^BPS/, label: "2-Bedroom Premium + Study", bedrooms: 2, areaSqft: 732, areaSqm: 68, features: ["study"] },
+  { match: /^BP/, label: "2-Bedroom Premium", bedrooms: 2, areaSqft: 678, areaSqm: 63, features: [] },
+  { match: /^B/, label: "2-Bedroom", bedrooms: 2, areaSqft: 592, areaSqm: 55, features: [] },
+  { match: /^CPS/, label: "3-Bedroom Premium + Study", bedrooms: 3, areaSqft: 1152, areaSqm: 107, features: ["study"] },
+  { match: /^CP/, label: "3-Bedroom Premium", bedrooms: 3, areaSqft: 1055, areaSqm: 98, features: [] },
+  { match: /^C/, label: "3-Bedroom", bedrooms: 3, areaSqft: 947, areaSqm: 88, features: [] },
+  { match: /^DPS/, label: "4-Bedroom Premium + Study", bedrooms: 4, areaSqft: 1485, areaSqm: 138, features: ["study", "private lift lobby"] },
+  { match: /^DP/, label: "4-Bedroom Premium", bedrooms: 4, areaSqft: 1367, areaSqm: 127, features: ["private lift lobby"] },
+  { match: /^D/, label: "4-Bedroom", bedrooms: 4, areaSqft: 1238, areaSqm: 115, features: [] },
+  { match: /^E/, label: "5-Bedroom Suite", bedrooms: 5, areaSqft: 1808, areaSqm: 168, features: ["private lift lobby"] },
+];
+
+function familyOf(code: string): TypeFamily {
+  const f = FAMILIES.find((x) => x.match.test(code));
+  if (!f) throw new Error(`Unknown unit type ${code}`);
+  return f;
+}
+
+const layoutId = (code: string) => code.replace(/\s+/g, "");
+
+function layoutFor(code: string): Layout {
+  const f = familyOf(code);
+  return {
+    id: layoutId(code),
+    name: `Type ${code}`,
+    category: f.label,
+    bedrooms: f.bedrooms,
+    areaSqft: f.areaSqft,
+    features: f.features,
+    livingOverhangM: 1.8,
+    masterOverhangM: 0.6,
+    windowHeightM: 2.6,
+    provenance: factsheet(`${f.label}, ${f.areaSqm} sqm (${f.areaSqft.toLocaleString("en-SG")} sq ft). Balcony depth for the sun estimate is assumed.`),
+  };
+}
+
+const STACK_NOTES: Record<string, string[]> = Object.fromEntries(
+  ["19", "20", "21", "22"].map((id) => [
+    id,
+    ["Acoustic ceiling at the balcony, provided by the developer for this stack only (factsheet FAQ)."],
+  ]),
+);
 
 /** Principal axis of a block's stacks, degrees clockwise on plan. */
 function principalAxisDeg(points: Point[]): number {
@@ -169,17 +236,7 @@ function squareCorners(c: Point, size: number, rotDeg: number): Point[] {
 const planBearing = (from: Point, to: Point) =>
   normaliseBearing((Math.atan2(to.x - from.x, -(to.y - from.y)) * 180) / Math.PI);
 
-const layouts: Layout[] = (["Classic", "Luxury"] as const).map((c) => ({
-  id: `tbc-${c.toLowerCase()}`,
-  name: `${c} Collection home, type to be confirmed`,
-  bedrooms: null,
-  areaSqft: null,
-  features: [],
-  livingOverhangM: 1.8,
-  masterOverhangM: 0.6,
-  windowHeightM: 2.6,
-  provenance: unknown("Unit types per stack are not published yet; balcony depths are assumed for the sun estimate"),
-}));
+const layouts: Layout[] = [...new Set(Object.values(unitSchedule).map((s) => s.type))].map(layoutFor);
 
 const blocks: Block[] = [];
 const stacks: Stack[] = [];
@@ -202,15 +259,15 @@ for (const seed of blockSeeds) {
     rotationDeg: 0,
     storeys: cfg.storeys,
     groundRL: 22,
-    level1HeightM: 4.5,
-    typicalFloorHeightM: 3.15,
+    level1HeightM: LEVEL1_HEIGHT_M,
+    typicalFloorHeightM: TYPICAL_FLOOR_M,
     roofAllowanceM: 4,
     noUnitLevels: [],
     firstResidentialLevel: cfg.firstResidentialLevel,
     collection: seed.collection,
     footprint: hull,
-    provenance: reported(
-      `${seed.collection} Collection, ${cfg.storeys} storeys, homes from level ${cfg.firstResidentialLevel}. Floor heights and ground level assumed.`,
+    provenance: factsheet(
+      `${seed.collection} Collection, ${cfg.storeys} storeys. Level 1 to 2 about 4.3 m (factsheet FAQ); typical floor-to-floor 3.15 m assumed from the 2.85 m ceiling; ground level assumed.`,
     ),
   });
 
@@ -221,7 +278,7 @@ for (const seed of blockSeeds) {
     stacks.push({
       id,
       blockId: seed.id,
-      layoutId: `tbc-${seed.collection.toLowerCase()}`,
+      layoutId: layoutId(unitSchedule[id].type),
       position,
       livingBearingDeg: living,
       masterBearingDeg: living,
@@ -233,25 +290,28 @@ for (const seed of blockSeeds) {
         provenance: unknown("View targets and neighbouring building heights are not loaded yet"),
       },
       footprint: { w: cfg.homeSizeM, d: cfg.homeSizeM, rotationDeg: axis },
+      notes: STACK_NOTES[id],
       provenance: traced("Stack position from its label on the site plan; facing assumed to point away from the lift core"),
     });
   }
 }
 
 const units: Unit[] = stacks.flatMap((s) => {
-  const block = blocks.find((b) => b.id === s.blockId)!;
-  const list: Unit[] = [];
-  for (let level = block.firstResidentialLevel; level <= block.storeys; level++) {
-    list.push({
+  const plan = unitSchedule[s.id];
+  const levels = new Map<number, string>();
+  for (let level = plan.from; level <= plan.to; level++) levels.set(level, plan.type);
+  for (const [level, code] of Object.entries(plan.other)) levels.set(Number(level), code);
+  return [...levels.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([level, code]) => ({
       id: `${s.id}-${String(level).padStart(2, "0")}`,
       stackId: s.id,
       level,
-      status: "pending",
+      status: "pending" as const,
       price: null,
+      typeCode: code,
       priceProvenance: unknown("The developer's price list has not been released"),
-    });
-  }
-  return list;
+    }));
 });
 
 const obstructions: Obstruction[] = blocks.map((b) => {
@@ -263,7 +323,7 @@ const obstructions: Obstruction[] = blocks.map((b) => {
     footprint: b.footprint!,
     baseRL: b.groundRL,
     topRL: { min: top, max: top },
-    heightProvenance: reported("From the reported storeys with assumed floor heights"),
+    heightProvenance: factsheet("Storeys from the factsheet; floor heights partly assumed"),
     blockId: b.id,
   };
 });
@@ -295,17 +355,18 @@ const exposureSources: ExposureSource[] = [
     activity: "Local traffic; school drop-offs in the morning",
     provenance: plan,
   },
-  { id: "pool-west", kind: "pool", name: "Main pool (west)", geometry: [P(560, 390)], activity: "7am–10pm; busier at weekends and in school holidays", provenance: plan },
-  { id: "pool-central", kind: "pool", name: "Main pool (central)", geometry: [P(760, 420)], activity: "7am–10pm; busier at weekends and in school holidays", provenance: plan },
-  { id: "pool-east", kind: "pool", name: "Main pool (east)", geometry: [P(1010, 440)], activity: "7am–10pm; busier at weekends and in school holidays", provenance: plan },
-  { id: "courts", kind: "tennis", name: "Tennis and multi-purpose courts", geometry: [P(150, 170)], activity: "Evenings and weekends; likely floodlit", provenance: plan },
+  { id: "pool-west", kind: "pool", name: "Grand Clubhouse pools (west)", geometry: [P(560, 390)], activity: "Leisure and lap pools; busier at weekends and in school holidays", provenance: plan },
+  { id: "pool-central", kind: "pool", name: "Grand Clubhouse pools and Grand Lawn", geometry: [P(760, 420)], activity: "Leisure and lap pools, lawn events; busier at weekends", provenance: plan },
+  { id: "pool-east", kind: "pool", name: "Island Club pools", geometry: [P(1010, 440)], activity: "Island Pool and 50 m lap pool; busier at weekends and in school holidays", provenance: plan },
+  { id: "wellness", kind: "pool", name: "Wellness Club hydro pools", geometry: [P(250, 330)], activity: "Spa and hydrotherapy pools; quieter use", provenance: plan },
+  { id: "courts", kind: "tennis", name: "Tennis and multi-purpose courts (Wellness Club)", geometry: [P(150, 170)], activity: "Evenings and weekends; likely floodlit", provenance: plan },
   { id: "drop-off", kind: "arrival-court", name: "Drop-off, Bright Hill Drive", geometry: [P(1175, 300)], activity: "School and work drop-offs, deliveries, taxis", provenance: plan },
 ];
 
 const gates: Gate[] = [
-  { id: "bright-hill", name: "Bright Hill Drive entrance", position: P(1272, 240), opening: "Opening hours not published" },
-  { id: "sin-ming", name: "Sin Ming Avenue entrance", position: P(152, 72), opening: "Opening hours not published" },
-  { id: "side", name: "Side gate by MRT Exit 2", position: P(1340, 478), opening: "Opening hours not published" },
+  { id: "bright-hill", name: "Guardhouse, Bright Hill Drive", position: P(1272, 240), opening: "Main entrance with guardhouse (factsheet)" },
+  { id: "sin-ming", name: "Guardpost, Sin Ming Avenue", position: P(152, 72), opening: "Second entrance with guardpost (factsheet)" },
+  { id: "side", name: "Pedestrian side gate by MRT Exit 2", position: P(1340, 478), opening: "Proximity card access (factsheet); hours not published" },
 ];
 
 const mrtExit = P(1368, 470);
@@ -363,7 +424,7 @@ export const thomsonReserveDataset: Dataset = {
     latitudeDeg: 1.354,
     longitudeDeg: 103.832,
     utcOffsetHours: 8,
-    provenance: reported("1,268 homes in six blocks; this model places 1,244 (see notes)"),
+    provenance: factsheet("1,268 homes: 2 blocks of 30 storeys and 4 blocks of 21 storeys"),
     display: {
       planImage: {
         src: planImageSrc,
@@ -374,7 +435,7 @@ export const thomsonReserveDataset: Dataset = {
       roadLabels: [],
       mrtLabel: { text: "Upper Thomson MRT, Exit 2", at: mrtExit },
       notice:
-        "Thomson Reserve layout traced from the developer's site plan. Prices, unit types and availability are not published yet, and neighbouring building heights are not loaded, so view clearance is not assessed.",
+        "Thomson Reserve, from the developer's site plan, elevation charts and factsheet: every stack and level with its unit type. Prices and availability are not published yet, and neighbouring building heights are not loaded, so view clearance is not assessed.",
       pricingNote:
         "Awaiting the developer's price list. Prices, premiums and resale scenarios appear once it is loaded.",
     },
@@ -396,14 +457,10 @@ export const thomsonReserveDataset: Dataset = {
 
 export const thomsonReserveMrtExit = mrtExit;
 
-/**
- * Known gaps, kept next to the data so they are not forgotten:
- * - Luxury blocks 5 and 7 are modelled with homes on levels 3–30 (504
- *   homes); reports give 528, so 24 homes are not yet placed.
- * - Finished floor levels, ground levels and roof heights are assumed.
- */
+/** Known gaps, kept next to the data so they are not forgotten. */
 export const thomsonReserveGaps = [
-  "Luxury blocks 5 and 7 place 504 homes against 528 reported; 24 are not yet placed.",
-  "Floor-to-floor heights, ground levels and roof heights are assumed.",
-  "Master bedroom facing is assumed to match the living room until floor plans are loaded.",
+  "Prices and availability: awaiting the developer's price list.",
+  "Neighbouring building heights and view targets, needed for the View Clearance Floor Marker.",
+  "Exact finished floor levels: level 1 to 2 uses the factsheet's 4.3 m; other floors assume 3.15 m.",
+  "Room facings: living and master bedroom are assumed to face away from the lift core until each unit plan is keyed in.",
 ];

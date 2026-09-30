@@ -56,8 +56,11 @@ export function indexDataset(ds: Dataset): DatasetIndex {
     unitsInStack: (stackId) => unitsByStack.get(stackId) ?? [],
     levelsForStack: (stackId) => {
       const b = block(stack(stackId).blockId);
+      // A stack starts at its own lowest home; some stacks in a block start higher.
+      const own = unitsByStack.get(stackId);
+      const start = own?.length ? own[0].level : b.firstResidentialLevel;
       const levels: number[] = [];
-      for (let l = b.firstResidentialLevel; l <= b.storeys; l++) levels.push(l);
+      for (let l = start; l <= b.storeys; l++) levels.push(l);
       return levels;
     },
   };

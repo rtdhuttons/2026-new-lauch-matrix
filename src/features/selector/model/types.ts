@@ -91,6 +91,8 @@ export type LayoutFeature =
 export interface Layout {
   id: string;
   name: string;
+  /** Developer's category, e.g. "3-Bedroom Premium". */
+  category?: string;
   /** Null until the developer's unit schedule is known. */
   bedrooms: number | null;
   areaSqft: number | null;
@@ -123,6 +125,8 @@ export interface Stack {
   mainView: ViewSpec;
   /** Plan footprint of one home on this stack, centred on `position`. */
   footprint?: { w: number; d: number; rotationDeg: number };
+  /** Facts about this stack worth showing buyers, with their source. */
+  notes?: string[];
   provenance: Provenance;
 }
 
@@ -135,6 +139,8 @@ export interface Unit {
   status: UnitStatus;
   /** Only published for available units. Never interpolated. */
   price: number | null;
+  /** Developer's unit type code, e.g. "CP2p", when it differs by level. */
+  typeCode?: string;
   priceProvenance: Provenance;
 }
 
