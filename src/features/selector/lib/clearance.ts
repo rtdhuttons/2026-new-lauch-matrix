@@ -90,6 +90,8 @@ export interface StackViewAnalysis {
   governing: RayObstacle | null;
   futureRisk: { level: FutureRiskLevel; sites: FutureSite[] };
   status: DataStatus;
+  /** Set when an on-site assessment decides the marker instead of geometry. */
+  observed?: NonNullable<Stack["observedClearance"]>;
 }
 
 const RISK_ORDER: FutureRiskLevel[] = ["low", "unknown", "moderate", "high"];
@@ -195,7 +197,39 @@ function sharesAt(rays: RayAnalysis[], eye: number) {
   return { optimistic: opt, conservative: con };
 }
 
+/**
+ * The stack's view analysis. An on-site assessment, when recorded, sets the
+ * clearance floor; the geometric rays are kept for the cross-section and
+ * future-risk checks.
+ */
 export function analyseStackView(ix: DatasetIndex, stackId: string): StackViewAnalysis {
+  const geo = geometricStackView(ix, stackId);
+  const observed = geo.stack.observedClearance;
+  if (!observed) return geo;
+  // The assessment covers the surroundings; a Thomson Reserve block that
+  // blocks the view at every floor still decides the result.
+  if (geo.governing?.obstruction.kind === "own-block" && geo.clearFrom.conservative === null) return geo;
+  const levels = geo.levels.map((l): LevelView => {
+    const clear = l.level >= observed.fromLevel;
+    const category: ViewCategory = !clear
+      ? "below"
+      : l.level >= observed.fromLevel + LIMITED_GAIN_AFTER_LEVELS
+        ? "clear-limited"
+        : "clear";
+    const share = clear ? 1 : 0;
+    return { ...l, clearedShare: { optimistic: share, conservative: share }, category, optimisticCategory: category, uncertain: false };
+  });
+  const first = levels.find((l) => l.level >= observed.fromLevel)?.level ?? null;
+  return {
+    ...geo,
+    clearFrom: { optimistic: first, conservative: first },
+    levels,
+    observed,
+    status: observed.provenance.status,
+  };
+}
+
+function geometricStackView(ix: DatasetIndex, stackId: string): StackViewAnalysis {
   const stack = ix.stack(stackId);
   const block: Block = ix.stackBlock(stackId);
   const target = ix.ds.viewTargets.find((t) => t.id === stack.mainView.targetId) ?? null;
@@ -293,7 +327,7 @@ export function levelView(a: StackViewAnalysis, level: number): LevelView | unde
 /** Human description of the clearance floor, e.g. "Level 14" or "Levels 13–15". */
 export function describeClearFrom(a: StackViewAnalysis, topLevel: number): string {
   const { optimistic, conservative } = a.clearFrom;
-  if (a.target === null) return "Not assessed";
+  if (a.target === null && !a.observed) return "Not assessed";
   if (optimistic === null) return `Not reached below level ${topLevel}`;
   if (conservative === null) return `Level ${optimistic} to above level ${topLevel}`;
   if (optimistic === conservative) return `Level ${optimistic}`;

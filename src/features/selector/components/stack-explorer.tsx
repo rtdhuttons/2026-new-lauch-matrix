@@ -300,12 +300,14 @@ export function StackExplorer({
               {describeClearFrom(view, block.storeys)}
             </p>
             <p className="mt-1 text-sm text-canopy/75">
-              {view.target === null
+              {view.observed
+                ? `The first floor whose main view clears ${view.observed.over}, from TRM's on-site assessment.`
+                : view.target === null
                 ? "No surveyed buildings or view target in this direction yet. The marker appears here once they are loaded."
                 : <>The estimated first floor where the main view clears{" "}{view.governing ? view.governing.obstruction.name : "nearby obstructions"}.</>}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <StatusChip status={view.status} provenance={view.governing?.obstruction.heightProvenance} />
+              <StatusChip status={view.status} provenance={view.observed?.provenance ?? view.governing?.obstruction.heightProvenance} />
               {view.clearFrom.optimistic !== view.clearFrom.conservative && (
                 <span className="font-display-normal text-sm text-[#7a5410]">
                   Range because the obstruction height is uncertain
@@ -496,7 +498,7 @@ export function StackExplorer({
                       <li>
                         <span className="font-display-normal text-sm font-semibold">Future view risk ({view.futureRisk.level}):</span>{" "}
                         {view.target === null
-                          ? "Not assessed in this direction. "
+                          ? view.observed ? "" : "Not assessed in this direction. "
                           : view.futureRisk.sites.some((s) => s.risk !== "low")
                             ? `${view.futureRisk.sites.filter((s) => s.risk !== "low").map((s) => s.name).join(", ")}. `
                             : ""}
@@ -539,6 +541,7 @@ export function StackExplorer({
             <p className="font-display-normal text-sm font-semibold">Cross-section along the main view at level {level}</p>
             <p className="text-sm text-stone">
               Sight line from standing eye height ({heightText(ix.ds.project, lv.eyeRL)}) to {view.target?.name ?? "the view"}. Shaded band: uncertain obstruction height.
+              {view.observed ? " Drawn from the geometric model for reference; the floor marker uses TRM's on-site assessment." : ""}
             </p>
             <div className="mt-2">
               <ViewSection engine={engine} view={view} stackId={stackId} lv={lv} />

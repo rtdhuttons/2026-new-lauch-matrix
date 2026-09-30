@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { thomsonReserveDataset as ds, thomsonReserveMrtExit } from "../../data/thomson-reserve";
+import { levelView } from "../clearance";
 import { createEngine } from "../engine";
 import { screenExposure } from "../exposure";
 import { floorRL } from "../geometry";
@@ -140,10 +141,6 @@ describe("Thomson Reserve dataset", () => {
     // Stack 28 (Block 7) faces west over the landed homes towards Windsor Nature Park.
     const v = engine.view("28");
     expect(v.target?.id).toBe("catchment-forest");
-    expect(v.status).toBe("assumed");
-    // Clears the 2–3 storey houses and the on-site forest band within a few floors.
-    expect(v.clearFrom.optimistic).toBeGreaterThanOrEqual(1);
-    expect(v.clearFrom.conservative).toBeLessThanOrEqual(5);
     // Looking across the development at a block of the same height never clears it.
     const across = engine.view("06");
     expect(across.governing?.obstruction.kind).toBe("own-block");
@@ -169,5 +166,25 @@ describe("Thomson Reserve dataset", () => {
     expect(facingNote(169)).toMatch(/^North\/south-facing/);
     expect(facingNote(90)).toMatch(/^East-facing/);
     expect(facingNote(260)).toMatch(/^West-facing/);
+  });
+
+  it("uses the agent's on-site assessment: south-west from level 5, north-east from level 21", () => {
+    const engine = createEngine(ds, thomsonReserveMrtExit);
+    const sw = engine.view("28"); // Block 7, faces west over the landed homes
+    expect(sw.observed?.fromLevel).toBe(5);
+    expect(sw.clearFrom).toEqual({ optimistic: 5, conservative: 5 });
+    expect(sw.status).toBe("estimated");
+    expect(levelView(sw, 4)?.category).toBe("below");
+    expect(levelView(sw, 5)?.category).toBe("clear");
+    expect(levelView(sw, 8)?.category).toBe("clear-limited");
+
+    const ne = engine.view("32"); // Block 7, faces north-east towards the HDB blocks
+    expect(ne.observed?.fromLevel).toBe(21);
+    expect(ne.stack.mainView.label).toMatch(/HDB/);
+    expect(levelView(ne, 20)?.category).toBe("below");
+    expect(levelView(ne, 21)?.category).toBe("clear");
+
+    // A stack looking straight at another Thomson Reserve block keeps the geometric result.
+    expect(engine.view("06").observed).toBeUndefined();
   });
 });

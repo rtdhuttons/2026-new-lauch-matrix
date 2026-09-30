@@ -417,6 +417,37 @@ for (const s of stacks) {
   if (target) s.mainView = { ...s.mainView, targetId: target.id };
 }
 
+// TRM agent's on-site assessment (30 Sep 2026): homes facing south-west look
+// over the landed estates from level 5; homes facing north-east look at the
+// HDB blocks and clear them only from level 21. Stacks that face another
+// Thomson Reserve block keep the geometric estimate.
+const agent = (note: string): Provenance => ({
+  source: "TRM agent's on-site assessment",
+  updated: UPDATED,
+  status: "estimated",
+  note,
+});
+const inSector = (b: number, from: number, to: number) =>
+  from <= to ? b >= from && b < to : b >= from || b < to;
+for (const s of stacks) {
+  if (s.mainView.label.startsWith("Across the development")) continue;
+  const b = s.livingBearingDeg;
+  if (inSector(b, 150, 300)) {
+    s.observedClearance = {
+      fromLevel: 5,
+      over: "the 2- and 3-storey landed homes",
+      provenance: agent("South-west-facing homes clear the surrounding landed homes from level 5, with open views beyond."),
+    };
+  } else if (inSector(b, 340, 110)) {
+    s.mainView = { ...s.mainView, label: "Towards the HDB blocks" };
+    s.observedClearance = {
+      fromLevel: 21,
+      over: "the HDB blocks to the north-east",
+      provenance: agent("North-east-facing homes look at the HDB blocks and clear them only from level 21."),
+    };
+  }
+}
+
 const ownBlocks: Obstruction[] = blocks.map((b) => {
   const top = blockTopRL(b);
   return {
@@ -585,7 +616,7 @@ export const thomsonReserveDataset: Dataset = {
       roadLabels: [],
       mrtLabel: { text: "Upper Thomson MRT, Exit 2", at: mrtExit },
       notice:
-        "Thomson Reserve, from the developer's site plan, elevation charts, factsheet and the architect's brief: every stack and level with its unit type, heights above Upper Thomson Road, gates and driveways. View clearance uses the brief's storey counts for the surrounding landed homes, so it is an estimate; views to the north and east are not assessed. Prices and availability are not published yet.",
+        "Thomson Reserve, from the developer's site plan, elevation charts, factsheet and the architect's brief: every stack and level with its unit type, heights above Upper Thomson Road, gates and driveways. View clearance uses TRM's on-site assessment (south-west-facing homes clear the landed homes from level 5; north-east-facing homes clear the HDB blocks from level 21) and the brief's surroundings; north-west and south-east views are not assessed. Prices and availability are not published yet.",
       pricingNote:
         "Awaiting the developer's price list. Prices, premiums and resale scenarios appear once it is loaded.",
     },
@@ -611,7 +642,8 @@ export const thomsonReserveMrtExit = mrtExit;
 export const thomsonReserveGaps = [
   "Prices and availability: awaiting the developer's price list.",
   "Surveyed heights of the surrounding landed homes and trees: the View Clearance Floor Marker uses the brief's storey counts and assumed tree and forest heights.",
-  "Surroundings to the north and east (Sin Ming and Bishan), so views that way can be assessed.",
+  "View clearance for south-west and north-east facings comes from TRM's on-site assessment (level 5 over the landed homes, level 21 over the HDB blocks); surveyed heights would confirm it stack by stack.",
+  "Surroundings to the north-west (Sin Ming Avenue) and south-east (Bright Hill Drive), so views that way can be assessed.",
   "Exact finished floor levels: first homes use the brief's approximate heights above Upper Thomson Road (8.5 m Luxury, 14.5 m Classic); level 1 to 2 uses the factsheet's 4.3 m; other floors assume 3.15 m.",
   "Walked routes to the MRT: only the 65 m covered linkway outside Side Gate 1 is measured; paths inside the development are estimated.",
   "Room facings: living and master bedroom are assumed to face away from the lift core until each unit plan is keyed in.",

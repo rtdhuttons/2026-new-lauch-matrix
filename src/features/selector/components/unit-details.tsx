@@ -204,7 +204,7 @@ export function UnitDetails({
           <div className="grid gap-5">
             <div className="flex flex-wrap items-center gap-2">
               <ViewChip category={a.level?.category ?? "unknown"} uncertain={a.level?.uncertain} />
-              <StatusChip status={a.view.status} provenance={a.view.governing?.obstruction.heightProvenance} />
+              <StatusChip status={a.view.status} provenance={a.view.observed?.provenance ?? a.view.governing?.obstruction.heightProvenance} />
             </div>
             <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
@@ -215,8 +215,8 @@ export function UnitDetails({
               </div>
               <div>
                 <dt className="font-display-normal text-sm text-stone">Relevant obstruction</dt>
-                <dd className="font-display-normal font-semibold">{a.view.governing?.obstruction.name ?? "None found"}</dd>
-                {a.view.governing && (
+                <dd className="font-display-normal font-semibold">{a.view.observed ? a.view.observed.over.replace(/^the /, "The ") : a.view.governing?.obstruction.name ?? "None found"}</dd>
+                {a.view.governing && !a.view.observed && (
                   <dd className="text-sm text-canopy/80">
                     {Math.round(a.view.governing.near)}–{Math.round(a.view.governing.far)} m away, top{" "}
                     {heightText(engine.ix.ds.project, a.view.governing.obstruction.topRL.min, a.view.governing.obstruction.topRL.max)}
@@ -225,7 +225,7 @@ export function UnitDetails({
               </div>
               <div>
                 <dt className="font-display-normal text-sm text-stone">Height source</dt>
-                <dd className="text-sm">{a.view.governing?.obstruction.heightProvenance.note ?? "—"}</dd>
+                <dd className="text-sm">{a.view.observed ? `${a.view.observed.provenance.source}: ${a.view.observed.provenance.note}` : a.view.governing?.obstruction.heightProvenance.note ?? "—"}</dd>
               </div>
               <div>
                 <dt className="font-display-normal text-sm text-stone">Ground and eye level</dt>

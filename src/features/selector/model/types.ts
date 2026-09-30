@@ -132,6 +132,12 @@ export interface Stack {
   footprint?: { w: number; d: number; rotationDeg: number };
   /** Facts about this stack worth showing buyers, with their source. */
   notes?: string[];
+  /**
+   * First level whose main view clears the surroundings, from an on-site
+   * assessment. When present it sets the View Clearance Floor Marker in
+   * place of the geometric estimate.
+   */
+  observedClearance?: { fromLevel: number; over: string; provenance: Provenance };
   provenance: Provenance;
 }
 

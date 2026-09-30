@@ -120,13 +120,17 @@ export function clearanceNarrative(
 ): string[] {
   const lines: string[] = [];
   const cost = clearanceCost(ix, view, selected);
-  const obstacle = view.governing ? obstructionName(view.governing.obstruction) : "the nearest obstruction";
+  const obstacle = view.observed
+    ? view.observed.over
+    : view.governing
+      ? obstructionName(view.governing.obstruction)
+      : "the nearest obstruction";
   const { optimistic, conservative } = view.clearFrom;
 
-  if (view.target === null) return ["This stack's main view has not been assessed."];
+  if (view.target === null && !view.observed) return ["This stack's main view has not been assessed."];
   if (optimistic === null) {
     lines.push(
-      `No floor in this stack is estimated to clear ${obstacle} towards ${view.target.name}.`,
+      `No floor in this stack is estimated to clear ${obstacle}${view.target ? ` towards ${view.target.name}` : ""}.`,
     );
     return lines;
   }
