@@ -28,7 +28,6 @@ export interface Preferences {
   purpose: Purpose;
   budget: number;
   bedrooms: number | "any";
-  holdingYears: number;
   weights: Record<Criterion, number>;
   /** Most the buyer will pay above the lowest eligible price, or null for no limit. */
   maxExtraSpend: number | null;
@@ -45,7 +44,6 @@ export const DEFAULT_PREFERENCES: Preferences = {
   purpose: "own",
   budget: 2_600_000,
   bedrooms: "any",
-  holdingYears: 5,
   weights: PURPOSE_WEIGHTS.own,
   maxExtraSpend: 400_000,
   requireClearView: false,

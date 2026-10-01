@@ -14,7 +14,7 @@ function Page() {
           { href: "#prices", label: "Prices" },
           { href: "#location", label: "Location" },
           { href: "#recommendations", label: "Recommendations" },
-          { href: "#scenario", label: "Scenarios" },
+          { href: "#floor-profit", label: "Floor profit" },
           { href: "#method", label: "Method" },
         ]}
         cta={{ href: "#compare", label: "Compare" }}

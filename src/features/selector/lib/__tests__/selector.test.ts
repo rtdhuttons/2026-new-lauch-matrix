@@ -13,7 +13,6 @@ import {
   rankUnits,
   recommend,
 } from "../recommend";
-import { buyerStampDuty, defaultSsdPct, runScenario } from "../scenario";
 import { sunPosition } from "../solar";
 
 const prov = { source: "test", updated: "2026-09-30", status: "estimated" as const };
@@ -230,46 +229,6 @@ describe("recommendations", () => {
   it("explains when nothing meets the essentials", () => {
     const recs = recommend(rankUnits(engine, { ...DEFAULT_PREFERENCES, budget: 100_000 }));
     expect(recs.every((r) => r.unit === null)).toBe(true);
-  });
-});
-
-describe("scenario calculator", () => {
-  it("applies residential buyer's stamp duty bands", () => {
-    expect(buyerStampDuty(1_500_000)).toBe(1_800 + 3_600 + 19_200 + 20_000);
-  });
-
-  it("uses the 4-year seller's stamp duty schedule", () => {
-    expect([0.5, 1.5, 2.5, 3.5, 4].map(defaultSsdPct)).toEqual([16, 12, 8, 4, 0]);
-  });
-
-  const ref = { price: 1_500_000, areaSqft: 1000 };
-  const sel = { price: 1_650_000, areaSqft: 1000 };
-  const costs = {
-    absdPct: 0, legalBuy: 0, loanToValuePct: 0, interestPct: 0, loanTenureYears: 30,
-    monthlyHolding: 0, agentFeePct: 0, legalSell: 0, ssdPct: 0,
-  };
-
-  it("computes the required resale price from the reference unit's return", () => {
-    const r = runScenario(ref, sel, 5, { growthPct: 2, retainedPremiumPct: 80 }, costs);
-    const expected = sel.price * (r.reference.resale / ref.price);
-    expect(r.requiredResale).toBeCloseTo(expected);
-    expect(r.reference.grossPct).toBeCloseTo((Math.pow(1.02, 5) - 1) * 100);
-  });
-
-  it("does not count the premium twice", () => {
-    const full = runScenario(ref, sel, 5, { growthPct: 2, retainedPremiumPct: 100 }, costs);
-    expect(full.selected.resale).toBeCloseTo(sel.price * Math.pow(1.02, 5));
-    expect(full.shortfall).toBeCloseTo(0);
-    const half = runScenario(ref, sel, 5, { growthPct: 2, retainedPremiumPct: 50 }, costs);
-    expect(half.shortfall).toBeCloseTo(150_000 * 0.5 * Math.pow(1.02, 5));
-  });
-
-  it("separates size from premium when layouts differ", () => {
-    const bigger = { price: 1_800_000, areaSqft: 1100 };
-    const r = runScenario(ref, bigger, 3, { growthPct: 0, retainedPremiumPct: 0 }, costs);
-    expect(r.sizeAdjustedBase).toBeCloseTo(1_650_000);
-    expect(r.premium).toBeCloseTo(150_000);
-    expect(r.selected.resale).toBeCloseTo(1_650_000);
   });
 });
 

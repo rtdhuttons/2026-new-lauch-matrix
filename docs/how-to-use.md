@@ -118,8 +118,8 @@ Three suggestions based on your filters and what matters to you:
 - **Best supported value**
 
 Each explains why it was picked and what you trade off. Open **Fine-tune your
-preferences** to set your budget, how long you plan to hold, how much extra
-you'd pay for a better floor, and how much each factor matters.
+preferences** to set your budget, how much extra you'd pay for a better
+floor, and how much each factor matters.
 
 ## 8. Compare your shortlist
 
@@ -127,11 +127,22 @@ Up to three homes side by side: price, size, floor, view, sun, noise, MRT and
 resale. On a phone, the bar at the bottom of the screen shows the selected home
 and takes you to the comparison.
 
-## 9. Premium and resale scenarios
+## 9. Profit by floor band
 
-Shows what a higher floor or better view would need to fetch at resale to be
-worth the extra price, after stamp duty, fees and holding costs. You set the
-growth rate and holding period; these are scenarios, not forecasts.
+Does a higher floor pay off? This section shows what owners made when they
+resold at **JadeScape**, a comparable development in District 20.
+
+- **The table** groups 321 resales by floor: low (#01–#10), mid (#11–#20) and
+  high (#21 and up), with the average and median profit, the gain per sq ft
+  and the yearly return. The best band is marked **Top**.
+- **The chart** shows every resale by floor. Bigger bubbles are bigger homes;
+  hover over one for its details. The dashed line is the median profit and the
+  dotted line the trend.
+- **Why JadeScape is a fair guide** lists what the two developments share.
+
+This record also feeds each home's **exit appeal** score: a Thomson Reserve
+home on a floor band that did better at JadeScape scores higher. Past results
+don't guarantee future ones.
 
 ## 10. How this works
 

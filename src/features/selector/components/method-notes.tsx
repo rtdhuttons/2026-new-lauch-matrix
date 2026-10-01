@@ -19,7 +19,7 @@ const RULES: { title: string; body: string[] }[] = [
       "Views: below obstruction 10, partially cleared 45, estimated clear 85, clear with limited further gain 90. Uncertain floors use the conservative category.",
       "Quiet & privacy: 100 minus 22, 10 or 3 points for each higher, moderate or lower potential source or privacy issue in the screening.",
       "MRT: 100 at 5 minutes' walk or less, falling to 0 at 15 minutes.",
-      "Exit appeal: starts at 100, loses 0.6 points for each similar unit beyond 30 in the development, and gains 8 points for each distinctive benefit.",
+      "Exit appeal, out of 100: up to 50 points for less competition (fewer similar homes in the development), up to 30 points for the floor band's resale record at a comparable development (JadeScape: low floors 0, mid floors 10, high floors 30, in proportion to each band's annualised return), and 10 points for each distinctive feature, up to 20.",
     ],
   },
   {
@@ -30,15 +30,6 @@ const RULES: { title: string; body: string[] }[] = [
       "Estimated clear view: at least 4 of 5 sight lines clear. Partially cleared: at least one does. Limited further gain: all five clear and the floor is at least 3 above the clearance floor.",
       "Where an on-site assessment is recorded for a stack's facing, it sets the marker instead, labelled with its source. The geometric model stays in the cross-section for reference, and a Thomson Reserve block that blocks the view at every floor still decides the result.",
       "Future view risk is reported separately from current clearance.",
-    ],
-  },
-  {
-    title: "Scenario calculator",
-    body: [
-      "Reference resale = reference price × (1 + growth)^years.",
-      "Compared resale = (size-adjusted base + premium × share kept) × (1 + growth)^years, where the size-adjusted base is the reference PSF × the compared unit's area.",
-      "Required resale price = compared purchase price × (reference resale ÷ reference purchase price).",
-      "Net gain subtracts buyer's stamp duty, any additional buyer's stamp duty, legal fees, loan interest, monthly holding costs, agent fees and seller's stamp duty as entered.",
     ],
   },
 ];

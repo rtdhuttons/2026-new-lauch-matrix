@@ -97,22 +97,6 @@ export function PreferencesPanel({
         </p>
       </div>
 
-      <div>
-        <label htmlFor="holding" className="flex justify-between font-display-normal text-sm font-semibold">
-          <span>Holding period</span>
-          <span className="tabular-nums">{prefs.holdingYears} years</span>
-        </label>
-        <input
-          id="holding"
-          type="range"
-          min={1}
-          max={15}
-          value={prefs.holdingYears}
-          onChange={(e) => set("holdingYears", Number(e.target.value))}
-          className="mt-2 w-full accent-canopy"
-        />
-        <p className="mt-1 text-sm text-stone">Used by the resale scenario calculator.</p>
-      </div>
 
       <div>
         <label htmlFor="extra" className="font-display-normal text-sm font-semibold">

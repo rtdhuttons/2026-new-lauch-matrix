@@ -14,12 +14,12 @@ import { Comparison } from "./comparison";
 import { MethodNotes } from "./method-notes";
 import { LocationSection } from "./location";
 import { FilterBar } from "./filter-bar";
+import { FloorProfit } from "./floor-profit";
 import { PreferencesPanel } from "./preferences-panel";
 import { UnitPanel } from "./unit-panel";
 import { Gallery, ProjectHero } from "./project-hero";
 import { PriceEstimateSection } from "./price-estimate";
 import { Recommendations } from "./recommendations";
-import { ScenarioCalculator } from "./scenario-calculator";
 import { SiteView } from "./site-view";
 import { StackExplorer } from "./stack-explorer";
 import { card, SectionHeading } from "./ui";
@@ -133,11 +133,6 @@ export function SelectorApp() {
     setAnalysisOpen(true);
     requestAnimationFrame(() => scrollToId("analysis"));
   };
-
-  const candidates = [
-    ...(unit ? [unit] : []),
-    ...shortlistUnits.filter((u) => u.id !== unit?.id),
-  ];
 
   return (
     <>
@@ -317,6 +312,17 @@ export function SelectorApp() {
           </section>
         )}
 
+        {dataset.comparable && (
+          <section id="floor-profit" aria-labelledby="floor-profit-title" className="mt-16 scroll-mt-20">
+            <SectionHeading
+              id="floor-profit-title"
+              title="Profit by floor band"
+              lede={`Does a higher floor pay off? What owners made when they resold at ${dataset.comparable.name}, a comparable development nearby, averaged across all bedroom types.`}
+            />
+            <FloorProfit project={dataset.comparable} imageSrc={gallery.find((g) => g.src.endsWith("/lawn.jpg"))?.src ?? gallery[0].src} />
+          </section>
+        )}
+
         <section id="gallery" aria-labelledby="gallery-title" className="mt-16 scroll-mt-20">
           <SectionHeading
             id="gallery-title"
@@ -367,21 +373,6 @@ export function SelectorApp() {
             onRemove={toggleShortlist}
             onOpen={openUnit}
             onSetReference={(u) => setReferenceId(u.id)}
-          />
-        </section>
-
-        <section id="scenario" aria-labelledby="scenario-title" className="mt-16 scroll-mt-20">
-          <SectionHeading
-            id="scenario-title"
-            title="Premium & resale scenarios"
-            lede="What the extra price would need to achieve at resale. The scenarios are assumptions you control, not forecasts."
-          />
-          <ScenarioCalculator
-            engine={engine}
-            candidates={candidates}
-            reference={reference}
-            holdingYears={prefs.holdingYears}
-            onHoldingYears={(y) => setPrefs({ ...prefs, holdingYears: y })}
           />
         </section>
 

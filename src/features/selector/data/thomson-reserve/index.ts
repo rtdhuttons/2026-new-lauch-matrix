@@ -42,6 +42,7 @@ import {
   polylineLength,
   rayPolygonSpan,
 } from "../../lib/geometry";
+import { jadescape } from "../comparables/jadescape";
 import { floorPlanPage, mirroredStacks } from "./floor-plans";
 import { thomsonReserveSurroundings } from "./surroundings";
 import { unitSchedule } from "./unit-schedule";
@@ -637,7 +638,7 @@ export const thomsonReserveDataset: Dataset = {
       notice:
         "Built from the developer's site plan, elevation charts, unit plans and factsheet, the architect's brief and TRM's on-site assessment. Prices are illustrative until the price list is released; see Method for what is still estimated.",
       pricingNote:
-        "Awaiting the developer's price list. Prices, premiums and resale scenarios appear once it is loaded.",
+        "Awaiting the developer's price list. Prices and premiums appear once it is loaded.",
     },
   },
   blocks,
@@ -653,6 +654,7 @@ export const thomsonReserveDataset: Dataset = {
   externalRoutes,
   transactions: [],
   nearbyProjects: [],
+  comparable: jadescape,
 };
 
 export const thomsonReserveMrtExit = mrtExit;

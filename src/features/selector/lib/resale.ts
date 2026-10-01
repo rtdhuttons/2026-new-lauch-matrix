@@ -8,6 +8,8 @@
 import type { NearbyProject, Transaction, Unit } from "../model/types";
 import type { StackViewAnalysis } from "./clearance";
 import { levelView } from "./clearance";
+import type { BandStats } from "./comparable";
+import { floorBandPoints } from "./comparable";
 import type { DatasetIndex } from "./dataset-index";
 
 export const SIMILAR_SIZE_SHARE = 0.1;
@@ -25,7 +27,12 @@ export interface ResaleCompetition {
     transactions: Transaction[];
     note: string;
   };
-  /** 0–100; fewer comparables and more distinctive traits score higher. */
+  /**
+   * How this unit's floor band did at a comparable development, and the
+   * exit-appeal points it adds (0–10). Null without a comparable.
+   */
+  floorEvidence: { project: string; band: BandStats; points: number } | null;
+  /** 0–100; fewer comparables, more distinctive traits and a stronger floor band score higher. */
   score: number | null;
 }
 
@@ -44,6 +51,7 @@ export function resaleCompetition(
       sameViewCategoryCount: 0,
       distinctive: [],
       nearby: [],
+      floorEvidence: null,
       evidence: {
         transactions: [],
         note: "Unit types and sizes are not published yet, so similar units cannot be counted.",
@@ -100,8 +108,16 @@ export function resaleCompetition(
     return u && ix.stackLayout(u.stackId).id === layout.id;
   });
 
-  const base = 100 - Math.max(0, comparables.length - 30) * 0.6;
-  const score = Math.max(0, Math.min(100, base + distinctive.length * 8));
+  const fb = floorBandPoints(ix.ds.comparable, unit.level);
+  const floorEvidence = fb && ix.ds.comparable ? { project: ix.ds.comparable.name, ...fb } : null;
+
+  // Exit appeal, out of 100:
+  //   competition, up to 50: fewer similar homes in the development score higher
+  //   floor band, up to 30: how this floor band resold at the comparable development
+  //   distinctive features, 10 each, up to 20
+  const competition = 50 * (1 - comparables.length / Math.max(1, ix.ds.units.length - 1));
+  const traits = Math.min(20, distinctive.length * 10);
+  const score = Math.round(Math.max(0, Math.min(100, competition + (floorEvidence?.points ?? 0) + traits)));
 
   return {
     known: true,
@@ -110,6 +126,7 @@ export function resaleCompetition(
     sameViewCategoryCount: sameView.length,
     distinctive,
     nearby,
+    floorEvidence,
     evidence: {
       transactions,
       note:

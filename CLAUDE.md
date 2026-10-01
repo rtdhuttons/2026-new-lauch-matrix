@@ -5,7 +5,8 @@
 A Next.js website for TRM (a Huttons Associate) that helps buyers choose a
 home at Thomson Reserve (1–11 Bright Hill Drive, 1,268 homes, 6 towers):
 a 3D site model, illustrative prices by level, floor plans, view clearance,
-sun, noise, MRT access, recommendations and a resale scenario calculator.
+sun, noise, MRT access, recommendations, and resale profit by floor band at
+JadeScape, a comparable development.
 The same app is also built as one self-contained HTML page for sharing as a
 claude.ai Artifact.
 
@@ -90,10 +91,13 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   - `floor-plans.ts`: unit type → floor plan image
   - `surroundings.ts`: landed estates, forest, view target
   - `gallery.ts`: renders and the location map
+- `src/features/selector/data/comparables/jadescape.ts` — 321 JadeScape
+  resales (Huttons report, 22 Sep 2026), generated from the spreadsheet.
 - `src/features/selector/lib/` — the calculations: `clearance.ts` (View
   Clearance Floor Marker), `solar.ts` (sun), `exposure.ts` (noise and
   privacy), `access.ts` (MRT walk), `estimate.ts` (illustrative prices),
-  `pricing.ts`, `recommend.ts`, `scenario.ts`, `resale.ts`, `scene.ts` (3D).
+  `pricing.ts`, `recommend.ts`, `resale.ts` (exit appeal), `comparable.ts`
+  (profit by floor band), `scene.ts` (3D).
   Tests are in `lib/__tests__/`.
 - `src/features/selector/components/` — the UI. `selector-app.tsx` lays out
   the page; `site-3d.tsx` is the 3D model; `unit-panel.tsx` is the
@@ -115,6 +119,9 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   also clear that block's roof.
 - Homes start at level 1 in the Luxury blocks (5 and 7) and level 2 in the
   Classic blocks (1, 3, 9, 11); typical floors start at level 3.
+- Exit appeal, out of 100: less competition (up to 50), the floor band's
+  resale record at JadeScape (low 0, mid 10, high 30) and distinctive
+  features (up to 20).
 - Label every render "Artist's impression".
 - Do not commit developer PDFs. Never publish the project bank account details
   in the factsheet.
@@ -149,12 +156,12 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
    with provenance. Build a small fictional dataset to develop against.
 5. **Calculations, with tests.** Geometry and floor heights, then sun position
    (NOAA formulas), view clearance (sight lines over obstructions with height
-   ranges), noise screening, MRT walk, pricing, recommendations and the
-   resale scenario. Write tests as you go.
+   ranges), noise screening, MRT walk, pricing, recommendations and exit
+   appeal. Write tests as you go.
 6. **The UI.** Selector page with filter bar, 3D site model (instanced boxes
    per home on the site plan image), selected-home panel, stack and floor
-   analysis, price section, recommendations, comparison and scenario
-   calculator. Check every screen at phone width.
+   analysis, price section, profit by floor band, recommendations and
+   comparison. Check every screen at phone width.
 7. **Load the real project.** From the developer's site plan, trace each
    stack's position (with the plan's scale bar and north point). From the
    elevation charts, build the unit type for every stack and level. From the

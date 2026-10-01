@@ -410,6 +410,25 @@ export function UnitDetails({
                 ))}
               </div>
             </dl>
+            {a.resale.floorEvidence && (
+              <div className="rounded-lg border border-canopy/10 p-4">
+                <p className="font-display-normal text-sm font-semibold">
+                  Floor band: {a.resale.floorEvidence.band.label.toLowerCase()} floors ({a.resale.floorEvidence.band.floors} at {a.resale.floorEvidence.project})
+                </p>
+                <p className="mt-1 text-[1rem]">
+                  At {a.resale.floorEvidence.project}, {a.resale.floorEvidence.band.homes} resales on these floors made{" "}
+                  {money(a.resale.floorEvidence.band.avgProfit)} on average, {(a.resale.floorEvidence.band.annualised * 100).toFixed(2)}% a year. That adds{" "}
+                  <strong>{a.resale.floorEvidence.points} of 30</strong> points to this home&apos;s exit appeal.{" "}
+                  <a href="#floor-profit" className="font-display-normal text-sm font-medium text-reservoir underline underline-offset-2">See profit by floor band</a>
+                </p>
+              </div>
+            )}
+            {a.resale.score !== null && (
+              <p className="font-display-normal text-base">
+                <span className="font-semibold">Exit appeal: {a.resale.score} / 100.</span>{" "}
+                <span className="text-canopy/75">Less competition (up to 50), floor band record (up to 30) and distinctive features (up to 20).</span>
+              </p>
+            )}
             <div>
               <p className="font-display-normal text-sm font-semibold">What sets this unit apart</p>
               <ul className="mt-1 list-disc pl-5 text-[1rem]">

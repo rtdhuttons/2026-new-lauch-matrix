@@ -270,6 +270,30 @@ export interface NearbyProject {
   provenance: Provenance;
 }
 
+export interface ComparableTransaction {
+  floor: number;
+  areaSqft: number;
+  bedrooms: number;
+  purchaseDate: string | null;
+  purchasePrice: number | null;
+  saleDate: string;
+  salePrice: number;
+  /** Gross profit: sale price minus purchase price, before duties and fees. */
+  profit: number;
+  profitPsf: number | null;
+  holdingYears: number;
+  /** Annualised return, e.g. 0.0533 for 5.33% a year. */
+  annualised: number;
+}
+
+/** Resale record of a similar, completed development, used as evidence. */
+export interface ComparableProject {
+  name: string;
+  transactions: ComparableTransaction[];
+  excludedNote: string;
+  provenance: Provenance;
+}
+
 export interface Dataset {
   project: Project;
   blocks: Block[];
@@ -285,4 +309,6 @@ export interface Dataset {
   externalRoutes: ExternalRoute[];
   transactions: Transaction[];
   nearbyProjects: NearbyProject[];
+  /** A completed development whose resales show how floor height paid off. */
+  comparable?: ComparableProject;
 }
