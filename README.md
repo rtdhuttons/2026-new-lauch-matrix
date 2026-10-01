@@ -59,13 +59,13 @@ src/features/selector/
     exposure.ts           Noise & privacy screening
     access.ts             MRT walking access
     pricing.ts            Premiums, per-floor premium, cost to reach clearance
-    resale.ts             Resale competition
+    resale.ts             Resale competition and exit appeal
+    comparable.ts         Profit by floor band at a comparable development (JadeScape)
     engine.ts             Caches and combines assessments per unit
     recommend.ts          Essentials filter, lifestyle fit, recommendations
-    scenario.ts           Premium & resale scenario calculator
     scene.ts              3D massing built from the dataset (tested)
   components/           UI: 3D site view (three.js / react-three-fiber, loaded client-only),
-                        flat plan, floor slider + elevation, tabs, comparison, calculator
+                        flat plan, floor slider + elevation, tabs, comparison, floor-band profit
 ```
 
 ### Site view
