@@ -44,6 +44,7 @@ import {
 } from "../../lib/geometry";
 import { jadescape } from "../comparables/jadescape";
 import { floorPlanPage, mirroredStacks } from "./floor-plans";
+import { mapObstructions, thomsonReserveMapContext, thomsonReserveRoadLabels } from "./map-context";
 import { thomsonReserveSurroundings } from "./surroundings";
 import { unitSchedule } from "./unit-schedule";
 
@@ -482,7 +483,9 @@ const ownBlocks: Obstruction[] = blocks.map((b) => {
   };
 });
 
-const obstructions: Obstruction[] = [...ownBlocks, ...surroundings.obstructions];
+// Mapped buildings checked from the middle of the site plan.
+const SITE_CENTRE = P(IMAGE.widthPx / 2, IMAGE.heightPx / 2);
+const obstructions: Obstruction[] = [...ownBlocks, ...surroundings.obstructions, ...mapObstructions(SITE_CENTRE)];
 
 const plan = traced("Drawn from the site plan; road centrelines are approximate");
 const briefPlan = brief("Drawn onto the site plan from the architect's circulation and vehicle plans; positions approximate", "estimated");
@@ -611,6 +614,8 @@ const externalRoutes: ExternalRoute[] = [
 
 const planImageSrc =
   process.env.NEXT_PUBLIC_TR_SITE_PLAN ?? "/thomson-reserve/site-plan.jpg";
+const planMaskSrc =
+  process.env.NEXT_PUBLIC_TR_SITE_PLAN_MASK ?? "/thomson-reserve/site-plan-mask.png";
 
 export const thomsonReserveDataset: Dataset = {
   project: {
@@ -632,8 +637,10 @@ export const thomsonReserveDataset: Dataset = {
         widthM: IMAGE.widthPx / PX_PER_M,
         heightM: IMAGE.heightPx / PX_PER_M,
         credit: "Site plan: developer's marketing material",
+        maskSrc: planMaskSrc,
       },
-      roadLabels: [],
+      mapContext: thomsonReserveMapContext,
+      roadLabels: thomsonReserveRoadLabels,
       mrtLabel: { text: "Upper Thomson MRT, Exit 2", at: mrtExit },
       notice:
         "Built from the developer's site plan, elevation charts, unit plans and factsheet, the architect's brief and TRM's on-site assessment. Prices are illustrative until the price list is released; see Method for what is still estimated.",
@@ -664,7 +671,8 @@ export const thomsonReserveGaps = [
   "Prices and availability: awaiting the developer's price list.",
   "Surveyed heights of the surrounding landed homes and trees: the View Clearance Floor Marker uses the brief's storey counts and assumed tree and forest heights.",
   "View clearance for south-west and north-east facings comes from TRM's on-site assessment (level 5 over the landed homes, level 21 over the HDB blocks); surveyed heights would confirm it stack by stack.",
-  "Surveyed heights for the HDB blocks to the north-east, to confirm the level 21 clearance stack by stack.",
+  "Surveyed heights for the blocks to the north-east: OpenStreetMap records 21 storeys at 41, 43 and 45 Bright Hill Drive, but not roof heights or ground levels, so the level 21 clearance can't yet be confirmed stack by stack.",
+  "Heights of most neighbouring buildings: OpenStreetMap records storeys for only some of them. Houses without a storey count are drawn at 2 storeys and other buildings as low outlines, and neither is used in the view check.",
   "Exact finished floor levels: first homes use the brief's approximate heights above Upper Thomson Road (8.5 m Luxury, 14.5 m Classic); level 1 to 2 uses the factsheet's 4.3 m; other floors assume 3.15 m.",
   "Walked routes to the MRT: only the 65 m covered linkway outside Side Gate 1 is measured; paths inside the development are estimated.",
   "Room facings: living and master bedroom are assumed to face away from the lift core until each unit plan is keyed in.",

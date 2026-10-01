@@ -37,6 +37,11 @@ you want are.
 - **Colour by** changes what the colours mean: **Bedroom type**,
   **Collection** (Classic or Luxury), **Within budget**, **View clearance**
   or **Afternoon sun**. The key below the buttons explains the colours.
+- **Surroundings** shows the real neighbourhood around the site from
+  OpenStreetMap: roads with their names, nearby buildings, parks and the MRT
+  station. Taller neighbours, such as the 21-storey blocks on Bright Hill
+  Drive, are drawn at their recorded number of storeys. Turn it off to see
+  the developer's full site plan on its own.
 - **Flat plan** switches to a 2D site plan with overlays for views, noise,
   privacy and walking routes.
 - **Facilities key** numbers the pools, clubs and other facilities.
@@ -156,8 +161,8 @@ explains every calculation and lists the information still to come.
 - Prices are estimates until the developer releases the price list.
   Availability isn't known yet.
 - View, sun and noise results are estimates from the site plan, the
-  architect's brief and TRM's on-site assessment. They are a guide, not a
-  survey.
+  architect's brief, OpenStreetMap and TRM's on-site assessment. They are a
+  guide, not a survey.
 - Photos are artist's impressions.
 - Always check the developer's brochure, price list and sale and purchase
   agreement.

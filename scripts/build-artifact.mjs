@@ -10,6 +10,7 @@ const out = "dist-artifact";
 // URLs to the page's own files. The site plan is inlined here; photos, floor
 // plans and the map are compressed by scripts/artifact/embed_assets.py.
 const sitePlan = `data:image/jpeg;base64,${readFileSync("public/thomson-reserve/site-plan.jpg").toString("base64")}`;
+const sitePlanMask = `data:image/png;base64,${readFileSync("public/thomson-reserve/site-plan-mask.png").toString("base64")}`;
 mkdirSync(out, { recursive: true });
 execFileSync("python3", ["scripts/artifact/embed_assets.py"], { stdio: "inherit" });
 
@@ -25,6 +26,7 @@ const js = await build({
   define: {
     "process.env.NODE_ENV": '"production"',
     "process.env.NEXT_PUBLIC_TR_SITE_PLAN": JSON.stringify(sitePlan),
+    "process.env.NEXT_PUBLIC_TR_SITE_PLAN_MASK": JSON.stringify(sitePlanMask),
     "process.env.NEXT_PUBLIC_TR_PLAN_BASE": JSON.stringify("plans"),
     "process.env.NEXT_PUBLIC_TR_IMAGE_BASE": JSON.stringify("images"),
     // The viewer only shows images embedded in the page, so photos and plans ship as data URIs.

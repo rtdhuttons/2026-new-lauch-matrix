@@ -60,13 +60,20 @@ const QUICK_MONTHS = [
   { month: 11, label: "Dec" },
 ];
 
+// Checked once: every test opens a WebGL context, and browsers drop the
+// oldest context (the 3D view's own) once about 16 are open.
+let webglChecked: boolean | null = null;
 function webglSupported(): boolean {
+  if (webglChecked !== null) return webglChecked;
   try {
     const c = document.createElement("canvas");
-    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+    const gl = c.getContext("webgl2") || c.getContext("webgl");
+    webglChecked = !!gl;
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
-    return false;
+    webglChecked = false;
   }
+  return webglChecked;
 }
 
 const noSubscribe = () => () => {};
@@ -356,6 +363,11 @@ export function SiteView({
                 <text x="-24" y="3" textAnchor="middle" fontSize="9" fill="#10291c">W</text>
               </svg>
             </button>
+            {ds.project.display?.mapContext && showSurroundings && (
+              <p className="pointer-events-none absolute bottom-2 left-3 rounded bg-paper/85 px-1.5 py-0.5 font-display-normal text-[11px] text-canopy/75">
+                {ds.project.display.mapContext.credit}
+              </p>
+            )}
           </div>
 
           {showKey && (

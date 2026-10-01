@@ -70,7 +70,7 @@ src/features/selector/
 
 ### Site view
 
-The site plan opens as a 3D view: every unit is its own box, coloured by bedroom type, within budget, view clearance or availability. Drag to spin, pinch or scroll to zoom, and tap a unit to see its price and move the floor slider to it. "Surroundings" shows neighbouring buildings, trees, roads and water; "Sun & shadows" casts real Singapore sun positions (play the day, pick Mar/Jun/Sep/Dec). The compass turns with the view and resets it. "Flat plan" keeps the 2D plan with its view, noise, privacy, route and future-development overlays, and is the keyboard-accessible route along with the stack list.
+The site plan opens as a 3D view: every unit is its own box, coloured by bedroom type, within budget, view clearance or availability. Drag to spin, pinch or scroll to zoom, and tap a unit to see its price and move the floor slider to it. "Surroundings" shows neighbouring buildings, trees, roads and water (for Thomson Reserve, the real neighbourhood from OpenStreetMap, © OpenStreetMap contributors); "Sun & shadows" casts real Singapore sun positions (play the day, pick Mar/Jun/Sep/Dec). The compass turns with the view and resets it. "Flat plan" keeps the 2D plan with its view, noise, privacy, route and future-development overlays, and is the keyboard-accessible route along with the stack list.
 
 ### The six frameworks
 

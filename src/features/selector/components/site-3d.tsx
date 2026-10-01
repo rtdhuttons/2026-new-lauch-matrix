@@ -11,6 +11,7 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Dataset, Point, Unit } from "../model/types";
 import type { Box, Extrusion, SceneData, Tree, UnitBox } from "../lib/scene";
 import { buildScene, sunVector } from "../lib/scene";
+import { MapLayer } from "./map-layer";
 
 export interface Facility {
   number: number;
@@ -160,25 +161,34 @@ function Trees({ trees }: { trees: Tree[] }) {
 }
 
 /** The developer's site plan laid flat on the ground at its true scale. */
-function PlanImage({ src, widthM, heightM }: { src: string; widthM: number; heightM: number }) {
-  const loaded = useLoader(THREE.TextureLoader, src);
-  const texture = useMemo(() => {
-    const t = loaded.clone();
+function PlanImage({ src, maskSrc, widthM, heightM }: { src: string; maskSrc?: string; widthM: number; heightM: number }) {
+  const loaded = useLoader(THREE.TextureLoader, maskSrc ? [src, maskSrc] : [src]);
+  const [texture, mask] = useMemo(() => {
+    const t = loaded[0].clone();
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 8;
     t.needsUpdate = true;
-    return t;
+    return [t, loaded[1] ?? null];
   }, [loaded]);
+  // With a mask, only the site itself is drawn and the map shows around it.
   return (
-    <mesh position={[widthM / 2, 0.05, heightM / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow raycast={() => null}>
+    <mesh position={[widthM / 2, 0.1, heightM / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow raycast={() => null} renderOrder={4}>
       <planeGeometry args={[widthM, heightM]} />
-      <meshStandardMaterial map={texture} roughness={1} />
+      <meshStandardMaterial
+        map={texture}
+        alphaMap={mask}
+        alphaTest={mask ? 0.5 : 0}
+        roughness={1}
+        polygonOffset
+        polygonOffsetFactor={-4}
+        polygonOffsetUnits={-16}
+      />
     </mesh>
   );
 }
 
 /** Letter-spaced capitals painted flat on the ground, like a map label. */
-function GroundLabel({ text, x, z, angle, width, colour = "#7b857c" }: { text: string; x: number; z: number; angle: number; width: number; colour?: string }) {
+function GroundLabel({ text, x, z, angle, width, colour = "#6f7a71" }: { text: string; x: number; z: number; angle: number; width: number; colour?: string }) {
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 1024;
@@ -186,12 +196,23 @@ function GroundLabel({ text, x, z, angle, width, colour = "#7b857c" }: { text: s
     const ctx = canvas.getContext("2d")!;
     const family =
       getComputedStyle(document.documentElement).getPropertyValue("--font-archivo").trim() || "sans-serif";
-    ctx.font = `600 64px ${family}`;
     ctx.fillStyle = colour;
     ctx.textBaseline = "middle";
-    const spacing = 14;
     const chars = [...text.toUpperCase()];
-    const total = chars.reduce((a, c) => a + ctx.measureText(c).width + spacing, -spacing);
+    // Shrink long names so they fit the label instead of being cut off.
+    let size = 64;
+    let spacing = 14;
+    const measure = () => {
+      ctx.font = `600 ${size}px ${family}`;
+      return chars.reduce((a, c) => a + ctx.measureText(c).width + spacing, -spacing);
+    };
+    let total = measure();
+    if (total > canvas.width - 32) {
+      const k = (canvas.width - 32) / total;
+      size = Math.floor(size * k);
+      spacing = spacing * k;
+      total = measure();
+    }
     let cx = (canvas.width - total) / 2;
     for (const c of chars) {
       ctx.fillText(c, cx, canvas.height / 2);
@@ -202,9 +223,9 @@ function GroundLabel({ text, x, z, angle, width, colour = "#7b857c" }: { text: s
     return t;
   }, [text, colour]);
   return (
-    <mesh position={[x, 0.2, z]} rotation={[-Math.PI / 2, 0, angle]} raycast={() => null}>
+    <mesh position={[x, 0.3, z]} rotation={[-Math.PI / 2, 0, angle]} raycast={() => null} renderOrder={5}>
       <planeGeometry args={[width, (width * 96) / 1024]} />
-      <meshBasicMaterial map={texture} transparent depthWrite={false} />
+      <meshBasicMaterial map={texture} transparent depthWrite={false} polygonOffset polygonOffsetFactor={-8} polygonOffsetUnits={-32} />
     </mesh>
   );
 }
@@ -350,11 +371,13 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
           {targets.map((t) => (
             <FlatShape key={t.id} points={t.footprint} y={0.03} colour={t.id === "reservoir" ? "#a9cfdb" : "#cfdcc4"} />
           ))}
-          {ds.exposureSources
+          {/* A map already draws the real roads. */}
+          {!ds.project.display?.mapContext && ds.exposureSources
             .filter((s) => s.kind === "expressway" || s.kind === "main-road")
             .map((s) => (
               <Road key={s.id} path={s.geometry} width={s.kind === "expressway" ? 26 : 14} />
             ))}
+          {ds.project.display?.mapContext && <MapLayer map={ds.project.display.mapContext} />}
           {scene.buildings.map((b) => (
             <Building key={b.id} b={b} />
           ))}
@@ -366,7 +389,7 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
       {/* The site */}
       {planImage ? (
         <Suspense fallback={null}>
-          <PlanImage src={planImage.src} widthM={planImage.widthM} heightM={planImage.heightM} />
+          <PlanImage src={planImage.src} maskSrc={showSurroundings ? planImage.maskSrc : undefined} widthM={planImage.widthM} heightM={planImage.heightM} />
         </Suspense>
       ) : (
         <>

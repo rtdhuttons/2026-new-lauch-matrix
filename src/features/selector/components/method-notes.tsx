@@ -32,6 +32,14 @@ const RULES: { title: string; body: string[] }[] = [
       "Future view risk is reported separately from current clearance.",
     ],
   },
+  {
+    title: "The neighbourhood map",
+    body: [
+      "Roads, buildings, parks and water around the site come from OpenStreetMap (map data © OpenStreetMap contributors, ODbL). The map is laid on the developer's site plan using the plan's north point and scale bar; Upper Thomson MRT Exit 2 then falls within about a metre of the plan's marker.",
+      "Building heights use the storeys OpenStreetMap records, at 2.8–3.2 m a storey plus up to 3 m of roof structures. Neighbouring buildings of 4 storeys or more with a recorded storey count, within 450 m, are included in the view and noise checks. Houses without a storey count are drawn at 2 storeys, as the architect's brief describes the landed estates; other buildings without one are drawn as low outlines. Neither of these is used in any calculation.",
+      "Turn off Surroundings to see the developer's full site plan without the map.",
+    ],
+  },
 ];
 
 const DATA_NEEDED: { area: string; items: string[] }[] = [

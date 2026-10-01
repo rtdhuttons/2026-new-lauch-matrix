@@ -52,13 +52,41 @@ export interface Project {
 
 export interface ProjectDisplay {
   /** Site plan image laid under the plan, covering (0,0)–(widthM,heightM). */
-  planImage?: { src: string; widthM: number; heightM: number; credit: string };
+  planImage?: {
+    src: string;
+    widthM: number;
+    heightM: number;
+    credit: string;
+    /** Greyscale mask: white where the plan shows the site, black where the map beneath should show through. */
+    maskSrc?: string;
+  };
+  /** Surrounding buildings, roads, parks and water from a map, in plan metres. */
+  mapContext?: MapContext;
   roadLabels?: { text: string; at: Point; angleDeg: number; lengthM: number }[];
   mrtLabel?: { text: string; at: Point };
   /** Short banner shown above the selector. */
   notice: string;
   /** What the prices and unit types currently are, in plain words. */
   pricingNote: string;
+}
+
+export interface MapBuilding {
+  footprint: Point[];
+  /** Drawn height above the road, metres. */
+  heightM: number;
+  /** "levels": from the storeys the map records; "assumed": a house drawn at 2 storeys; "unknown": footprint only. */
+  height: "levels" | "assumed" | "unknown";
+  levels: number | null;
+  label: string | null;
+}
+
+export interface MapContext {
+  buildings: MapBuilding[];
+  roads: { path: Point[]; widthM: number }[];
+  green: Point[][];
+  water: Point[][];
+  credit: string;
+  provenance: Provenance;
 }
 
 export interface Block {
@@ -179,6 +207,8 @@ export interface Obstruction {
   heightProvenance: Provenance;
   /** Own blocks are linked so a stack never obstructs itself. */
   blockId?: string;
+  /** Already drawn by the map layer, so the 3D model doesn't add it again. */
+  fromMap?: boolean;
 }
 
 export interface ViewTarget {

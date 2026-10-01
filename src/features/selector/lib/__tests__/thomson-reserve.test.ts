@@ -191,3 +191,39 @@ describe("Thomson Reserve dataset", () => {
     expect(engine.view("06").observed).toBeUndefined();
   });
 });
+
+describe("Thomson Reserve neighbourhood map", () => {
+  const map = ds.project.display!.mapContext!;
+
+  it("places OpenStreetMap's Upper Thomson Exit 2 on the site plan's MRT marker", () => {
+    // Exit 2 (OSM node, lat 1.3555954, lon 103.8317171) through the same fit as scripts/osm/build-context.py.
+    const e = (103.8317171 - 103.83) * 111320 * Math.cos((1.3566 * Math.PI) / 180);
+    const n = (1.3555954 - 1.3566) * 110574;
+    const p = (40 * Math.PI) / 180;
+    const x = e * Math.cos(p) - n * Math.sin(p) + 787.5 / 2.66;
+    const y = -(n * Math.cos(p) + e * Math.sin(p)) + 570 / 2.66;
+    expect(Math.hypot(x - thomsonReserveMrtExit.x, y - thomsonReserveMrtExit.y)).toBeLessThan(3);
+  });
+
+  it("draws the neighbourhood and credits OpenStreetMap", () => {
+    expect(map.buildings.length).toBeGreaterThan(500);
+    expect(map.roads.length).toBeGreaterThan(100);
+    expect(map.credit).toContain("OpenStreetMap");
+    // Nothing from the map sits on the site's own towers.
+    const centre = (pts: { x: number; y: number }[]) => ({ x: pts.reduce((a, p) => a + p.x, 0) / pts.length, y: pts.reduce((a, p) => a + p.y, 0) / pts.length });
+    const onSite = map.buildings.filter((b) => ds.blocks.some((k) => Math.hypot(centre(b.footprint).x - k.centre.x, centre(b.footprint).y - k.centre.y) < 25));
+    expect(onSite).toHaveLength(0);
+  });
+
+  it("uses only buildings with a recorded storey count as obstructions", () => {
+    const mapped = ds.obstructions.filter((o) => o.fromMap);
+    expect(mapped.some((o) => o.name.startsWith("21-storey block, 45 Bright Hill Drive"))).toBe(true);
+    for (const o of mapped) {
+      expect(o.kind).toBe("existing-building");
+      expect(o.heightProvenance.source).toBe("OpenStreetMap");
+      expect(Number(o.name.split("-")[0])).toBeGreaterThanOrEqual(4);
+    }
+    // The 3D model draws them with the map layer, not twice.
+    expect(buildScene(ds).buildings.some((b) => b.id.startsWith("osm-"))).toBe(false);
+  });
+});
