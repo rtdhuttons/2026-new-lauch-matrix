@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { demoDataset as demo } from "../../data/demo";
 import { thomsonReserveDataset as ds, thomsonReserveMrtExit } from "../../data/thomson-reserve";
 import { createEngine } from "../engine";
-import { applyPriceEstimate, DEFAULT_ESTIMATE, estimatedPsf } from "../estimate";
+import { thomsonReserve } from "../../data/thomson-reserve/bundle";
+import { applyPriceEstimate, estimatedPsf } from "../estimate";
+
+const DEFAULT_ESTIMATE = thomsonReserve.pricing.estimate!;
 import { psf } from "../pricing";
 import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../recommend";
 

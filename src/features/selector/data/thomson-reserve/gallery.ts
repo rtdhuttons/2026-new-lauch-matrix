@@ -4,14 +4,9 @@
 const base = process.env.NEXT_PUBLIC_TR_IMAGE_BASE ?? "/thomson-reserve/images";
 const src = (file: string) => `${base}/${file}`;
 
-export interface GalleryImage {
-  src: string;
-  alt: string;
-  title: string;
-  caption: string;
-}
+import type { GalleryImage, HeroImage } from "../../model/project";
 
-export const heroImage = {
+export const heroImage: HeroImage = {
   src: src("sunset-1920.jpg"),
   srcSet: `${src("sunset-960.jpg")} 960w, ${src("sunset-1920.jpg")} 1920w`,
   alt: "Sunset over the forest, golf course and reservoir, seen past the upper balconies of a Thomson Reserve tower, with landed homes below. Artist's impression.",
@@ -98,7 +93,7 @@ export const gallery: GalleryImage[] = [
   },
 ];
 
-export const locationMap = {
+export const locationMap: HeroImage = {
   src: src("location-map-2000.jpg"),
   srcSet: `${src("location-map-1200.jpg")} 1200w, ${src("location-map-2000.jpg")} 2000w`,
   alt: "Location map: Thomson Reserve on Upper Thomson Road beside Upper Thomson MRT, with the Central Catchment Nature Reserve, MacRitchie Reservoir, Windsor Nature Park and the Singapore Island Country Club to the west, and Bishan, Ang Mo Kio and nearby schools to the east.",

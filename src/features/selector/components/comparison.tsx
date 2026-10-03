@@ -53,7 +53,7 @@ export function Comparison({
       <div className={`${card} p-6`}>
         <p className="font-display-normal font-semibold">Your shortlist is empty.</p>
         <p className="mt-1 text-canopy/75">
-          Add up to three units from the floor slider or the recommendations to compare them side by side.
+          Add up to three homes from the 3D model, the list of matching homes or the recommendations to compare them side by side.
         </p>
       </div>
     );

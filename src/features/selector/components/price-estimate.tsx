@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Dataset } from "../model/types";
 import type { PriceEstimate } from "../lib/estimate";
-import { averagePsf, baseFromAverage, DEFAULT_ESTIMATE, describeEstimate, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
+import { averagePsf, baseFromAverage, describeEstimate, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
 import { compactMoney } from "../lib/format";
 import { PriceMatrix } from "./price-matrix";
 import { BEDROOM_COLOURS, card, Segmented } from "./ui";
@@ -124,8 +124,11 @@ export function PriceEstimateSection({
   onEnabled,
   estimate,
   onEstimate,
+  defaults,
   bedrooms = "any",
 }: {
+  /** The project's own starting assumptions, restored by Reset. */
+  defaults: PriceEstimate;
   /** Show only unit types with this many bedrooms. */
   bedrooms?: number | "any";
   /** The dataset without estimates, for the level range. */
@@ -152,7 +155,7 @@ export function PriceEstimateSection({
   for (let t = lo; t <= hi; t += 500_000) ticks.push(t);
   const pct = (n: number) => ((n - lo) / (hi - lo)) * 100;
   const bedroomsShown = [...new Set(rows.map((r) => r.bedrooms).filter((b): b is number => b !== null))].sort();
-  const isDefault = estimate.basePsf === DEFAULT_ESTIMATE.basePsf && estimate.stepPsf === DEFAULT_ESTIMATE.stepPsf;
+  const isDefault = estimate.basePsf === defaults.basePsf && estimate.stepPsf === defaults.stepPsf;
   // Prices can be anchored on the lowest floor or on the average across every home.
   const [mode, setMode] = useState<"lowest" | "average">("lowest");
   const [avgTarget, setAvgTarget] = useState(() => Math.round(averagePsf(base, estimate)));
@@ -231,11 +234,11 @@ export function PriceEstimateSection({
             disabled={isDefault && mode === "lowest"}
             onClick={() => {
               setMode("lowest");
-              onEstimate(DEFAULT_ESTIMATE);
+              onEstimate(defaults);
             }}
             className="justify-self-start rounded-full border border-canopy/25 px-4 py-1.5 font-display-normal text-sm font-semibold disabled:opacity-40"
           >
-            Reset to {money(DEFAULT_ESTIMATE.basePsf)} + {money(DEFAULT_ESTIMATE.stepPsf)}
+            Reset to {money(defaults.basePsf)} + {money(defaults.stepPsf)}
           </button>
         </div>
         <p className="mt-5 rounded-lg bg-[#f4ead3] p-3 text-sm text-[#5c3f0b]">

@@ -16,9 +16,9 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "Thomson Reserve | TRM — The Realty Master",
+  title: "TRM — The Realty Master",
   description:
-    "Thomson Reserve at Upper Thomson: site plan, unit mix and preview registration, presented by TRM — The Realty Master.",
+    "New-launch homes explained stack by stack: 3D site models, floor plans, prices, payments, schools and investor analysis, presented by TRM — The Realty Master.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

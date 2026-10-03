@@ -339,12 +339,14 @@ const rows: Row[] = [
 
 export const jadescape: ComparableProject = {
   name: "JadeScape",
+  location: "Shunfu Road, District 20",
   transactions: rows.map(
     ([floor, areaSqft, bedrooms, purchaseDate, purchasePrice, saleDate, salePrice, profit, profitPsf, holdingYears, annualised]) => ({
       floor, areaSqft, bedrooms, purchaseDate, purchasePrice, saleDate, salePrice, profit, profitPsf, holdingYears, annualised,
     }),
   ),
   excludedNote: "One 6-bedroom penthouse ($4.35M profit) is excluded as an outlier.",
+  bedroomsInferred: true,
   provenance: {
     source: "Huttons JadeScape report (URA Realis, EdgeProp, EcoProp, Huttons)",
     updated: "2026-09-22",

@@ -7,7 +7,7 @@ const field =
   "mt-1.5 block w-full rounded-md border border-mist/25 bg-canopy-soft px-3.5 py-2.5 font-display-normal text-base text-mist placeholder:text-mist/40 focus:border-reservoir-light focus:outline-none";
 const label = "font-display-normal text-sm font-medium text-mist/80";
 
-export function RegisterForm({ unitTypes }: { unitTypes: string[] }) {
+export function RegisterForm({ unitTypes, projectName }: { unitTypes: string[]; projectName: string }) {
   const [state, action, pending] = useActionState<RegisterState, FormData>(
     registerInterest,
     { status: "idle" },
@@ -27,6 +27,7 @@ export function RegisterForm({ unitTypes }: { unitTypes: string[] }) {
 
   return (
     <form action={action} className="grid gap-5 sm:grid-cols-2" noValidate>
+      <input type="hidden" name="project" value={projectName} />
       <div className="sm:col-span-2">
         <label htmlFor="name" className={label}>
           Name
@@ -73,7 +74,7 @@ export function RegisterForm({ unitTypes }: { unitTypes: string[] }) {
         />
         <span>
           I agree to TRM contacting me by phone, SMS, WhatsApp or email about
-          Thomson Reserve, in line with the PDPA.
+          {" "}{projectName}, in line with the PDPA.
         </span>
       </label>
       {state.status === "error" && (

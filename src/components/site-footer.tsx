@@ -1,7 +1,7 @@
 import { site } from "@/content/site";
 
 const DEFAULT_DISCLAIMER =
-  "TRM is a property agency marketing Thomson Reserve. This is not the developer's website. Unit sizes, counts and dates are indicative and may change; the developer's sales brochure, price list and sale and purchase agreement take precedence.";
+  "TRM is a property agency. This is not a developer's website. Unit sizes, counts and dates are indicative and may change; the developer's sales brochure, price list and sale and purchase agreement take precedence.";
 
 export function SiteFooter({ disclaimer = DEFAULT_DISCLAIMER }: { disclaimer?: string }) {
   const details = [

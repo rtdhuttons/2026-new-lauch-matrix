@@ -1,3 +1,5 @@
+import type { SourceRecord } from "../model/project";
+import { SOURCE_KIND_LABEL } from "../model/project";
 import { card } from "./ui";
 
 const RULES: { title: string; body: string[] }[] = [
@@ -19,7 +21,7 @@ const RULES: { title: string; body: string[] }[] = [
       "Views: below obstruction 10, partially cleared 45, estimated clear 85, clear with limited further gain 90. Uncertain floors use the conservative category.",
       "Quiet & privacy: 100 minus 22, 10 or 3 points for each higher, moderate or lower potential source or privacy issue in the screening.",
       "MRT: 100 at 5 minutes' walk or less, falling to 0 at 15 minutes.",
-      "Exit appeal, out of 100: up to 50 points for less competition (fewer similar homes in the development), up to 30 points for the floor band's resale record at a comparable development (JadeScape: low floors 0, mid floors 10, high floors 30, in proportion to each band's annualised return), and 10 points for each distinctive feature, up to 20.",
+      "Exit appeal, out of 100: up to 50 points for less competition (fewer similar homes in the development), up to 30 points for the floor band's resale record at a comparable development (the weakest band 0, the strongest 30, in proportion to each band's annualised return), and 10 points for each distinctive feature, up to 20.",
     ],
   },
   {
@@ -28,19 +30,23 @@ const RULES: { title: string; body: string[] }[] = [
       "Five sight lines are cast across the main view on the plan. For each one, the eye level needed to see the view target over every obstruction is solved from the obstruction's distance and top level, the target's distance and level, and the unit's floor level, all measured from the same height datum (sea level, or the adjoining road where only heights above it are known).",
       "Obstruction heights are ranges. The low end gives the optimistic floor and the high end the conservative floor; when they differ the marker shows a range.",
       "Estimated clear view: at least 4 of 5 sight lines clear. Partially cleared: at least one does. Limited further gain: all five clear and the floor is at least 3 above the clearance floor.",
-      "Where an on-site assessment is recorded for a stack's facing, it sets the marker instead, labelled with its source. The geometric model stays in the cross-section for reference, and a Thomson Reserve block that blocks the view at every floor still decides the result.",
+      "Where an on-site assessment is recorded for a stack's facing, it sets the marker instead, labelled with its source. The geometric model stays in the cross-section for reference, and a block in the same development that blocks the view at every floor still decides the result.",
       "Future view risk is reported separately from current clearance.",
     ],
   },
-  {
-    title: "The neighbourhood map",
-    body: [
-      "Roads, buildings, parks and water around the site come from OpenStreetMap (map data © OpenStreetMap contributors, ODbL). The map is laid on the developer's site plan using the plan's north point and scale bar; Upper Thomson MRT Exit 2 then falls within about a metre of the plan's marker.",
-      "Building heights use the storeys OpenStreetMap records, at 2.8–3.2 m a storey plus up to 3 m of roof structures. Neighbouring buildings of 4 storeys or more with a recorded storey count, within 450 m, are included in the view and noise checks. Houses without a storey count are drawn at 2 storeys, as the architect's brief describes the landed estates; other buildings without one are drawn as low outlines. Neither of these is used in any calculation.",
-      "Turn off Surroundings to see the developer's full site plan without the map.",
-    ],
-  },
+
 ];
+
+/** The neighbourhood map rule; the project's own note says how its map was placed and how heights were set. */
+const mapRule = (note: string | undefined): { title: string; body: string[] } => ({
+  title: "The neighbourhood map",
+  body: [
+    "Roads, buildings, parks and water around the site come from OpenStreetMap (map data © OpenStreetMap contributors, ODbL), laid on the developer's site plan using the plan's north point and scale bar.",
+    ...(note ? [note] : []),
+    "Only neighbouring buildings with a recorded storey count are used in the view and noise checks; the others are drawn for context only.",
+    "Turn off Surroundings to see the developer's full site plan without the map.",
+  ],
+});
 
 const DATA_NEEDED: { area: string; items: string[] }[] = [
   {
@@ -91,12 +97,13 @@ const DATA_NEEDED: { area: string; items: string[] }[] = [
   },
 ];
 
-export function MethodNotes({ gaps = [] }: { gaps?: string[] }) {
+export function MethodNotes({ gaps = [], sources = [], map }: { gaps?: string[]; sources?: SourceRecord[]; map?: { note?: string } | null }) {
+  const rules = map ? [...RULES, mapRule(map.note)] : RULES;
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
       <div className={`${card} p-5 sm:p-6`}>
         <h3 className="font-display text-lg font-extrabold">How the recommendations and calculations work</h3>
-        {RULES.map((r) => (
+        {rules.map((r) => (
           <section key={r.title} className="mt-5">
             <h4 className="font-display-normal text-base font-semibold">{r.title}</h4>
             <ul className="mt-2 grid list-disc gap-1.5 pl-5 text-[1rem] text-canopy/85">
@@ -130,6 +137,39 @@ export function MethodNotes({ gaps = [] }: { gaps?: string[] }) {
           </section>
         ))}
       </div>
+      {sources.length > 0 && (
+        <div className={`${card} p-0 lg:col-span-2`}>
+          <h3 className="px-5 pt-5 font-display text-lg font-extrabold sm:px-6">Where each fact comes from</h3>
+          <p className="px-5 pt-1 text-sm text-canopy/75 sm:px-6">
+            Developer information, official records, research and map data, TRM&apos;s own assessments, calculated estimates and illustrative assumptions are kept apart.
+          </p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[720px] border-collapse font-display-normal text-sm">
+              <thead>
+                <tr className="border-y border-canopy/10 bg-mist text-left text-xs uppercase tracking-[0.06em] text-canopy/70">
+                  <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">Information</th>
+                  <th scope="col" className="px-3 py-2.5 font-semibold">Kind</th>
+                  <th scope="col" className="px-3 py-2.5 font-semibold">Source</th>
+                  <th scope="col" className="px-3 py-2.5 font-semibold">Checked</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sources.map((r) => (
+                  <tr key={r.item} className="border-b border-canopy/10 align-top">
+                    <td className="px-5 py-2.5 sm:px-6">
+                      {r.item}
+                      {r.note && <span className="block text-xs text-stone">{r.note}</span>}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5">{SOURCE_KIND_LABEL[r.kind]}</td>
+                    <td className="px-3 py-2.5 text-canopy/80">{r.source}</td>
+                    <td className="whitespace-nowrap px-3 py-2.5 tabular-nums">{r.checked}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

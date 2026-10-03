@@ -27,7 +27,15 @@ export function FilterBar({
   budgetMax,
   matches,
   unitSearch,
+  floorBand,
+  floorBands,
+  onFloorBand,
 }: {
+  /** Selected floor band id, or "any". */
+  floorBand: string;
+  /** Floor bands that exist in this project. */
+  floorBands: { id: string; label: string }[];
+  onFloorBand: (id: string) => void;
   prefs: Preferences;
   onChange: (p: Preferences) => void;
   bedroomOptions: number[];
@@ -83,6 +91,15 @@ export function FilterBar({
         )}
 
         <div className="ml-auto">{unitSearch}</div>
+      </div>
+
+      <div role="group" aria-label="Floors" className="flex flex-wrap items-center gap-2">
+        <span className="mr-1 font-display-normal text-sm font-medium text-canopy/80">Floors</span>
+        {[{ id: "any", label: "Any floor" }, ...floorBands].map((b) => (
+          <button key={b.id} type="button" aria-pressed={floorBand === b.id} onClick={() => onFloorBand(b.id)} className={chip(floorBand === b.id)}>
+            {b.label}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

@@ -44,7 +44,7 @@ export async function registerInterest(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      project: "Thomson Reserve",
+      project: String(formData.get("project") ?? "").trim() || "Not stated",
       name,
       mobile,
       email,

@@ -15,13 +15,16 @@ export function SiteHeader({
   nav = homeNav,
   cta = { href: "#register", label: "Register for preview" },
   homeHref = "#top",
+  sticky = true,
 }: {
   nav?: NavItem[];
   cta?: NavItem | null;
   homeHref?: string;
+  /** Project pages keep their tab bar sticky instead. */
+  sticky?: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-canopy/10 bg-mist/90 backdrop-blur">
+    <header className={`${sticky ? "sticky top-0 z-20" : "relative"} border-b border-canopy/10 bg-mist/90 backdrop-blur`}>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-8">
         <a href={homeHref} className="flex items-baseline gap-2.5">
           <span className="font-display text-xl font-extrabold tracking-tight">

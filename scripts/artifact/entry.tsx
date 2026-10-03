@@ -1,28 +1,15 @@
-// Standalone entry for publishing the selector as a single HTML page.
+// Standalone entry for publishing one project's website as a single HTML
+// page. "@trm/project-entry" is set by scripts/build-artifact.mjs to the
+// chosen project's entry.tsx, so no other project's data is bundled.
 import { createRoot } from "react-dom/client";
-import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { SelectorApp } from "@/features/selector/components/selector-app";
+import ProjectEntry from "@trm/project-entry";
 
 function Page() {
   return (
     <>
-      <SiteHeader
-        homeHref="#top"
-        nav={[
-          { href: "#explore", label: "Explore" },
-          { href: "#prices", label: "Prices" },
-          { href: "#location", label: "Location" },
-          { href: "#recommendations", label: "Recommendations" },
-          { href: "#floor-profit", label: "Floor profit" },
-          { href: "#method", label: "Method" },
-        ]}
-        cta={{ href: "#compare", label: "Compare" }}
-      />
-      <main id="top">
-        <SelectorApp />
-      </main>
-      <SiteFooter disclaimer="This selector is a TRM prototype. Thomson Reserve's layout is traced from the developer's site plan, with unit types and floor plans from the developer's unit plans; prices and availability are not published yet: any prices shown are illustrative estimates from the assumptions on the page, and nothing here is the developer's advice. Always check the developer's brochure, price list and sale and purchase agreement." />
+      <SiteHeader homeHref="#top" nav={[]} cta={null} sticky={false} />
+      <ProjectEntry />
     </>
   );
 }

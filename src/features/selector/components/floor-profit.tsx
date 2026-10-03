@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ComparableProject, ComparableTransaction } from "../model/types";
+import type { ComparableEvidence } from "../model/project";
+import type { ComparableTransaction } from "../model/types";
 import { bandStats, likeForLike, median, profitTrend } from "../lib/comparable";
 import { AssetImg } from "./asset-image";
 import { BEDROOM_COLOURS, card } from "./ui";
@@ -10,7 +11,7 @@ const money = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 const thousands = (n: number) =>
   Math.abs(n) >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : `$${Math.round(n / 1000).toLocaleString("en-SG")}K`;
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`;
-/** 1-bedrooms are context only (Thomson Reserve has none), so they get a neutral grey. */
+/** Bedroom counts outside the palette (e.g. 1-bedrooms) get a neutral grey. */
 const dotColour = (b: number) => BEDROOM_COLOURS[b] ?? "#8a948b";
 
 function Scatter({ txs }: { txs: ComparableTransaction[] }) {
@@ -41,7 +42,7 @@ function Scatter({ txs }: { txs: ComparableTransaction[] }) {
         viewBox={`0 0 ${W} ${H}`}
         className="h-auto w-full"
         role="img"
-        aria-label={`Gross profit of ${txs.length} JadeScape resales by floor. Median ${thousands(med)}; the trend rises about ${thousands(trend.slope)} a floor. Figures by band are in the table above.`}
+        aria-label={`Gross profit of ${txs.length} resales by floor. Median ${thousands(med)}; the trend rises about ${thousands(trend.slope)} a floor. Figures by band are in the table above.`}
         onMouseLeave={() => setHover(null)}
       >
         {yTicks.map((v) => (
@@ -104,7 +105,11 @@ function Scatter({ txs }: { txs: ComparableTransaction[] }) {
 }
 
 /** How floor height paid off at a comparable development. */
-export function FloorProfit({ project, imageSrc }: { project: ComparableProject; imageSrc: string }) {
+const asAt = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
+export function FloorProfit({ evidence, subjectName }: { evidence: ComparableEvidence; subjectName: string }) {
+  const project = evidence.project;
   const txs = project.transactions;
   const stats = useMemo(() => bandStats(txs), [txs]);
   const top = stats.reduce((a, b) => (b.avgProfit > a.avgProfit ? b : a));
@@ -189,19 +194,27 @@ export function FloorProfit({ project, imageSrc }: { project: ComparableProject;
       <div className="rounded-2xl border-l-4 border-[#b3532e] bg-paper p-5 shadow-sm sm:p-6">
         <h3 className="font-serif text-lg font-semibold">The takeaway</h3>
         <p className="mt-2 max-w-[72ch] text-[1rem] leading-relaxed">
-          The trend rises with height, about {thousands(trend.slope)} more profit for each floor. High floors (#21 and up) returned about{" "}
-          <strong>{thousands(top.avgProfit - low.avgProfit)} more on average</strong> than low floors, with the best psf gain and the best yearly return.
+          {trend.slope > 0 ? (
+            <>
+              The trend rises with height, about {thousands(trend.slope)} more profit for each floor. The {top.label.toLowerCase()} floors ({top.floors}) returned about{" "}
+              <strong>{thousands(top.avgProfit - low.avgProfit)} more on average</strong> than low floors.
+            </>
+          ) : (
+            <>The trend does not rise with height here: about {thousands(trend.slope)} profit for each floor higher.</>
+          )}
         </p>
-        <p className="mt-2 max-w-[72ch] text-[1rem] leading-relaxed">
-          So at {project.name}, the premium for a higher floor came back to owners as stronger resale profit, on top of the better light, view and privacy while they lived there.
-        </p>
+        {trend.slope > 0 && top.band !== "low" && (
+          <p className="mt-2 max-w-[72ch] text-[1rem] leading-relaxed">
+            So at {project.name}, the premium for a higher floor came back to owners as stronger resale profit, on top of the better light, view and privacy while they lived there.
+          </p>
+        )}
         <p className="mt-2 text-sm text-stone">Historical figures from a comparable development; past performance does not guarantee future results.</p>
       </div>
 
       <div>
-        <h3 className="font-serif text-xl font-semibold">Why {project.name} is a fair guide to Thomson Reserve</h3>
+        <h3 className="font-serif text-xl font-semibold">Why {project.name} is a fair guide to {subjectName}</h3>
         <p className="mt-1 max-w-[72ch] text-[1rem] text-canopy/80">
-          The two share the traits that shaped this floor pattern, so {project.name}&apos;s record is a reasonable guide to how Thomson Reserve may behave.
+          The two share the traits that shaped this floor pattern, so {project.name}&apos;s record is a reasonable guide to how {subjectName} may behave.
         </p>
         <div className={`${card} mt-4 overflow-hidden p-0`}>
           <div className="overflow-x-auto">
@@ -210,17 +223,11 @@ export function FloorProfit({ project, imageSrc }: { project: ComparableProject;
                 <tr className="bg-canopy text-left text-xs uppercase tracking-[0.08em] text-mist">
                   <th scope="col" className="px-5 py-3.5 font-semibold">Shared trait</th>
                   <th scope="col" className="px-4 py-3.5 font-semibold">{project.name}</th>
-                  <th scope="col" className="px-5 py-3.5 font-semibold">Thomson Reserve</th>
+                  <th scope="col" className="px-5 py-3.5 font-semibold">{subjectName}</th>
                 </tr>
               </thead>
               <tbody>
-                {[
-                  ["Big developer, large scale", "Qingjian Realty · 1,206 homes", "UOL · Singapore Land · CapitaLand · 1,268 homes"],
-                  ["High-rise towers", "Up to 23 storeys", "6 towers, up to 30 storeys"],
-                  ["Next to landed homes", "Shunfu and Thomson landed estates", "Windsor Park Good Class Bungalows and landed estates"],
-                  ["MRT at the doorstep", "Marymount MRT (Circle Line)", "Upper Thomson MRT (Thomson–East Coast Line), 65 m covered link"],
-                  ["Same corridor", "District 20, Thomson–Bishan", "District 20, Thomson–Bishan"],
-                ].map(([trait, a, b]) => (
+                {evidence.relevance.map(({ trait, comparable: a, subject: b }) => (
                   <tr key={trait} className="border-t border-canopy/10 align-top">
                     <th scope="row" className="px-5 py-3 text-left font-semibold">
                       <span aria-hidden="true" className="mr-1.5 text-[#b3532e]">✓</span>
@@ -234,16 +241,19 @@ export function FloorProfit({ project, imageSrc }: { project: ComparableProject;
             </table>
           </div>
         </div>
-        <figure className="relative mt-4 overflow-hidden rounded-2xl bg-canopy">
-          <AssetImg src={imageSrc} alt="Thomson Reserve's lawn and clubhouse with towers behind. Artist's impression." loading="lazy" className="aspect-[21/8] w-full object-cover" />
-          <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-3 pt-10 font-display-normal text-sm text-white">
-            Thomson Reserve, Bright Hill Drive: big developers, high-rise beside landed homes, MRT at the gate. Artist&apos;s impression.
-          </figcaption>
-        </figure>
+        {evidence.image && (
+          <figure className="relative mt-4 overflow-hidden rounded-2xl bg-canopy">
+            <AssetImg src={evidence.image.src} alt={evidence.image.alt} loading="lazy" className="aspect-[21/8] w-full object-cover" />
+            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-3 pt-10 font-display-normal text-sm text-white">
+              {evidence.image.caption}
+            </figcaption>
+          </figure>
+        )}
       </div>
 
       <p className="border-t border-canopy/10 pt-4 text-sm text-stone">
-        Data: {project.provenance.source}, as at 22 Sep 2026. {project.provenance.note} {project.excludedNote} Bedroom counts are inferred from home size.
+        Data: {project.provenance.source}, as at {asAt(project.provenance.updated)}. {project.provenance.note} {project.excludedNote}
+        {project.bedroomsInferred ? " Bedroom counts are inferred from home size, not recorded." : ""}
         Figures are historical and not a guarantee of future performance.
       </p>
     </div>

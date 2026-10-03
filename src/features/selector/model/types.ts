@@ -319,8 +319,12 @@ export interface ComparableTransaction {
 /** Resale record of a similar, completed development, used as evidence. */
 export interface ComparableProject {
   name: string;
+  /** Where it is, in a few words, e.g. "Shunfu Road, District 20". */
+  location?: string;
   transactions: ComparableTransaction[];
   excludedNote: string;
+  /** True when bedroom counts were inferred (e.g. from size) rather than recorded. */
+  bedroomsInferred: boolean;
   provenance: Provenance;
 }
 

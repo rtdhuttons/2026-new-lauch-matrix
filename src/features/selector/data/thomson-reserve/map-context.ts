@@ -53,7 +53,7 @@ export const thomsonReserveMapContext: MapContext = {
   water: osmWater.map(points),
   credit: OSM_CREDIT,
   provenance: osm(
-    "Buildings, roads, parks and water within about 650 m, placed on the site plan by its north point and scale bar. Heights from the storeys OpenStreetMap records; houses without a storey count are drawn at 2 storeys; other buildings without one are drawn as low outlines.",
+    "Buildings, roads, parks and water within about 650 m. Placed by the plan's north point and scale bar, Upper Thomson MRT Exit 2 falls within about a metre of the plan's marker. Heights use 2.8–3.2 m a storey plus up to 3 m of roof structures; buildings of 4+ storeys within 450 m are checked as obstructions. Houses without a storey count are drawn at 2 storeys, as the architect's brief describes the landed estates; other buildings without one are drawn as low outlines.",
   ),
 };
 

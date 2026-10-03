@@ -206,7 +206,7 @@ export function analyseStackView(ix: DatasetIndex, stackId: string): StackViewAn
   const geo = geometricStackView(ix, stackId);
   const observed = geo.stack.observedClearance;
   if (!observed) return geo;
-  // The assessment covers the surroundings; a Thomson Reserve block that
+  // The assessment covers the surroundings; a block in the same development that
   // blocks the view at every floor still decides the result.
   if (geo.governing?.obstruction.kind === "own-block" && geo.clearFrom.conservative === null) return geo;
   const levels = geo.levels.map((l): LevelView => {

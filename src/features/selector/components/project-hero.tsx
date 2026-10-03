@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { GalleryImage } from "../data/thomson-reserve/gallery";
+import type { GalleryImage } from "../model/project";
 import { AssetImg } from "./asset-image";
 
 /** Full-bleed opening image with the project's name and key facts. */

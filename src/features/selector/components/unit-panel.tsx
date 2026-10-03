@@ -22,7 +22,16 @@ export function UnitPanel({
   inCompare,
   compareFull,
   onFullAnalysis,
+  onOpenUnits,
+  mrtName,
+  showPlan = true,
 }: {
+  /** Opens this home in Units & Payments; hidden when already there. */
+  onOpenUnits?: () => void;
+  /** Station name for the walking time, e.g. "Upper Thomson MRT". */
+  mrtName?: string | null;
+  /** Show the floor plan thumbnail (the Units tab shows it larger instead). */
+  showPlan?: boolean;
   engine: Engine;
   stackId: string;
   unit: Unit | null;
@@ -116,7 +125,7 @@ export function UnitPanel({
             </div>
             {a?.mrt.best && (
               <div className="flex justify-between gap-4">
-                <dt className="text-mist/65">Upper Thomson MRT</dt>
+                <dt className="text-mist/65">{mrtName ?? "MRT"}</dt>
                 <dd className="text-right font-semibold text-white">About {a.mrt.best.minutes} min walk</dd>
               </div>
             )}
@@ -125,9 +134,11 @@ export function UnitPanel({
             )}
           </dl>
 
-          <div className="mt-4 rounded-xl bg-white p-2 text-canopy">
-            <FloorPlan unit={unit} compact />
-          </div>
+          {showPlan && (
+            <div className="mt-4 rounded-xl bg-white p-2 text-canopy">
+              <FloorPlan unit={unit} compact />
+            </div>
+          )}
 
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button
@@ -136,7 +147,7 @@ export function UnitPanel({
               disabled={!inCompare && compareFull}
               className="rounded-full bg-white px-4 py-2.5 font-display-normal text-sm font-semibold text-canopy hover:bg-mist disabled:opacity-50"
             >
-              {inCompare ? "Remove from compare" : compareFull ? "Compare full (3)" : "Add to compare"}
+              {inCompare ? "Remove from shortlist" : compareFull ? "Shortlist full (3)" : "Add to shortlist"}
             </button>
             <button
               type="button"
@@ -145,6 +156,15 @@ export function UnitPanel({
             >
               Full analysis
             </button>
+            {onOpenUnits && (
+              <button
+                type="button"
+                onClick={onOpenUnits}
+                className="col-span-2 rounded-full bg-[#ffbc36] px-4 py-2.5 font-display-normal text-sm font-semibold text-canopy hover:bg-[#ffc955]"
+              >
+                Open in Units &amp; Payments →
+              </button>
+            )}
           </div>
         </>
       ) : (

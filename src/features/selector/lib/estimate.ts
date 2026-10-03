@@ -2,8 +2,10 @@
 //
 // PSF = base PSF at the lowest home level + a fixed step for every floor
 // above it. Price = PSF × the unit's strata area, rounded to the nearest
-// $1,000. The figures are the user's assumptions (defaults from TRM), never
-// the developer's, and every priced unit says so in its provenance.
+// $1,000. The figures are the user's assumptions, never the developer's,
+// and every priced unit says so in its provenance. Each project sets its
+// own starting values in its bundle (pricing.estimate); there is no shared
+// default, so one project's assumptions can't leak into another.
 
 import type { Dataset, Unit } from "../model/types";
 
@@ -13,8 +15,6 @@ export interface PriceEstimate {
   /** PSF added for each floor above that level. */
   stepPsf: number;
 }
-
-export const DEFAULT_ESTIMATE: PriceEstimate = { basePsf: 2850, stepPsf: 15 };
 
 export function lowestHomeLevel(ds: Dataset): number {
   return Math.min(...ds.units.map((u) => u.level));

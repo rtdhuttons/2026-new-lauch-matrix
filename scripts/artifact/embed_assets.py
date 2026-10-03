@@ -5,24 +5,27 @@ every photo, floor plan and the location map is re-encoded smaller and
 written to dist-artifact/embedded-assets.json as {published path: data URI}.
 The Next.js site keeps serving the full-size files from public/.
 
-Usage: python3 scripts/artifact/embed_assets.py   (needs Pillow)
+Usage: python3 scripts/artifact/embed_assets.py GROUPS_JSON OUT_JSON   (needs Pillow)
+GROUPS_JSON is a list of [folder, published prefix, max width, JPEG quality,
+filter], filter being "all" or "skip-small-variants" (drops the -960/-1200
+copies and hero images the page doesn't use). Groups come from
+scripts/artifact/projects.mjs.
 """
 
 import base64
 import io
 import json
+import sys
 from pathlib import Path
 
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "dist-artifact" / "embedded-assets.json"
 
-# (source folder, published prefix, max width, JPEG quality, file filter)
-GROUPS = [
-    ("public/thomson-reserve/images", "images", 1200, 70, lambda n: not n.endswith("-960.jpg") and not n.endswith("-1200.jpg") and not n.startswith("hero-")),
-    ("public/thomson-reserve/plans", "plans", 1100, 62, lambda n: True),
-]
+FILTERS = {
+    "all": lambda n: True,
+    "skip-small-variants": lambda n: not n.endswith("-960.jpg") and not n.endswith("-1200.jpg") and not n.startswith("hero-"),
+}
 
 
 def encode(path: Path, max_w: int, quality: int) -> str:
@@ -35,15 +38,17 @@ def encode(path: Path, max_w: int, quality: int) -> str:
 
 
 def main() -> None:
+    groups = json.loads(sys.argv[1]) if len(sys.argv) > 1 else []
+    out = ROOT / (sys.argv[2] if len(sys.argv) > 2 else "dist-artifact/embedded-assets.json")
     assets: dict[str, str] = {}
-    for folder, prefix, max_w, quality, keep in GROUPS:
+    for folder, prefix, max_w, quality, keep in groups:
         for f in sorted((ROOT / folder).glob("*.jpg")):
-            if keep(f.name):
+            if FILTERS[keep](f.name):
                 # The location map carries small text, so it keeps more width.
                 w = 1800 if f.name.startswith("location-map") else max_w
                 assets[f"{prefix}/{f.name}"] = encode(f, w, quality)
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(assets))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(assets))
     total = sum(len(v) for v in assets.values())
     print(f"embedded {len(assets)} images, {total / 1024 / 1024:.2f} MB as data URIs")
 

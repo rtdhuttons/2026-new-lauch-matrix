@@ -1,0 +1,144 @@
+import { describe, expect, it } from "vitest";
+import { sampleProject } from "../../data/demo/bundle";
+import { projects } from "../../data/projects";
+import { thomsonReserve } from "../../data/thomson-reserve/bundle";
+import { tabFromHash, TABS } from "../../components/tabs";
+import * as estimate from "../estimate";
+import { averageScore, entryPsfSteps, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
+import { checkProject } from "../project-check";
+import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../rentals";
+
+describe("project bundles", () => {
+  it("pass the project check with no errors", () => {
+    expect(checkProject(thomsonReserve).errors).toEqual([]);
+    expect(checkProject(sampleProject).errors).toEqual([]);
+  });
+
+  it("list what each project is still missing", () => {
+    const tr = checkProject(thomsonReserve).missing;
+    expect(tr).toContain("Developer's price list");
+    expect(tr).toContain("Payment schedule");
+    expect(tr).toContain("Alternative projects");
+    expect(tr).not.toContain("PIVOT assessment");
+    expect(tr).not.toContain("Rental evidence");
+    expect(checkProject(sampleProject).missing).toContain("Gallery images");
+  });
+
+  it("keeps Thomson Reserve's rules and pricing in its own data", () => {
+    expect(thomsonReserve.pricing.estimate).toEqual({ basePsf: 2850, stepPsf: 15 });
+    expect("DEFAULT_ESTIMATE" in estimate).toBe(false);
+    const firstLevels = Object.fromEntries(thomsonReserve.dataset.blocks.map((b) => [b.id, b.firstResidentialLevel]));
+    expect(firstLevels).toMatchObject({ "5": 1, "7": 1, "1": 2, "3": 2, "9": 2, "11": 2 });
+    expect(thomsonReserve.dataset.stacks.every((s) => s.observedClearance)).toBe(true);
+  });
+
+  it("lets nothing from Thomson Reserve leak into the sample project", () => {
+    const text = JSON.stringify(sampleProject);
+    for (const word of ["Thomson", "JadeScape", "Bright Hill", "Ai Tong", "Upper Thomson", "Windsor", "Sin Ming", "Huttons", "PIVOT e-book"]) {
+      expect(text, word).not.toContain(word);
+    }
+    expect(sampleProject.pricing.estimate).toBeNull();
+    expect(sampleProject.dataset.stacks.some((s) => s.observedClearance)).toBe(false);
+    expect(sampleProject.schools).toBeNull();
+    expect(sampleProject.status).toBe("sample");
+  });
+
+  it("registers each project once, with only live ones listed", () => {
+    expect(new Set(projects.map((p) => p.id)).size).toBe(projects.length);
+    expect(projects.find((p) => p.id === sampleProject.id)?.status).toBe("sample");
+    expect(projects.find((p) => p.id === thomsonReserve.id)?.status).toBe("live");
+  });
+
+  it("records a checked date and kind for every source", () => {
+    for (const r of thomsonReserve.sources) {
+      expect(r.checked).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(r.kind).toBeTruthy();
+    }
+    const kinds = new Set(thomsonReserve.sources.map((r) => r.kind));
+    for (const k of ["developer", "agent", "calculated", "illustrative", "third-party"]) expect(kinds.has(k as never)).toBe(true);
+  });
+});
+
+describe("PIVOT", () => {
+  const p = thomsonReserve.pivot;
+
+  it("reproduces the e-book's entry price from the land bid", () => {
+    const e = entryPsfSteps(p.entry!);
+    expect(e.cost).toBe(1878);
+    expect(e.withMargin).toBeCloseTo(2159.7, 1);
+    expect(Math.round(e.estimate)).toBe(p.entry!.statedPsf);
+  });
+
+  it("reproduces the e-book's exit benchmark", () => {
+    const x = exitPsfSteps(p.exit!);
+    expect(x.years).toBe(15);
+    expect(x.beforeUplift).toBe(2950);
+    expect(Math.round(x.estimate)).toBe(p.exit!.statedPsf);
+  });
+
+  it("keeps the stated overall separate from the simple average", () => {
+    expect(PIVOT_CATEGORIES.map((c) => c.letter).join("")).toBe("PIVOT");
+    expect(p.scores!.map((s) => s.score)).toEqual([9, 8, 10, 8, 9]);
+    expect(averageScore(p)).toBeCloseTo(8.8, 5);
+    expect(p.overallStated).toBe(8.6);
+    expect(p.overallMethod).toBeNull();
+  });
+});
+
+describe("rental evidence", () => {
+  const records = thomsonReserve.rentals[0].records;
+
+  it("keeps every lease, and leaves missing bedroom counts unassigned", () => {
+    expect(records).toHaveLength(881);
+    const byBeds = rentsByBedrooms(records);
+    expect(byBeds.reduce((a, r) => a + r.leases, 0)).toBe(881);
+    expect(byBeds.find((r) => r.label === "Bedrooms not recorded")?.leases).toBe(26);
+    expect(byBeds.find((r) => r.label === "2-bedroom")?.leases).toBe(353);
+  });
+
+  it("summarises by size band and finds the band for a home", () => {
+    expect(rentsBySize(records).reduce((a, r) => a + r.leases, 0)).toBe(881);
+    expect(rentsForSize(records, 1055).every((r) => r.areaSqft.min === 1000 && r.areaSqft.max === 1100)).toBe(true);
+    expect(rentsForSize(records, 1055)).toHaveLength(50);
+  });
+
+  it("filters the last 12 months from the latest lease", () => {
+    const recent = recentRecords(records, 12);
+    expect(recent.every((r) => r.month >= "2025-09-01")).toBe(true);
+    expect(recent.some((r) => r.month === "2026-08-01")).toBe(true);
+  });
+
+  it("reports median, quartiles and range", () => {
+    const s = summariseRents("t", [
+      { month: "2026-01-01", areaSqft: { min: 500, max: 600 }, monthlyRent: 3000, bedrooms: 1 },
+      { month: "2026-02-01", areaSqft: { min: 500, max: 600 }, monthlyRent: 4000, bedrooms: 1 },
+      { month: "2026-03-01", areaSqft: { min: 500, max: 600 }, monthlyRent: 5000, bedrooms: 1 },
+    ])!;
+    expect([s.median, s.low, s.high, s.q1, s.q3, s.leases, s.latest]).toEqual([4000, 3000, 5000, 3500, 4500, 3, "2026-03-01"]);
+    expect(summariseRents("none", [])).toBeNull();
+  });
+});
+
+describe("tabs", () => {
+  it("has the seven tabs in order", () => {
+    expect(TABS.map((t) => t.label)).toEqual([
+      "Project & 3D Site",
+      "Units & Payments",
+      "Schools",
+      "Investor",
+      "Alternative Projects",
+      "PIVOT",
+      "My Upgrading Plan",
+    ]);
+  });
+
+  it("opens the right tab for old section links", () => {
+    expect(tabFromHash("#prices")).toEqual({ tab: "units", section: "prices" });
+    expect(tabFromHash("#compare")).toEqual({ tab: "units", section: "compare" });
+    expect(tabFromHash("#floor-profit")).toEqual({ tab: "investor", section: "floor-profit" });
+    expect(tabFromHash("#explore")).toEqual({ tab: "project", section: "explore" });
+    expect(tabFromHash("#pivot")).toEqual({ tab: "pivot", section: null });
+    expect(tabFromHash("#nothing")).toBeNull();
+    expect(tabFromHash("")).toBeNull();
+  });
+});
