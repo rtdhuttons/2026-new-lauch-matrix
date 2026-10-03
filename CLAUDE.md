@@ -133,7 +133,11 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   the seven tabs; `tabs.tsx` has the tab names, introductions and "Not added
   yet" card; `ui.tsx` the shared buttons, `Disclosure` and `NextStep`;
   `unit-summary.tsx` the selected unit; `compare-cards.tsx` the comparison;
-  `payment-calculator.tsx`; `pivot-tab.tsx`; `alternatives-tab.tsx`; `upgrading-tab.tsx` (valuation
+  `payment-calculator.tsx`; `pivot-tab.tsx`; `charts.tsx` (shared SVG
+  charts: line, bar, waterfall, scatter and split bar, each with hover
+  tooltips and a "Show the numbers" table; colours checked for colour-blind
+  readers); `stack-price-chart.tsx`; `photo-band.tsx` (a project photo on the
+  numbers-heavy tabs, from `media.tabPhotos` in the bundle); `alternatives-tab.tsx`; `upgrading-tab.tsx` (valuation
   request and cash proceeds); `site-3d.tsx` the 3D model;
   `price-matrix.tsx` the price-by-floor table.
 - `src/app/actions.ts` — `registerInterest` and `requestValuation` post to
@@ -170,6 +174,12 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   selectable home and "project" for a development; explain "stack" where it
   first appears. Buttons say what happens ("Add to comparison", "Calculate
   payments"); errors give the problem then the fix.
+- Numbers-heavy tabs show their figures as charts as well as text, using
+  `charts.tsx`, and carry a project photo (`media.tabPhotos`) to soften the
+  page. The first tab (Project & 3D Site) stays as it is.
+- Alternative projects are compared only on the bedroom types this project
+  offers, at the project's standard estimate (Thomson Reserve: $2,850 psf on
+  the lowest level plus $15 psf per floor), not the visitor's adjustments.
 - Keep the seven tabs and their order. Each tab opens with its one-line
   purpose; detail goes behind named expandable sections; a task ends with one
   suggested next step.

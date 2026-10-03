@@ -9,6 +9,9 @@ import { jadescape } from "../comparables/jadescape";
 import { jadescapeRentals } from "../comparables/jadescape-rentals";
 import { alternatives } from "./alternatives";
 import { gallery, heroImage, locationMap } from "./gallery";
+
+/** A gallery image by file name, for the tab photos. */
+const pick = (file: string) => gallery.find((g) => g.src.endsWith(`/${file}`));
 import { thomsonReserveDataset, thomsonReserveGaps, thomsonReserveMrtExit } from "./index";
 
 const FACTSHEET: Provenance = {
@@ -107,7 +110,18 @@ export const thomsonReserve: ProjectBundle = {
   },
   dataset: thomsonReserveDataset,
   mrtEntrance: thomsonReserveMrtExit,
-  media: { hero: heroImage, gallery },
+  media: {
+    hero: heroImage,
+    gallery,
+    tabPhotos: {
+      units: pick("poolside-homes.jpg"),
+      schools: pick("lawn.jpg"),
+      investor: pick("towers.jpg"),
+      alternatives: pick("arrival-court.jpg"),
+      pivot: pick("sunset-1920.jpg"),
+      upgrading: pick("lounge.jpg"),
+    },
+  },
   location: {
     map: locationMap,
     mapCaption: "Location map from the developer's marketing material. Not to scale. Tap to enlarge.",

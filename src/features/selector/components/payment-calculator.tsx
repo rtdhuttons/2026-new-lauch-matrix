@@ -7,7 +7,8 @@
 import type { PaymentsInfo, ProjectProfile } from "../model/project";
 import type { Unit } from "../model/types";
 import type { PaymentInputs } from "../lib/payments";
-import { EMPTY_PAYMENT_INPUTS, estimatePayments, PAYMENT_NOT_INCLUDED } from "../lib/payments";
+import { EMPTY_PAYMENT_INPUTS, estimatePayments, loanSchedule, PAYMENT_NOT_INCLUDED } from "../lib/payments";
+import { ChartCard, fmtMoney, fmtMoneyShort, LineChart, SERIES, SplitBar } from "./charts";
 import { money } from "../lib/format";
 import { EstimateTag, unitNumber } from "./unit-summary";
 import { btnSecondary, card, Disclosure } from "./ui";
@@ -148,6 +149,7 @@ export function PaymentCalculator({
                     : `Cash left after the upfront payment: ${money(r.value.cashLeft)}.`}
                 </p>
               )}
+              <PaymentCharts price={r.value.price} cpf={r.value.cpfForDownPayment} cash={r.value.cashUpfront} loan={r.value.loanAmount} rate={inputs.interestRatePct!} years={inputs.loanYears!} />
               <p className="mt-3 text-xs text-stone">
                 The monthly loan payment is what the bank collects; your total household costs also include the ongoing expenses above. {unit.priceIsEstimate ? "The price is an estimate, so every figure here is too." : ""}
               </p>
@@ -193,6 +195,54 @@ export function PaymentCalculator({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** How the price is paid, and how the loan comes down over the years. */
+function PaymentCharts({ price, cpf, cash, loan, rate, years }: { price: number; cpf: number; cash: number; loan: number; rate: number; years: number }) {
+  const sched = loan > 0 ? loanSchedule(loan, rate, years) : [];
+  const halfway = sched.find((p) => p.principalPaid >= loan / 2);
+  return (
+    <div className="mt-4 grid gap-4">
+      <ChartCard title="How the price is paid" subtitle={`${money(price)} in total`}>
+        <SplitBar
+          ariaLabel="How the price is paid: CPF, cash and bank loan"
+          format={fmtMoney}
+          segments={[
+            { label: "CPF", value: cpf, color: SERIES[2] },
+            { label: "Cash", value: cash, color: SERIES[1] },
+            { label: "Bank loan", value: loan, color: SERIES[0] },
+          ]}
+        />
+      </ChartCard>
+      {sched.length > 1 && (
+        <ChartCard
+          title="Your loan over the years"
+          subtitle={halfway ? `Half the loan is repaid after about ${halfway.year} years; interest is front-loaded.` : undefined}
+          legend={[
+            { label: "Loan still owed", color: SERIES[0] },
+            { label: "Interest paid so far", color: SERIES[1], shape: "dashed" },
+          ]}
+          table={{
+            caption: "Loan balance and interest paid by year",
+            columns: ["Year", "Still owed", "Interest paid so far"],
+            rows: sched.filter((p) => p.year % 5 === 0 || p.year === years).map((p) => [p.year, fmtMoney(p.balance), fmtMoney(p.interestPaid)]),
+          }}
+        >
+          <LineChart
+            ariaLabel="Loan balance and total interest paid, year by year"
+            height={220}
+            yFromZero
+            xFormat={(x) => `Year ${x}`}
+            yFormat={fmtMoneyShort}
+            series={[
+              { id: "bal", label: "still owed", color: SERIES[0], points: sched.map((p) => ({ x: p.year, y: p.balance })) },
+              { id: "int", label: "interest paid so far", color: SERIES[1], dashed: true, endLabel: true, points: sched.map((p) => ({ x: p.year, y: p.interestPaid })) },
+            ]}
+          />
+        </ChartCard>
+      )}
     </div>
   );
 }

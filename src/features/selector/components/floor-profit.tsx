@@ -5,6 +5,7 @@ import type { ComparableEvidence } from "../model/project";
 import type { ComparableTransaction } from "../model/types";
 import { bandStats, likeForLike, median, profitTrend } from "../lib/comparable";
 import { AssetImg } from "./asset-image";
+import { BarChart, ChartCard, fmtMoneyShort, SERIES, TipRow } from "./charts";
 import { BEDROOM_COLOURS, card, Disclosure } from "./ui";
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
@@ -120,6 +121,37 @@ export function FloorProfit({ evidence, subjectName }: { evidence: ComparableEvi
 
   return (
     <div className="grid grid-cols-1 gap-6 [&>*]:min-w-0">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 [&>*]:min-w-0">
+        <ChartCard title="Average resale profit by floor band" subtitle={`${project.name}: sale price minus purchase price, before costs`}>
+          <BarChart
+            ariaLabel={`Average resale profit by floor band at ${project.name}`}
+            format={fmtMoneyShort}
+            bars={stats.map((b) => ({
+              id: b.band,
+              label: `${b.label} ${b.floors}`,
+              sub: `${b.homes} resales`,
+              value: b.avgProfit,
+              color: b.band === top.band ? SERIES[0] : "#9cc2cb",
+              emphasis: b.band === top.band,
+              detail: <TipRow value={fmtMoneyShort(b.medianProfit)} label="median profit" />,
+            }))}
+          />
+        </ChartCard>
+        <ChartCard title="Yearly return by floor band" subtitle="Average gain a year over each owner's holding period">
+          <BarChart
+            ariaLabel={`Average yearly return by floor band at ${project.name}`}
+            format={(n) => `${(n * 100).toFixed(1)}%`}
+            bars={stats.map((b) => ({
+              id: b.band,
+              label: `${b.label} ${b.floors}`,
+              sub: `+${money(b.psfGain)} psf`,
+              value: b.annualised,
+              color: b.band === top.band ? SERIES[0] : "#9cc2cb",
+              emphasis: b.band === top.band,
+            }))}
+          />
+        </ChartCard>
+      </div>
       <div className={`${card} overflow-hidden p-0`}>
         <div className="relative overflow-x-auto">
           <table className="w-full min-w-[640px] border-collapse font-display-normal text-sm tabular-nums">

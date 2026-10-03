@@ -15,7 +15,8 @@ src/features/selector/data/<project-id>/
   index.ts      blocks, stacks, units, heights, gates, routes, noise sources, view rules
   bundle.ts     the ProjectBundle: facts, words, media, pricing, schools, evidence, sources, gaps
   entry.tsx     three lines: renders <ProjectApp project={bundle} /> and the footer
-  gallery.ts    renders and location map (optional)
+  gallery.ts    renders and location map (optional); pick tab photos
+                from these in bundle.ts (media.tabPhotos, optional)
 public/<project-id>/
   site-plan.jpg, site-plan-mask.png, plans/*.jpg, images/*.jpg
 ```

@@ -49,6 +49,26 @@ export function monthlyInstalment(loan: number, annualRatePct: number, years: nu
   return (loan * r) / (1 - (1 + r) ** -n);
 }
 
+/**
+ * Year-by-year loan balance and what has been paid so far, for a fixed
+ * monthly repayment. Year 0 is the start of the loan.
+ */
+export function loanSchedule(loan: number, annualRatePct: number, years: number): { year: number; balance: number; interestPaid: number; principalPaid: number }[] {
+  const n = Math.round(years * 12);
+  const r = annualRatePct / 100 / 12;
+  const pay = monthlyInstalment(loan, annualRatePct, years);
+  const out = [{ year: 0, balance: loan, interestPaid: 0, principalPaid: 0 }];
+  let balance = loan;
+  let interest = 0;
+  for (let m = 1; m <= n; m++) {
+    const i = balance * r;
+    interest += i;
+    balance = Math.max(0, balance + i - pay);
+    if (m % 12 === 0 || m === n) out.push({ year: Math.ceil(m / 12), balance, interestPaid: interest, principalPaid: loan - balance });
+  }
+  return out;
+}
+
 /** Returns the estimate, or a list of problems written as "problem → fix". */
 export function estimatePayments(price: number | null, inp: PaymentInputs): { ok: true; value: PaymentEstimate } | { ok: false; problems: string[] } {
   const problems: string[] = [];

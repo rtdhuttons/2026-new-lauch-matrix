@@ -11,7 +11,29 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0b. Latest (3 Oct, evening)
+## 0c. Latest: charts and photos (3 Oct, night)
+
+- **Charts on the numbers tabs**, each with a hover readout and a "Show the
+  numbers" table:
+  - Units & Payments: price by floor for the selected stack; how the price is
+    paid (CPF, cash, loan); the loan balance and interest over the years.
+  - Investor: resale profit and yearly return by floor band; rents by
+    bedrooms and by size, with the middle half of leases.
+  - Alternative Projects: size against starting price for each project, and
+    the lowest price per sq ft.
+  - PIVOT: score bars; price per sq ft at fair entry, for your unit and at the
+    exit benchmark; step-by-step build-ups of both workings; projected
+    selling price by year with a lower and higher case.
+  - My Upgrading Plan: from selling price to cash in hand.
+  - Schools: distance from each block, with the 1 km line.
+- **Thomson Reserve photos** (artist's impressions) placed between the
+  figures on every tab except the first, which stays as it was.
+- **Alternative projects**: only 2- to 5-bedroom units are compared;
+  developer, total units, tenure (99-year for all four) and completion added
+  from public sources; Thomson Reserve is always compared at $2,850 psf on the
+  lowest level plus $15 per floor.
+
+## 0b. 3 Oct, evening
 
 - **Alternative Projects** now shows Lentor Gardens Residences, Lentoria,
   Springleaf Residence and Chuan Park from your comparison page: unit types,
@@ -171,7 +193,7 @@ questions for every home:
 
 ## 7. Checks
 
-- 83 automated tests pass (prices, view clearance, sun, JadeScape figures,
+- 87 automated tests pass (prices, view clearance, sun, JadeScape figures,
   rents, PIVOT workings, payment estimates, project checks, no leaks into
   the sample project); typecheck and lint are clean.
 - The shared page was tested on desktop and phone widths, under the same

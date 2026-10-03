@@ -14,7 +14,8 @@ import { money } from "../lib/format";
 import type { RentSummary } from "../lib/rentals";
 import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../lib/rentals";
 import { NotSupplied } from "./tabs";
-import { card } from "./ui";
+import { BarChart, ChartCard, fmtMoney } from "./charts";
+import { card, Disclosure } from "./ui";
 
 const monthText = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-SG", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -49,6 +50,16 @@ function RentTable({ caption, rows }: { caption: string; rows: RentSummary[] }) 
       </table>
     </div>
   );
+}
+
+/** The size band (by label) a unit of this size falls in, if any. */
+function sizeLabelFor(rows: RentSummary[], area: number | null): string | null {
+  if (area === null) return null;
+  for (const r of rows) {
+    const m = r.label.match(/([\d,]+)\D+([\d,]+)/);
+    if (m && area >= Number(m[1].replace(/,/g, "")) && area < Number(m[2].replace(/,/g, ""))) return r.label;
+  }
+  return null;
 }
 
 export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence[]; engine: Engine; unit: Unit | null }) {
@@ -100,6 +111,31 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
         </div>
       </div>
 
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 [&>*]:min-w-0">
+        {[
+          { title: "Monthly rent by bedrooms", rows: rentsByBedrooms(records) },
+          { title: "Monthly rent by size", rows: rentsBySize(records) },
+        ].map((c) => (
+          <ChartCard key={c.title} title={c.title} subtitle="Median rent; the whisker spans the middle half of leases">
+            <BarChart
+              ariaLabel={`${c.title} at ${ev.project}`}
+              format={fmtMoney}
+              rangeLabel="middle half of leases"
+              bars={c.rows.map((r) => ({
+                id: r.label,
+                label: r.label,
+                sub: `${r.leases} leases`,
+                value: r.median,
+                range: [r.q1, r.q3] as [number, number],
+                color: "#0b7f9e",
+                emphasis: !!sizeSummary && r.label === sizeLabelFor(c.rows, layout?.areaSqft ?? null),
+              }))}
+            />
+          </ChartCard>
+        ))}
+      </div>
+
+      <Disclosure title="View rent tables" hint="Leases, median, middle half, lowest to highest, and rent per sq ft">
       <div className={`${card} overflow-hidden p-0`}>
         <RentTable caption="By bedrooms (as recorded)" rows={rentsByBedrooms(records)} />
         <div className="border-t border-canopy/10" />
@@ -109,6 +145,7 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
           {all ? ` Overall median ${money(all.median)} a month.` : ""}
         </p>
       </div>
+      </Disclosure>
 
       <div className={`${card} p-5 sm:p-6`}>
         <h3 className="font-display text-lg font-extrabold">Indicative gross yield</h3>

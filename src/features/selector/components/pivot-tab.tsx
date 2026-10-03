@@ -9,6 +9,7 @@ import { useState } from "react";
 import type { PivotInfo } from "../model/project";
 import { floorBand, FLOOR_BANDS } from "../lib/comparable";
 import { annualisedSpread, averageScore, entryPsfSteps, exitPsfSteps, exitProjection, PIVOT_CATEGORIES } from "../lib/pivot";
+import { BarChart, ChartCard, LineChart, SERIES, Waterfall } from "./charts";
 import { NotSupplied } from "./tabs";
 import { EstimateTag } from "./unit-summary";
 import { card, Disclosure } from "./ui";
@@ -58,7 +59,10 @@ export function PivotTab({
   onChooseUnit,
   evidence,
   completionDate,
+  photo,
 }: {
+  /** A photo between the unit assessment and the PIVOT scores. */
+  photo?: React.ReactNode;
   pivot: PivotInfo;
   projectName: string;
   illustrativeAveragePsf: number | null;
@@ -91,7 +95,27 @@ export function PivotTab({
     <div className="grid grid-cols-1 gap-8 [&>*]:min-w-0">
       <UnitAssessment unit={unit} entry={e?.estimate ?? null} exit={x?.estimate ?? null} onChooseUnit={onChooseUnit} />
 
+      {unit && unit.price !== null && unit.areaSqft && (e || x) && (
+        <ChartCard
+          title="Price per sq ft: entry, this unit and exit"
+          subtitle={`${unit.name} against TRM's fair-entry estimate from the land bid and the exit benchmark at completion`}
+          note={unit.isEstimate ? "This unit's price is an estimate, not the developer's price." : undefined}
+        >
+          <BarChart
+            ariaLabel="Price per square foot: fair entry estimate, this unit and the exit benchmark"
+            format={(n) => `$${Math.round(n).toLocaleString("en-SG")}`}
+            bars={[
+              ...(e ? [{ id: "entry", label: "Fair entry (land bid)", sub: "TRM estimate", value: e.estimate, color: SERIES[1] }] : []),
+              { id: "unit", label: unit.name, sub: unit.isEstimate ? "estimated price" : "price", value: unit.price / unit.areaSqft, color: SERIES[0], emphasis: true },
+              ...(x && exit ? [{ id: "exit", label: "Exit benchmark", sub: `at completion, from ${exit.comparable}`, value: x.estimate, color: SERIES[2] }] : []),
+            ]}
+          />
+        </ChartCard>
+      )}
+
       {unit && unit.price !== null && evidence && <ExitOutcomes unit={unit} evidence={evidence} completionDate={completionDate} />}
+
+      {photo}
 
       <p className="-mb-4 max-w-[72ch] text-[0.9375rem] text-canopy/80">
         PIVOT is TRM&apos;s five-part way to judge whether {projectName} is worth buying. Scores and workings below are from TRM&apos;s PIVOT e-book; change
@@ -113,7 +137,16 @@ export function PivotTab({
                     <p className="mt-0.5 text-sm text-canopy/70">{c.question}</p>
                     {s && <p className="mt-1.5 text-[0.9375rem]">{s.reason}</p>}
                   </div>
-                  <p className="font-display text-xl font-extrabold tabular-nums">{s ? `${s.score}/10` : "—"}</p>
+                  <div className="w-16 text-right sm:w-24">
+                    <p className="font-display text-xl font-extrabold tabular-nums">{s ? `${s.score}/10` : "—"}</p>
+                    {s && (
+                      <div aria-hidden="true" className="mt-1.5 flex h-2 w-full gap-[2px]">
+                        {Array.from({ length: 10 }, (_, i) => (
+                          <span key={i} className="h-full flex-1 rounded-[2px]" style={{ background: i < s.score ? SERIES[0] : "#dfe4dc" }} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </li>
               );
             })}
@@ -146,6 +179,20 @@ export function PivotTab({
             <NumberField id="pv-margin" label="Developer margin" value={Math.round(entry.profitMargin * 1000) / 10} step={0.5} onChange={(n) => setEntry({ ...entry, profitMargin: n / 100 })} suffix="%" />
             <NumberField id="pv-be" label="Breakeven allowance" value={Math.round(entry.breakevenUplift * 1000) / 10} step={0.5} onChange={(n) => setEntry({ ...entry, breakevenUplift: n / 100 })} suffix="%" />
           </div>
+          <div className="mt-4">
+            <Waterfall
+              ariaLabel="How the fair entry price per square foot builds up"
+              height={230}
+              format={(n) => `$${Math.round(n).toLocaleString("en-SG")}`}
+              steps={[
+                { label: "Land psf ppr", value: entry.landPsfPpr, kind: "total" },
+                { label: "Construction", value: entry.constructionPsf, kind: "change" },
+                { label: "Developer margin", value: e.withMargin - e.cost, kind: "change" },
+                { label: "Breakeven allowance", value: e.estimate - e.withMargin, kind: "change" },
+                { label: "Fair entry psf", value: e.estimate, kind: "total" },
+              ]}
+            />
+          </div>
           <ol className="mt-4 grid gap-1 font-display-normal text-[0.9375rem] tabular-nums">
             <li>{exact(entry.landPsfPpr)} + {exact(entry.constructionPsf)} = <strong>{exact(e.cost)}</strong></li>
             <li>× {(1 + entry.profitMargin).toFixed(3).replace(/0+$/, "")} margin = <strong>{exact(Math.round(e.withMargin * 10) / 10)}</strong></li>
@@ -171,6 +218,19 @@ export function PivotTab({
             <NumberField id="pv-sy" label={`${projectName} completes`} value={exit.subjectCompletionYear} onChange={(n) => setExit({ ...exit, subjectCompletionYear: n })} />
             <NumberField id="pv-g" label="Growth a year" value={exit.growthPsfPerYear} onChange={(n) => setExit({ ...exit, growthPsfPerYear: n })} suffix="$ psf" />
             <NumberField id="pv-h" label="Harmonisation adjustment" value={Math.round(exit.harmonisationUplift * 1000) / 10} step={0.5} onChange={(n) => setExit({ ...exit, harmonisationUplift: n / 100 })} suffix="%" />
+          </div>
+          <div className="mt-4">
+            <Waterfall
+              ariaLabel="How the exit benchmark price per square foot builds up"
+              height={230}
+              format={(n) => `$${Math.round(n).toLocaleString("en-SG")}`}
+              steps={[
+                { label: `${exit.comparable} average`, value: exit.comparablePsf, kind: "total" },
+                { label: `${x.years} years of growth`, value: x.growth, kind: "change" },
+                { label: "Harmonisation", value: x.estimate - x.beforeUplift, kind: "change" },
+                { label: "Exit benchmark", value: x.estimate, kind: "total" },
+              ]}
+            />
           </div>
           <ol className="mt-4 grid gap-1 font-display-normal text-[0.9375rem] tabular-nums">
             <li>{x.years} years × {exact(exit.growthPsfPerYear)} = {exact(x.growth)}</li>
@@ -286,6 +346,30 @@ function ExitOutcomes({ unit, evidence, completionDate }: { unit: PivotUnit; evi
             {text}
           </button>
         ))}
+      </div>
+
+      <div className="mt-4">
+        <ChartCard
+          title="Projected selling price by year of sale"
+          legend={[
+            { label: `Middle (${pctText(spread.median)} a year)`, color: SERIES[0] },
+            { label: `Lower to higher case (${pctText(spread.q1)}–${pctText(spread.q3)})`, color: SERIES[0], shape: "band" },
+            { label: "Purchase price", color: "#6f7a71", shape: "dashed" },
+          ]}
+        >
+          <LineChart
+            ariaLabel="Projected selling price by year of sale, with a lower and higher case"
+            height={240}
+            xFormat={(y) => `+${y} yrs`}
+            yFormat={(n) => `$${(n / 1_000_000).toFixed(2)}M`}
+            band={{ lower: low.map((r) => ({ x: r.years, y: r.value })), upper: high.map((r) => ({ x: r.years, y: r.value })), color: SERIES[0], label: "lower to higher case" }}
+            highlightX={completionYear ?? undefined}
+            series={[
+              { id: "mid", label: "middle case", color: SERIES[0], endLabel: true, points: mid.map((r) => ({ x: r.years, y: r.value })) },
+              { id: "buy", label: "purchase price", color: "#6f7a71", dashed: true, points: mid.map((r) => ({ x: r.years, y: price })) },
+            ]}
+          />
+        </ChartCard>
       </div>
 
       <div className="relative mt-4 overflow-x-auto">

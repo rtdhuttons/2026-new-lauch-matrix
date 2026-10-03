@@ -192,12 +192,16 @@ export interface AlternativeProject {
   tag: string;
   why: string;
   bestFor: string | null;
+  developer: string | null;
   nearestMrt: string | null;
   totalUnits: number | null;
   tenure: string | null;
+  /** Expected completion; where sources differ, the range is given. */
   completion: string | null;
   image: { src: string; alt: string } | null;
   unitTypes: AlternativeUnitType[];
+  /** Where the project facts (developer, units, tenure, completion) come from. */
+  factsSource: { source: string; checked: string; note?: string } | null;
   /** What the prices are, e.g. "Lowest price among remaining units". */
   priceBasis: string;
   provenance: Provenance;
@@ -285,7 +289,12 @@ export interface ProjectBundle {
   dataset: Dataset;
   /** MRT entrance on the plan, for walking times. */
   mrtEntrance: Point | null;
-  media: { hero: HeroImage | null; gallery: GalleryImage[] };
+  media: {
+    hero: HeroImage | null;
+    gallery: GalleryImage[];
+    /** A photo for the numbers-heavy tabs, to break up the figures. */
+    tabPhotos?: Partial<Record<"units" | "schools" | "investor" | "alternatives" | "pivot" | "upgrading", GalleryImage>>;
+  };
   location: LocationInfo | null;
   pricing: PricingInfo;
   payments: PaymentsInfo;

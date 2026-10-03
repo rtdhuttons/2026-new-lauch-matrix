@@ -7,6 +7,7 @@
 
 import type { School, SchoolsInfo } from "../model/project";
 import { NotSupplied } from "./tabs";
+import { BarChart } from "./charts";
 import { card, Disclosure } from "./ui";
 
 const LEVEL: Record<string, string> = { primary: "Primary", secondary: "Secondary", "junior-college": "Junior college" };
@@ -51,16 +52,17 @@ function SchoolCard({ s }: { s: School }) {
       </p>
       {s.note && <p className="mt-1 text-xs text-stone">{s.note}</p>}
       {s.distance && s.distance.byAddress.length > 1 && (
-        <details className="mt-2">
+        <details className="mt-2" open>
           <summary className="cursor-pointer font-display-normal text-sm font-semibold text-reservoir">Distance from each block</summary>
-          <ul className="mt-1.5 grid gap-0.5 font-display-normal text-sm tabular-nums">
-            {s.distance.byAddress.map((a) => (
-              <li key={a.address} className="flex justify-between gap-3">
-                <span className="text-canopy/75">{a.address}</span>
-                <span>{a.metres.toLocaleString("en-SG")} m</span>
-              </li>
-            ))}
-          </ul>
+          <div className="mt-2">
+            <BarChart
+              ariaLabel={`Distance from each block to ${s.name}`}
+              format={(n) => `${Math.round(n).toLocaleString("en-SG")} m`}
+              max={Math.max(1100, ...s.distance.byAddress.map((a) => a.metres)) * 1.05}
+              marker={{ value: 1000, label: "1 km" }}
+              bars={s.distance.byAddress.map((a) => ({ id: a.address, label: a.address, value: a.metres, color: "#0b7f9e" }))}
+            />
+          </div>
           <p className="mt-1.5 text-xs text-stone">
             Measured {s.distance.method}. {s.distance.provenance.note}
           </p>

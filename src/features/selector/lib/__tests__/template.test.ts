@@ -8,7 +8,8 @@ import { differenceSentence } from "../../components/compare-cards";
 import { createEngine } from "../engine";
 import { applyPriceEstimate } from "../estimate";
 import * as estimate from "../estimate";
-import { estimatePayments, EMPTY_PAYMENT_INPUTS, monthlyInstalment } from "../payments";
+import { estimatePayments, EMPTY_PAYMENT_INPUTS, loanSchedule, monthlyInstalment } from "../payments";
+import { niceTicks, waterfallColumns } from "../../components/charts";
 import { annualisedSpread, averageScore, entryPsfSteps, EXIT_YEARS, exitProjection, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE } from "../selling";
 import { checkValuationRequest } from "../valuation";
@@ -301,5 +302,48 @@ describe("alternative projects", () => {
     expect(sizePriceSentence(own, { bedrooms: 2, type: "y", sizeSqft: { min: 646, max: 678 }, fromPrice: 1_571_300, unitsLeft: 34 })).toBe(
       "About 22–54 sq ft smaller, with a starting price about S$429,000 lower.",
     );
+  });
+});
+
+describe("chart figures", () => {
+  it("pays the loan down to zero, with interest matching the repayments", () => {
+    const sched = loanSchedule(1_000_000, 3, 30);
+    expect(sched).toHaveLength(31);
+    expect(sched[0].balance).toBe(1_000_000);
+    expect(sched.at(-1)!.balance).toBeCloseTo(0, 2);
+    expect(sched.at(-1)!.interestPaid).toBeCloseTo(monthlyInstalment(1_000_000, 3, 30) * 360 - 1_000_000, 2);
+    // Interest is front-loaded: less than half the loan is repaid by the halfway year.
+    expect(sched[15].principalPaid).toBeLessThan(500_000);
+  });
+
+  it("builds the selling waterfall from the illustrative example", () => {
+    const cols = waterfallColumns([
+      { label: "Selling price", value: 1_000_000, kind: "total" },
+      { label: "Housing loan", value: -350_000, kind: "change" },
+      { label: "CPF refund", value: -250_000, kind: "change" },
+      { label: "Cash proceeds", value: 400_000, kind: "total" },
+    ]);
+    expect(cols.map((c) => [c.from, c.to])).toEqual([
+      [0, 1_000_000],
+      [1_000_000, 650_000],
+      [650_000, 400_000],
+      [0, 400_000],
+    ]);
+  });
+
+  it("chooses round axis ticks that cover the data", () => {
+    const t = niceTicks(2_960_000, 3_320_000, 4);
+    expect(t[0]).toBeLessThanOrEqual(2_960_000);
+    expect(t.at(-1)!).toBeGreaterThanOrEqual(3_320_000);
+    expect(t.every((v) => v % 50_000 === 0)).toBe(true);
+  });
+
+  it("gives every alternative a developer, tenure and source for its facts", () => {
+    for (const a of thomsonReserve.alternatives) {
+      expect(a.developer).toBeTruthy();
+      expect(a.tenure).toBe("99-year leasehold");
+      expect(a.totalUnits).toBeGreaterThan(0);
+      expect(a.factsSource?.checked).toBe("2026-10-03");
+    }
   });
 });

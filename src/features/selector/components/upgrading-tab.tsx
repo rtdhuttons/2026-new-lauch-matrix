@@ -11,6 +11,7 @@ import { site } from "@/content/site";
 import type { SellingInputs } from "../lib/selling";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE, sameSellingInputs } from "../lib/selling";
 import type { ContactMethod, ValuationState } from "../lib/valuation";
+import { ChartCard, Waterfall } from "./charts";
 import { btnPrimary, btnSecondary, btnText, card, Disclosure } from "./ui";
 
 const sgd = (n: number) => `${n < 0 ? "−" : ""}S$${Math.abs(Math.round(n)).toLocaleString("en-SG")}`;
@@ -245,6 +246,22 @@ function SellingCalculator({
               )}
             </dl>
           </div>
+        )}
+        {result?.ok && (
+          <ChartCard className="mt-4" title="From selling price to cash in hand" subtitle="Each step takes away what must be repaid or paid; the CPF refund goes back to your CPF accounts.">
+            <Waterfall
+              ariaLabel="Selling price, less the housing loan, CPF refund and selling costs, gives the cash proceeds"
+              height={240}
+              format={(n) => `${n < 0 ? "−" : ""}S$${Math.abs(n) >= 1_000_000 ? (Math.abs(n) / 1_000_000).toFixed(2) + "M" : Math.round(Math.abs(n) / 1000) + "k"}`}
+              steps={[
+                { label: "Selling price", value: result.value.sellingPrice, kind: "total" },
+                { label: "Housing loan", value: -result.value.outstandingLoan, kind: "change" },
+                { label: "CPF refund", value: -result.value.cpfRefund, kind: "change" },
+                ...(result.value.costs !== null ? [{ label: "Selling costs", value: -result.value.costs, kind: "change" as const }] : []),
+                { label: "Cash proceeds", value: result.value.headline, kind: "total" },
+              ]}
+            />
+          </ChartCard>
         )}
       </div>
 

@@ -80,9 +80,10 @@ guarantee a place.
 
 - **Compared with your unit:** the closest size at each alternative project,
   with the difference in size and starting price.
-- **Same bedroom type, different projects:** choose a bedroom type to see
-  every project's units side by side: size, starting price, price per sq ft
-  and units left. Sort by lowest price, largest size or lowest price per
+- **Same bedroom type, different projects:** choose a bedroom type (2 to 5,
+  the types Thomson Reserve offers) to see a chart of size against starting
+  price, and every project's units side by side: size, starting price, price
+  per sq ft and units left. Sort by lowest price, largest size or lowest price per
   sq ft. Thomson Reserve's prices are marked "Estimate".
 - **The alternatives:** what each project offers and who it suits.
 
@@ -125,6 +126,12 @@ much cash you could receive from selling.*
    between tabs.
 
 ---
+
+## Charts
+
+Most tabs show their figures as charts. Point at (or tap) a bar, dot or line
+to read the exact value, and open "Show the numbers" for a table of the same
+figures.
 
 ## Getting around
 

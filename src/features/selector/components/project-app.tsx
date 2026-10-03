@@ -32,6 +32,7 @@ import { LocationSection } from "./location";
 import { MatchingHomes } from "./matching-homes";
 import { MethodNotes } from "./method-notes";
 import { PaymentCalculator } from "./payment-calculator";
+import { PhotoBand } from "./photo-band";
 import { PivotTab } from "./pivot-tab";
 import { PreferencesPanel } from "./preferences-panel";
 import { PriceEstimateSection } from "./price-estimate";
@@ -42,6 +43,7 @@ import { SchoolsTab } from "./schools-tab";
 import { comparisonFeedback, ComparisonBar, MAX_SHORTLIST, ShortlistButton, ShortlistDialog, useShortlistDialog } from "./shortlist";
 import { SiteView } from "./site-view";
 import { StackExplorer } from "./stack-explorer";
+import { StackPriceChart } from "./stack-price-chart";
 import type { TabId } from "./tabs";
 import { NotSupplied, SectionPager, TabIntro, TabNav, tabFromHash } from "./tabs";
 import { btnPrimary, btnSecondary, btnText, card, Disclosure, NextStep } from "./ui";
@@ -369,7 +371,11 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   const isSample = project.status === "sample";
   const avgPsf = estimatable && estimateOn && deferredEstimate ? averagePsf(dataset, deferredEstimate) : null;
   const unitLayout = unit ? ix.stackLayout(unit.stackId) : null;
-  const ownTypes = useMemo(() => ownUnitTypes(priced.units, ix), [priced, ix]);
+  // Alternatives are always compared at the project's standard estimate (not the visitor's adjustments).
+  const ownTypes = useMemo(
+    () => ownUnitTypes((estimatable && defaults ? applyPriceEstimate(dataset, defaults) : dataset).units, ix),
+    [dataset, estimatable, defaults, ix],
+  );
   const selectedOwnType = unitLayout ? ownTypes.find((t) => t.key === ownTypeKey(unitLayout)) ?? null : null;
 
   const intro = (
@@ -582,7 +588,10 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
                 {summary()}
               </div>
             </div>
+            {unit && <StackPriceChart engine={engine} stackId={stackId} level={level} typeName={layoutName(unit)} priceNote={priceNote} />}
           </Step>
+
+          <PhotoBand image={project.media.tabPhotos?.units} className="mt-12" />
 
           <Step n={3} id="compare" title="Compare units" hint="Up to three units side by side, with the differences that matter.">
             <CompareCards engine={engine} units={shortlistUnits} payments={payments} onRemove={toggleShortlist} onSelect={viewDetails} />
@@ -640,6 +649,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       {tab === "schools" && (
         <div {...panel("schools")}>
           <TabIntro tab="schools" />
+          <PhotoBand image={project.media.tabPhotos?.schools} className="mb-8" />
           <SchoolsTab
             schools={project.schools}
             projectName={project.profile.name}
@@ -685,6 +695,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
               </Disclosure>
             </div>
           </section>
+          <PhotoBand image={project.media.tabPhotos?.investor} className="mt-14" />
           <section id="rental" aria-labelledby="rent-title" className="mt-14 scroll-mt-24">
             <h3 id="rent-title" className="mb-3 font-display text-xl font-extrabold">Rental potential</h3>
             <RentalPotential evidence={project.rentals} engine={engine} unit={unit} />
@@ -697,11 +708,13 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       {tab === "alternatives" && (
         <div {...panel("alternatives")}>
           <TabIntro tab="alternatives" />
+          <PhotoBand image={project.media.tabPhotos?.alternatives} className="mb-8" />
           <AlternativesTab
             alternatives={project.alternatives}
             projectName={project.profile.name}
             ownTypes={ownTypes}
             selected={selectedOwnType && unit ? { label: `Unit ${unitNumber(unit)}`, type: selectedOwnType } : null}
+            ownPriceNote={estimatable && defaults ? `at $${defaults.basePsf.toLocaleString("en-SG")} psf on the lowest level plus $${defaults.stepPsf} psf per floor` : null}
           />
         </div>
       )}
@@ -711,6 +724,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
         <div {...panel("pivot")}>
           <TabIntro tab="pivot" />
           <PivotTab
+            photo={<PhotoBand image={project.media.tabPhotos?.pivot} />}
             pivot={project.pivot}
             projectName={project.profile.name}
             illustrativeAveragePsf={avgPsf}
@@ -734,6 +748,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       {tab === "upgrading" && (
         <div {...panel("upgrading")}>
           <TabIntro tab="upgrading" />
+          <PhotoBand image={project.media.tabPhotos?.upgrading} className="mb-8" />
           <UpgradingTab
             projectName={project.profile.name}
             selling={selling}

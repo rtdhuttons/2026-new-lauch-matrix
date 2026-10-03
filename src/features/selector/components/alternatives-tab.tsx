@@ -9,6 +9,7 @@ import type { AlternativeProject } from "../model/project";
 import type { OwnUnitType } from "../lib/alternatives";
 import { closestBySize, sizePriceSentence } from "../lib/alternatives";
 import { AssetImg } from "./asset-image";
+import { BarChart, ChartCard, fmtMoneyShort, ScatterChart, SERIES, TipRow } from "./charts";
 import { NotSupplied } from "./tabs";
 import { EstimateTag } from "./unit-summary";
 import { card } from "./ui";
@@ -35,14 +36,19 @@ export function AlternativesTab({
   projectName,
   ownTypes,
   selected,
+  ownPriceNote,
 }: {
   alternatives: AlternativeProject[];
   projectName: string;
   ownTypes: OwnUnitType[];
+  /** How this project's prices in the comparison are worked out. */
+  ownPriceNote: string | null;
   /** The selected unit's type and price, to compare against. */
   selected: { label: string; type: OwnUnitType } | null;
 }) {
-  const bedroomOptions = [...new Set([...ownTypes.map((t) => t.bedrooms), ...alternatives.flatMap((a) => a.unitTypes.map((u) => u.bedrooms))])].sort((a, b) => a - b);
+  // Only the bedroom types this project offers are compared.
+  const ownBedrooms = [...new Set(ownTypes.map((t) => t.bedrooms))].sort((a, b) => a - b);
+  const bedroomOptions = ownBedrooms.length > 0 ? ownBedrooms : [...new Set(alternatives.flatMap((a) => a.unitTypes.map((u) => u.bedrooms)))].sort((a, b) => a - b);
   const [bedrooms, setBedrooms] = useState(selected?.type.bedrooms ?? (bedroomOptions.includes(3) ? 3 : bedroomOptions[0]));
   const [sort, setSort] = useState<"price" | "size" | "psf">("price");
 
@@ -92,6 +98,8 @@ export function AlternativesTab({
     sort === "price" ? a.price - b.price : sort === "size" ? (b.size?.max ?? 0) - (a.size?.max ?? 0) : (a.psf ?? Infinity) - (b.psf ?? Infinity),
   );
   const anyEstimate = rows.some((r) => r.estimate);
+  // Fixed colours by project: this project first, then the alternatives in their listed order.
+  const projectColours = [projectName, ...alternatives.map((a) => a.name)].map((id, i) => ({ id, color: SERIES[i % SERIES.length] }));
   const asAt = alternatives[0].provenance.updated;
   const pill = (on: boolean) => `rounded-full px-4 py-2 font-display-normal text-sm font-semibold ${on ? "bg-canopy text-mist" : "border border-canopy/20 bg-paper text-canopy/80"}`;
 
@@ -148,6 +156,54 @@ export function AlternativesTab({
             </button>
           ))}
         </div>
+
+        {rows.length > 0 && (
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] [&>*]:min-w-0">
+            <ChartCard
+              title={`Size against starting price: ${bedrooms} bedrooms`}
+              subtitle="Further right is bigger; lower is cheaper. Hollow markers are estimates."
+              legend={projectColours.filter((p) => rows.some((r) => r.project === p.id)).map((p) => ({ label: p.id, color: p.color, shape: "dot" as const }))}
+            >
+              <ScatterChart
+                ariaLabel={`Size and starting price of ${bedrooms}-bedroom units by project`}
+                xTitle="Size (sq ft)"
+                yTitle="Starting price"
+                xFormat={(n) => n.toLocaleString("en-SG")}
+                yFormat={fmtMoneyShort}
+                groups={projectColours}
+                points={rows.map((r) => ({
+                  id: r.key,
+                  x: r.size ? (r.size.min + r.size.max) / 2 : 0,
+                  y: r.price,
+                  group: r.project,
+                  label: `${r.project} · ${r.type}`,
+                  hollow: r.estimate,
+                  detail: (
+                    <>
+                      {r.psf !== null && <TipRow value={`S$${r.psf.toLocaleString("en-SG")}`} label="per sq ft" />}
+                      <TipRow value={r.left} label={r.estimate ? "(estimate)" : ""} />
+                    </>
+                  ),
+                })).filter((p) => p.x > 0)}
+              />
+            </ChartCard>
+            <ChartCard title="Lowest starting price per sq ft" subtitle={`${bedrooms}-bedroom units, by project`}>
+              <BarChart
+                ariaLabel={`Lowest starting price per sq ft for ${bedrooms}-bedroom units by project`}
+                format={(n) => `S$${Math.round(n).toLocaleString("en-SG")}`}
+                bars={projectColours
+                  .map((p) => {
+                    const own = rows.filter((r) => r.project === p.id && r.psf !== null);
+                    if (own.length === 0) return null;
+                    const best = own.reduce((a, b) => (b.psf! < a.psf! ? b : a));
+                    return { id: p.id, label: p.id, sub: best.type + (best.estimate ? " (est.)" : ""), value: best.psf!, color: p.color, emphasis: p.id === projectName };
+                  })
+                  .filter((b): b is NonNullable<typeof b> => b !== null)
+                  .sort((a, b) => a.value - b.value)}
+              />
+            </ChartCard>
+          </div>
+        )}
 
         {rows.length === 0 ? (
           <p className="mt-4 rounded-lg border border-dashed border-canopy/25 px-4 py-3 text-sm text-canopy/75">No {bedrooms}-bedroom units listed in this comparison.</p>
@@ -210,7 +266,7 @@ export function AlternativesTab({
         )}
         <p className="mt-3 text-xs text-stone">
           Other projects: lowest price among the units still available, as at {asAt}. Availability changes daily.
-          {anyEstimate ? ` ${projectName}: estimated starting price for each type, from this site's illustrative pricing (not the developer's price list).` : ""} Units may differ in layout,
+          {anyEstimate ? ` ${projectName}: estimated starting price for each type${ownPriceNote ? `, ${ownPriceNote}` : ""} (not the developer's price list).` : ""} Units may differ in layout,
           facing, floor, tenure, location and specifications.
         </p>
       </section>
@@ -220,7 +276,7 @@ export function AlternativesTab({
         <p className="mt-1 text-[0.9375rem] text-canopy/75">Each plays a different role. None is the best for everyone: it depends on what matters to you.</p>
         <ul className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {alternatives.map((a) => {
-            const byBed = [...new Set(a.unitTypes.map((u) => u.bedrooms))].sort((x, y) => x - y).map((b) => ({
+            const byBed = [...new Set(a.unitTypes.map((u) => u.bedrooms))].filter((b) => bedroomOptions.includes(b)).sort((x, y) => x - y).map((b) => ({
               b,
               from: Math.min(...a.unitTypes.filter((u) => u.bedrooms === b && u.fromPrice !== null).map((u) => u.fromPrice!)),
             }));
@@ -238,9 +294,11 @@ export function AlternativesTab({
                   <p className="mt-1 text-sm text-canopy/80">{a.why}</p>
                   <dl className="mt-3 grid gap-1 font-display-normal text-sm">
                     {[
+                      ["Developer", a.developer],
                       ["Nearest MRT", a.nearestMrt],
                       ["Units", a.totalUnits?.toLocaleString("en-SG") ?? null],
                       ["Tenure", a.tenure],
+                      ["Completion", a.completion],
                     ].map(([k, v]) => (
                       <div key={k} className="flex justify-between gap-3">
                         <dt className="text-canopy/65">{k}</dt>
@@ -257,13 +315,15 @@ export function AlternativesTab({
                     ))}
                   </dl>
                   {a.bestFor && <p className="mt-3 text-sm italic text-canopy/80">Best for: {a.bestFor}</p>}
+                  {a.factsSource?.note && <p className="mt-2 text-xs text-stone">{a.factsSource.note}</p>}
                 </div>
               </li>
             );
           })}
         </ul>
         <p className="mt-3 text-xs text-stone">
-          Source: {alternatives[0].provenance.source}, {asAt}. {alternatives[0].provenance.note}
+          Prices and units left: {alternatives[0].provenance.source}, {asAt}. {alternatives[0].provenance.note}
+          {alternatives[0].factsSource ? ` Developer, units, tenure and completion: ${alternatives[0].factsSource.source}, checked ${alternatives[0].factsSource.checked}.` : ""}
         </p>
       </section>
     </div>
