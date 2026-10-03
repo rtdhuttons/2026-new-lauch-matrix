@@ -45,11 +45,18 @@ across the top; on a phone, tap the **Section** button to see them all.
    each differs from the lowest-priced one ("Costs S$14,000 more and is 1
    floor higher"). Tick **Show differences only** to shorten the list; **All
    factors** adds sun, noise, MRT and resale.
-4. **Payment estimate**: enter cash available, CPF for this purchase, loan
-   amount, interest rate and loan period. You'll see the cash needed upfront,
-   the monthly loan payment once the whole loan is drawn, and what that is in
-   cash after any monthly CPF. Your figures stay while you move around the
-   site and aren't saved or sent. **Reset** clears them.
+4. **Payment estimate**: choose a bedroom type, then the model (for example
+   3-Bedroom, 3-Bedroom Premium or 3-Bedroom Premium + Study), then the floor
+   level to see its estimated price; or use the unit you selected above. Enter
+   cash available, CPF for this purchase, loan amount (or "Use 75% of the
+   price"), interest rate and loan period. You'll see the cash needed upfront,
+   the monthly loan payment once the whole loan is drawn, and **progressive
+   payments**: what's due at each construction stage (booking fee, sale and
+   purchase agreement, foundation … keys at TOP, and the final payment at
+   completion), whether it comes from cash, CPF or the loan, and how the
+   monthly loan payment rises as the building goes up. Your figures stay
+   while you move around the site and aren't saved or sent. **Reset figures**
+   clears them.
 
 Further down: **Price by floor for every unit type** (and the assumption
 behind the estimated prices), and **Suggested units for your priorities**.

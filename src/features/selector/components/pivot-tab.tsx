@@ -54,7 +54,6 @@ export interface ExitEvidence {
 export function PivotTab({
   pivot,
   projectName,
-  illustrativeAveragePsf,
   unit,
   onChooseUnit,
   evidence,
@@ -65,7 +64,6 @@ export function PivotTab({
   photo?: React.ReactNode;
   pivot: PivotInfo;
   projectName: string;
-  illustrativeAveragePsf: number | null;
   unit: PivotUnit | null;
   onChooseUnit: () => void;
   /** Resale returns at a comparison project, for the exit projection. */
@@ -73,7 +71,7 @@ export function PivotTab({
   /** Expected completion (ISO date), to mark the year around completion. */
   completionDate: string | null;
 }) {
-  const [entry, setEntry] = useState(pivot.entry);
+  const entry = pivot.entry;
   const [exit, setExit] = useState(pivot.exit);
   const avg = averageScore(pivot);
 
@@ -165,46 +163,6 @@ export function PivotTab({
         </div>
       )}
 
-      {entry && e && (
-        <section className={`${card} p-5 sm:p-6`} aria-labelledby="pivot-entry">
-          <h3 id="pivot-entry" className="font-display text-lg font-extrabold">Investment entry: a fair price from the land bid</h3>
-          <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
-            The land price is quoted per sq ft of the floor area the site may build (&quot;psf ppr&quot;). It is a cost to the developer, not a selling price. Adding
-            construction, the developer&apos;s margin and a breakeven allowance gives an estimated selling price per sq ft.
-          </p>
-          <p className="mt-2 text-sm text-canopy/70">Land bid: ${entry.landPrice.toLocaleString("en-SG")}</p>
-          <div className="mt-4 flex flex-wrap gap-5">
-            <NumberField id="pv-land" label="Land, psf ppr" value={entry.landPsfPpr} onChange={(n) => setEntry({ ...entry, landPsfPpr: n })} suffix="$" />
-            <NumberField id="pv-build" label="Construction and materials" value={entry.constructionPsf} onChange={(n) => setEntry({ ...entry, constructionPsf: n })} suffix="$ psf" />
-            <NumberField id="pv-margin" label="Developer margin" value={Math.round(entry.profitMargin * 1000) / 10} step={0.5} onChange={(n) => setEntry({ ...entry, profitMargin: n / 100 })} suffix="%" />
-            <NumberField id="pv-be" label="Breakeven allowance" value={Math.round(entry.breakevenUplift * 1000) / 10} step={0.5} onChange={(n) => setEntry({ ...entry, breakevenUplift: n / 100 })} suffix="%" />
-          </div>
-          <div className="mt-4">
-            <Waterfall
-              ariaLabel="How the fair entry price per square foot builds up"
-              height={230}
-              format={(n) => `$${Math.round(n).toLocaleString("en-SG")}`}
-              steps={[
-                { label: "Land psf ppr", value: entry.landPsfPpr, kind: "total" },
-                { label: "Construction", value: entry.constructionPsf, kind: "change" },
-                { label: "Developer margin", value: e.withMargin - e.cost, kind: "change" },
-                { label: "Breakeven allowance", value: e.estimate - e.withMargin, kind: "change" },
-                { label: "Fair entry psf", value: e.estimate, kind: "total" },
-              ]}
-            />
-          </div>
-          <ol className="mt-4 grid gap-1 font-display-normal text-[0.9375rem] tabular-nums">
-            <li>{exact(entry.landPsfPpr)} + {exact(entry.constructionPsf)} = <strong>{exact(e.cost)}</strong></li>
-            <li>× {(1 + entry.profitMargin).toFixed(3).replace(/0+$/, "")} margin = <strong>{exact(Math.round(e.withMargin * 10) / 10)}</strong></li>
-            <li>× {(1 + entry.breakevenUplift).toFixed(3).replace(/0+$/, "")} breakeven = <strong className="text-lg">{psf(e.estimate)}</strong> estimated selling price</li>
-          </ol>
-          <p className="mt-2 text-sm text-stone">
-            The e-book&apos;s figure: {psf(entry.statedPsf)}.
-            {illustrativeAveragePsf !== null && ` The illustrative prices on this site currently average ${psf(illustrativeAveragePsf)}; both are estimates, not the developer's price.`}
-          </p>
-        </section>
-      )}
-
       {exit && x && (
         <section className={`${card} p-5 sm:p-6`} aria-labelledby="pivot-exit">
           <h3 id="pivot-exit" className="font-display text-lg font-extrabold">Timing of exit: a benchmark from {exit.comparable}</h3>
@@ -289,7 +247,7 @@ function UnitAssessment({ unit, entry, exit, onChooseUnit }: { unit: PivotUnit |
         <div className="rounded-xl bg-white/10 p-4">
           <dt className="text-sm text-mist/75">Against the entry estimate</dt>
           <dd className="text-2xl font-extrabold tabular-nums text-white">{vsEntry !== null ? `${vsEntry >= 0 ? "+" : "−"}${psf(Math.abs(vsEntry))}` : "—"}</dd>
-          <dd className="text-xs text-mist/70">{entry !== null ? `Entry estimate ${psf(entry)} from the land bid (below).` : "No entry estimate."}</dd>
+          <dd className="text-xs text-mist/70">{entry !== null ? `TRM's fair-entry estimate from the land bid: ${psf(entry)}.` : "No entry estimate."}</dd>
         </div>
         <div className="rounded-xl bg-white/10 p-4">
           <dt className="text-sm text-mist/75">If sold at the exit benchmark</dt>

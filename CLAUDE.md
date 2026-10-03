@@ -124,7 +124,8 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   `pricing.ts`, `recommend.ts`, `resale.ts` (exit appeal), `comparable.ts`
   (profit by floor band), `scene.ts` (3D), `payments.ts` (payment
   estimate), `rentals.ts` (rent evidence), `pivot.ts` (PIVOT framework,
-  workings and exit projection), `selling.ts` (cash proceeds from selling), `alternatives.ts`
+  workings and exit projection), `progressive.ts` (progressive payments by construction stage, standard
+  Housing Developers Rules schedule), `selling.ts` (cash proceeds from selling), `alternatives.ts`
   (size-for-size comparison with alternative projects),
   `valuation.ts` (checks a valuation request), `project-check.ts` (checks a
   bundle before publishing).

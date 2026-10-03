@@ -108,6 +108,6 @@ export function estimatePayments(price: number | null, inp: PaymentInputs): { ok
 export const PAYMENT_NOT_INCLUDED = [
   "Stamp duty, legal and valuation fees.",
   "Official loan limits and the minimum share of the down payment that must be paid in cash.",
-  "Payments in stages during construction, until the developer's payment schedule is added.",
+  "The developer's own payment schedule, if it differs from the standard stages shown.",
   "Maintenance fees and property tax, until they are added for this project.",
 ];

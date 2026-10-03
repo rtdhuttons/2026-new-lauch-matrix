@@ -67,3 +67,38 @@ export function sizePriceSentence(own: OwnUnitType, other: AlternativeUnitType):
 export function ownTypeKey(layout: { category?: string; name: string; areaSqft: number | null }): string {
   return `${layout.category ?? layout.name}|${layout.areaSqft}`;
 }
+
+export interface UnitModel {
+  key: string;
+  bedrooms: number;
+  type: string;
+  sizeSqft: number;
+  /** Each floor this model is on, with its lowest price there. */
+  levels: { level: number; price: number; isEstimate: boolean; unitIds: string[] }[];
+}
+
+/** Every model (unit type and size) with the floors it is on and the price on each, for the payment calculator. */
+export function unitModels(units: Unit[], ix: DatasetIndex): UnitModel[] {
+  const models = new Map<string, UnitModel>();
+  for (const u of units) {
+    const l = ix.stackLayout(u.stackId);
+    if (l.bedrooms === null || l.areaSqft === null || u.price === null) continue;
+    const key = ownTypeKey(l);
+    let m = models.get(key);
+    if (!m) {
+      m = { key, bedrooms: l.bedrooms, type: l.category ?? l.name, sizeSqft: l.areaSqft, levels: [] };
+      models.set(key, m);
+    }
+    const lv = m.levels.find((x) => x.level === u.level);
+    if (!lv) m.levels.push({ level: u.level, price: u.price, isEstimate: !!u.priceIsEstimate, unitIds: [u.id] });
+    else {
+      lv.unitIds.push(u.id);
+      if (u.price < lv.price) {
+        lv.price = u.price;
+        lv.isEstimate = !!u.priceIsEstimate;
+      }
+    }
+  }
+  for (const m of models.values()) m.levels.sort((a, b) => a.level - b.level);
+  return [...models.values()].sort((a, b) => a.bedrooms - b.bedrooms || a.sizeSqft - b.sizeSqft);
+}

@@ -11,7 +11,18 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0c. Latest: charts and photos (3 Oct, night)
+## 0d. Latest: progressive payments (3 Oct, late)
+
+- **Payment estimate** now has its own unit picker: bedroom type → model
+  (e.g. three 3-bedroom models) → floor level → estimated price. It shows the
+  progressive payments for a new launch at each construction stage (5%
+  booking fee in cash, 15% at the sale and purchase agreement, then
+  foundation, framework, walls, roofing, fittings, car park, 25% at TOP and
+  15% at completion), split into cash, CPF and loan, with the monthly loan
+  payment rising as the loan is drawn.
+- **PIVOT**: the editable "Investment entry" land-bid section was removed.
+
+## 0c. Charts and photos (3 Oct, night)
 
 - **Charts on the numbers tabs**, each with a hover readout and a "Show the
   numbers" table:
@@ -193,7 +204,7 @@ questions for every home:
 
 ## 7. Checks
 
-- 87 automated tests pass (prices, view clearance, sun, JadeScape figures,
+- 91 automated tests pass (prices, view clearance, sun, JadeScape figures,
   rents, PIVOT workings, payment estimates, project checks, no leaks into
   the sample project); typecheck and lint are clean.
 - The shared page was tested on desktop and phone widths, under the same

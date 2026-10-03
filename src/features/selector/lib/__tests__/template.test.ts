@@ -13,7 +13,8 @@ import { niceTicks, waterfallColumns } from "../../components/charts";
 import { annualisedSpread, averageScore, entryPsfSteps, EXIT_YEARS, exitProjection, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE } from "../selling";
 import { checkValuationRequest } from "../valuation";
-import { closestBySize, ownUnitTypes, sizePriceSentence } from "../alternatives";
+import { closestBySize, ownUnitTypes, sizePriceSentence, unitModels } from "../alternatives";
+import { progressivePayments, STANDARD_SCHEDULE } from "../progressive";
 import { indexDataset } from "../dataset-index";
 import { jadescape } from "../../data/comparables/jadescape";
 import { floorBand } from "../comparable";
@@ -345,5 +346,42 @@ describe("chart figures", () => {
       expect(a.totalUnits).toBeGreaterThan(0);
       expect(a.factsSource?.checked).toBe("2026-10-03");
     }
+  });
+});
+
+describe("progressive payments", () => {
+  it("uses the standard stages, adding up to 100%", () => {
+    expect(STANDARD_SCHEDULE.map((s) => s.percent)).toEqual([5, 15, 10, 10, 5, 5, 5, 5, 25, 15]);
+  });
+
+  it("pays the first stages from own money, then draws the loan", () => {
+    const r = progressivePayments(1_000_000, { loanAmount: 750_000, cpfAvailable: 100_000, interestRatePct: 3, loanYears: 30 });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const [booking, sp, foundation, frame] = r.stages;
+    expect([booking.cash, booking.cpf, booking.loan]).toEqual([50_000, 0, 0]);
+    expect([sp.cash, sp.cpf, sp.loan]).toEqual([50_000, 100_000, 0]);
+    // The 25% down payment covers half of the foundation stage; the loan pays the rest.
+    expect([foundation.cash, foundation.loan]).toEqual([50_000, 50_000]);
+    expect(frame.loan).toBe(100_000);
+    expect(r.totals).toEqual({ cash: 150_000, cpf: 100_000, loan: 750_000 });
+    expect(r.stages.at(-1)!.loanDrawn).toBe(750_000);
+    expect(r.stages.at(-1)!.monthly).toBeCloseTo(monthlyInstalment(750_000, 3, 30), 6);
+    expect(foundation.monthly).toBeLessThan(r.stages.at(-1)!.monthly);
+  });
+
+  it("keeps the booking fee in cash", () => {
+    const r = progressivePayments(1_000_000, { loanAmount: 980_000, cpfAvailable: 0, interestRatePct: 3, loanYears: 30 });
+    expect(r.ok).toBe(false);
+  });
+
+  it("lists each model with its floors and prices", () => {
+    const priced = applyPriceEstimate(thomsonReserve.dataset, thomsonReserve.pricing.estimate!);
+    const models = unitModels(priced.units, indexDataset(priced));
+    expect(new Set(models.map((m) => m.bedrooms))).toEqual(new Set([2, 3, 4, 5]));
+    expect(models.filter((m) => m.bedrooms === 3).length).toBeGreaterThanOrEqual(3);
+    const units = models.reduce((n, m) => n + m.levels.reduce((k, l) => k + l.unitIds.length, 0), 0);
+    expect(units).toBe(priced.units.length);
+    for (const m of models) expect(m.levels.map((l) => l.price)).toEqual([...m.levels.map((l) => l.price)].sort((a, b) => a - b));
   });
 });

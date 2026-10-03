@@ -10,11 +10,11 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { ProjectBundle } from "../model/project";
 import type { Unit } from "../model/types";
-import { ownTypeKey, ownUnitTypes } from "../lib/alternatives";
+import { ownTypeKey, ownUnitTypes, unitModels } from "../lib/alternatives";
 import { FLOOR_BANDS } from "../lib/comparable";
 import { createEngine } from "../lib/engine";
 import type { PriceEstimate } from "../lib/estimate";
-import { applyPriceEstimate, averagePsf, canEstimate, describeEstimate, lowestHomeLevel } from "../lib/estimate";
+import { applyPriceEstimate, canEstimate, describeEstimate, lowestHomeLevel } from "../lib/estimate";
 import type { PaymentInputs } from "../lib/payments";
 import { EMPTY_PAYMENT_INPUTS, estimatePayments } from "../lib/payments";
 import { compactMoney } from "../lib/format";
@@ -31,6 +31,7 @@ import { FloorProfit } from "./floor-profit";
 import { LocationSection } from "./location";
 import { MatchingHomes } from "./matching-homes";
 import { MethodNotes } from "./method-notes";
+import type { CalcPick } from "./payment-calculator";
 import { PaymentCalculator } from "./payment-calculator";
 import { PhotoBand } from "./photo-band";
 import { PivotTab } from "./pivot-tab";
@@ -132,6 +133,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   const [filters, setFilters] = useState<UnitFilterState>(NO_FILTERS);
   const [browse, setBrowse] = useState<"site" | "list">("site");
   const [payments, setPayments] = useState<PaymentInputs>(EMPTY_PAYMENT_INPUTS);
+  const [calcPick, setCalcPick] = useState<CalcPick | null>(null);
   const [selling, setSelling] = useState<SellingInputs>(EMPTY_SELLING_INPUTS);
   const [sellingCalculated, setSellingCalculated] = useState<SellingInputs | null>(null);
 
@@ -369,13 +371,13 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   });
 
   const isSample = project.status === "sample";
-  const avgPsf = estimatable && estimateOn && deferredEstimate ? averagePsf(dataset, deferredEstimate) : null;
   const unitLayout = unit ? ix.stackLayout(unit.stackId) : null;
   // Alternatives are always compared at the project's standard estimate (not the visitor's adjustments).
   const ownTypes = useMemo(
     () => ownUnitTypes((estimatable && defaults ? applyPriceEstimate(dataset, defaults) : dataset).units, ix),
     [dataset, estimatable, defaults, ix],
   );
+  const calcModels = useMemo(() => unitModels(priced.units, ix), [priced, ix]);
   const selectedOwnType = unitLayout ? ownTypes.find((t) => t.key === ownTypeKey(unitLayout)) ?? null : null;
 
   const intro = (
@@ -613,8 +615,17 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
             )}
           </Step>
 
-          <Step n={4} id="payments" title="Payment estimate" hint="Enter your own figures; nothing is saved or sent anywhere.">
-            <PaymentCalculator unit={unit} unitName={unit ? layoutName(unit) : null} inputs={payments} onInputs={setPayments} payments={project.payments} profile={project.profile} />
+          <Step n={4} id="payments" title="Payment estimate" hint="Choose a bedroom type, model and floor, then enter your own figures. Nothing is saved or sent anywhere.">
+            <PaymentCalculator
+              models={calcModels}
+              pick={calcPick}
+              onPick={setCalcPick}
+              selected={unit && unitLayout ? { key: ownTypeKey(unitLayout), level: unit.level, label: unitNumber(unit) } : null}
+              inputs={payments}
+              onInputs={setPayments}
+              payments={project.payments}
+              profile={project.profile}
+            />
             {payment?.ok && <NextStep note="Upgrading from a home you own?" label="Plan my upgrade" onClick={() => goTo("upgrading")} />}
           </Step>
 
@@ -727,7 +738,6 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
             photo={<PhotoBand image={project.media.tabPhotos?.pivot} />}
             pivot={project.pivot}
             projectName={project.profile.name}
-            illustrativeAveragePsf={avgPsf}
             unit={unit && unitLayout ? { name: `Unit ${unitNumber(unit)}`, price: unit.price, areaSqft: unitLayout.areaSqft, isEstimate: !!unit.priceIsEstimate, level: unit.level } : null}
             onChooseUnit={() => goTo("units", "select-unit")}
             evidence={
