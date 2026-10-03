@@ -3,7 +3,12 @@ import { sampleProject } from "../../data/demo/bundle";
 import { projects } from "../../data/projects";
 import { thomsonReserve } from "../../data/thomson-reserve/bundle";
 import { tabFromHash, TABS } from "../../components/tabs";
+import { comparisonFeedback } from "../../components/shortlist";
+import { differenceSentence } from "../../components/compare-cards";
+import { createEngine } from "../engine";
+import { applyPriceEstimate } from "../estimate";
 import * as estimate from "../estimate";
+import { estimatePayments, EMPTY_PAYMENT_INPUTS, monthlyInstalment } from "../payments";
 import { averageScore, entryPsfSteps, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
 import { checkProject } from "../project-check";
 import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../rentals";
@@ -140,5 +145,64 @@ describe("tabs", () => {
     expect(tabFromHash("#pivot")).toEqual({ tab: "pivot", section: null });
     expect(tabFromHash("#nothing")).toBeNull();
     expect(tabFromHash("")).toBeNull();
+  });
+});
+
+
+describe("payment estimate", () => {
+  it("uses the standard fixed-rate repayment", () => {
+    // $1,000,000 at 3% over 30 years: about $4,216 a month.
+    expect(monthlyInstalment(1_000_000, 3, 30)).toBeCloseTo(4216.04, 1);
+    expect(monthlyInstalment(120_000, 0, 10)).toBe(1000);
+  });
+
+  it("asks for what's missing, as a problem and a fix", () => {
+    const r = estimatePayments(2_000_000, EMPTY_PAYMENT_INPUTS);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.problems).toContain("Enter a loan period to calculate your payment.");
+    const noPrice = estimatePayments(null, { ...EMPTY_PAYMENT_INPUTS, loanAmount: 1, interestRatePct: 1, loanYears: 1 });
+    expect(noPrice.ok).toBe(false);
+  });
+
+  it("splits the down payment between CPF and cash and reconciles", () => {
+    const r = estimatePayments(2_000_000, { cashAvailable: 400_000, cpfAvailable: 150_000, loanAmount: 1_500_000, interestRatePct: 3, loanYears: 30, cpfMonthly: 2_000 });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const v = r.value;
+    expect(v.downPayment).toBe(500_000);
+    expect(v.cpfForDownPayment + v.cashUpfront).toBe(v.downPayment);
+    expect(v.cashUpfront).toBe(350_000);
+    expect(v.cashLeft).toBe(50_000);
+    expect(v.loanAmount + v.downPayment).toBe(v.price);
+    expect(v.cashMonthlyAfterCpf).toBeCloseTo(v.monthlyInstalment - 2_000, 6);
+    expect(v.totalInterest).toBeCloseTo(v.monthlyInstalment * 360 - 1_500_000, 6);
+  });
+
+  it("refuses a loan above the price", () => {
+    const r = estimatePayments(1_000_000, { ...EMPTY_PAYMENT_INPUTS, loanAmount: 1_200_000, interestRatePct: 3, loanYears: 25 });
+    expect(r.ok).toBe(false);
+  });
+});
+
+describe("comparison wording", () => {
+  const priced = applyPriceEstimate(thomsonReserve.dataset, thomsonReserve.pricing.estimate!);
+  const engine = createEngine(priced, thomsonReserve.mrtEntrance!);
+  const u = (id: string) => engine.ix.unit(id)!;
+
+  it("gives the feedback messages", () => {
+    expect(comparisonFeedback(u("25-12"), 1, true)).toBe("Unit #12-25 added. You can compare 2 more units.");
+    expect(comparisonFeedback(u("25-12"), 2, true)).toBe("Unit #12-25 added. You can compare 1 more unit.");
+    expect(comparisonFeedback(u("25-12"), 3, false)).toBe("You're comparing 3 units. Remove one to add another.");
+  });
+
+  it("explains differences in plain words", () => {
+    // Same stack, five floors apart: $15 psf a floor on the same size.
+    const low = u("01-14");
+    const high = u("01-19");
+    const size = engine.ix.stackLayout("01").areaSqft!;
+    const diff = high.price! - low.price!;
+    expect(Math.abs(diff - 5 * 15 * size)).toBeLessThan(1000);
+    expect(differenceSentence(engine, high, low)).toBe(`Costs S$${diff.toLocaleString("en-SG")} more and is 5 floors higher than #14-01.`);
+    expect(differenceSentence(engine, low, low)).toBe("Same price, size, floor and facing as #14-01.");
   });
 });

@@ -6,7 +6,7 @@
 
 import type { SchoolsInfo } from "../model/project";
 import { NotSupplied } from "./tabs";
-import { card, SectionHeading } from "./ui";
+import { card } from "./ui";
 
 const LEVEL: Record<string, string> = { primary: "Primary", secondary: "Secondary", "junior-college": "Junior college" };
 const CATEGORY: Record<string, string> = { "within-1km": "Within 1 km", "1-2km": "Between 1 and 2 km", "outside-2km": "Outside 2 km" };
@@ -14,10 +14,6 @@ const CATEGORY: Record<string, string> = { "within-1km": "Within 1 km", "1-2km":
 export function SchoolsTab({ schools, projectName, map }: { schools: SchoolsInfo | null; projectName: string; map: React.ReactNode }) {
   return (
     <div className="grid grid-cols-1 gap-8 [&>*]:min-w-0">
-      <SectionHeading
-        title="Schools"
-        lede={`Schools near ${projectName}, and what is and isn't known about getting a place.`}
-      />
 
       <div className="rounded-2xl border-l-4 border-[#b3532e] bg-paper p-5 shadow-sm sm:p-6">
         <h3 className="font-serif text-lg font-semibold">Living near a school does not guarantee a place</h3>
@@ -31,7 +27,7 @@ export function SchoolsTab({ schools, projectName, map }: { schools: SchoolsInfo
 
       {schools && schools.schools.length > 0 ? (
         <div className={`${card} overflow-hidden p-0`}>
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse font-display-normal text-sm">
               <caption className="px-5 pb-2 pt-5 text-left">
                 <span className="block font-display text-lg font-extrabold">Schools named near the site</span>
@@ -71,13 +67,13 @@ export function SchoolsTab({ schools, projectName, map }: { schools: SchoolsInfo
           </p>
         </div>
       ) : (
-        <NotSupplied title="Nearby schools" needed={["The schools to show for this project, with their levels."]} />
+        <NotSupplied title={`Nearby schools have not been added for ${projectName}.`} needed={["The schools to show for this project, with their levels."]} />
       )}
 
       {map}
 
       <NotSupplied
-        title="Distances, distance categories and past Primary 1 registration"
+        title="School distances and past Primary 1 results have not been added yet."
         needed={[
           "The schools you want highlighted.",
           "Official home-school distance for the project address (SLA OneMap school query) for each primary school.",

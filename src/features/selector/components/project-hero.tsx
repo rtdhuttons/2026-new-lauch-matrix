@@ -29,11 +29,11 @@ export function ProjectHero({
       />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-[#0b1d14]/85 via-[#0b1d14]/5 via-45% to-transparent" />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0b1d14]/55 via-[#0b1d14]/10 via-55% to-transparent" />
-      <div className="mx-auto flex min-h-[min(78vh,720px)] max-w-7xl flex-col justify-end px-4 pb-10 pt-40 [text-shadow:0_1px_12px_rgb(11_29_20/0.45)] sm:px-8 sm:pb-14">
+      <div className="mx-auto flex min-h-[min(64vh,600px)] max-w-7xl flex-col justify-end px-4 pb-8 pt-28 [text-shadow:0_1px_12px_rgb(11_29_20/0.45)] sm:px-8 sm:pb-14">
         <p className="font-display-normal text-sm font-semibold uppercase tracking-[0.18em] text-white/85">{eyebrow}</p>
         <h1 className="mt-2 font-display text-[3rem] font-extrabold leading-[0.95] tracking-tight sm:text-[5.5rem]">{name}</h1>
         {children}
-        <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-white/25 pt-5 sm:grid-cols-4">
+        <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-white/25 pt-4 sm:grid-cols-4">
           {facts.map((f) => (
             <div key={f.label}>
               <dt className="font-display-normal text-[0.8125rem] text-white/75">{f.label}</dt>

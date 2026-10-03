@@ -264,7 +264,7 @@ export function UnitDetails({
                 Screening assessment from the site plan. Qualitative only: no measured or modelled sound levels.
               </p>
             </div>
-            <div className="overflow-x-auto">
+            <div className="relative overflow-x-auto">
               <table className="w-full min-w-[640px] text-left font-display-normal text-sm">
                 <thead className="text-stone">
                   <tr className="border-b border-canopy/15">
@@ -418,7 +418,7 @@ export function UnitDetails({
                 <p className="mt-1 text-[1rem]">
                   At {a.resale.floorEvidence.project}, {a.resale.floorEvidence.band.homes} resales on these floors made{" "}
                   {money(a.resale.floorEvidence.band.avgProfit)} on average, {(a.resale.floorEvidence.band.annualised * 100).toFixed(2)}% a year. That adds{" "}
-                  <strong>{a.resale.floorEvidence.points} of 30</strong> points to this home&apos;s exit appeal.{" "}
+                  <strong>{a.resale.floorEvidence.points} of 30</strong> points to this unit&apos;s exit appeal.{" "}
                   <a href="#floor-profit" className="font-display-normal text-sm font-medium text-reservoir underline underline-offset-2">See profit by floor band</a>
                 </p>
               </div>
@@ -501,7 +501,7 @@ function PricePanel({ engine, unit, reference }: { engine: Engine; unit: Unit; r
             ` Not a like-for-like comparison: ${premium.likeForLike.differences.join("; ")}.`}
         </p>
       )}
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table className="w-full min-w-[520px] text-left font-display-normal text-sm">
           <caption className="mb-2 text-left font-semibold">Available units in stack {unit.stackId}</caption>
           <thead className="text-stone">

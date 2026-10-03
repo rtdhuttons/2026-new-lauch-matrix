@@ -79,7 +79,7 @@ export function Recommendations({
                     disabled={!onList && shortlist.length >= 3}
                     className="rounded-full border border-canopy/25 px-4 py-2 font-display-normal text-sm font-semibold disabled:opacity-50"
                   >
-                    {onList ? "Remove from shortlist" : "Add to shortlist"}
+                    {onList ? "Remove from comparison" : "Add to comparison"}
                   </button>
                 </div>
               )}

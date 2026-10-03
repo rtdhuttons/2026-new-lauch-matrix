@@ -26,7 +26,7 @@ export const sampleProject: ProjectBundle = {
     eyebrow: "Sample project · Fictional data · Not for publication",
     tagline: "A made-up development used to test the TRM website template. Nothing on this page describes a real property.",
     heroFacts: [
-      { label: "Homes", value: String(demoDataset.units.length) },
+      { label: "Units", value: String(demoDataset.units.length) },
       { label: "Blocks", value: "4 (fictional)" },
       { label: "Status", value: "Sample only" },
     ],

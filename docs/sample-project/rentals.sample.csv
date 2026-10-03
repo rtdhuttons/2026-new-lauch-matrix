@@ -1,0 +1,6 @@
+,,,,,"Disclaimer line from the export (skipped when converting)"
+
+DATE,"AREA (SQFT)",RENT,BEDS,SUBTYPE
+"Aug 2026","600 - 700","$3,900",2,"Non-landed Properties"
+"Jul 2026","900 - 1,000","$5,100",3,"Non-landed Properties"
+"Jun 2026","500 - 600","$3,300",,"Non-landed Properties"

@@ -104,7 +104,7 @@ function Elevation({
               <>
                 <rect x="86" y={y + 1} width="114" height={ROW_H - 2} fill="#ffffff" stroke="#c3cac3" strokeDasharray="2 2" />
                 <text x="143" y={y + 11} textAnchor="middle" fontSize="8.5" className="fill-stone font-display-normal">
-                  No homes
+                  No units
                 </text>
               </>
             )}
@@ -276,7 +276,7 @@ export function StackExplorer({
 
   const valueText = unit
     ? `Level ${level}, ${STATUS_TEXT[unit.status]}${unit.price !== null ? `, ${money(unit.price)}` : ""}, ${VIEW_CATEGORY_LABEL[lv.category]}`
-    : `Level ${level}, no homes on this level`;
+    : `Level ${level}, no units on this floor`;
 
   return (
     <div className={`${card} p-4 sm:p-6`}>
@@ -390,7 +390,7 @@ export function StackExplorer({
                     Type {unit.typeCode}
                     {layout.category ? `, ${layout.category}` : ""}
                     {layout.areaSqft !== null ? `, ${layout.areaSqft.toLocaleString("en-SG")} sq ft` : ""}
-                    {isPesType(unit.typeCode) ? ". Lowest home in the stack, with a private enclosed space (PES)" : ""}
+                    {isPesType(unit.typeCode) ? ". Lowest unit in the stack, with a private enclosed space (PES)" : ""}
                   </p>
                 )}
                 <div className="mt-3 rounded-lg border-l-4 border-[#c88a12] bg-[#fbf5e8] px-3 py-2">
@@ -517,7 +517,7 @@ export function StackExplorer({
                       onList ? "border border-canopy text-canopy" : "bg-canopy text-mist hover:bg-canopy-soft"
                     }`}
                   >
-                    {onList ? "Remove from shortlist" : shortlist.length >= 3 ? "Shortlist full (3)" : "Add to shortlist"}
+                    {onList ? "Remove from comparison" : shortlist.length >= 3 ? "Comparison full (3)" : "Add to comparison"}
                   </button>
                   <button
                     type="button"
@@ -532,7 +532,7 @@ export function StackExplorer({
               </>
             ) : (
               <p className="rounded-lg bg-mist p-4 font-display-normal">
-                Level {level} has no homes in {block.name} (sky terrace).
+                Level {level} has no units in {block.name} (sky terrace).
               </p>
             )}
           </div>

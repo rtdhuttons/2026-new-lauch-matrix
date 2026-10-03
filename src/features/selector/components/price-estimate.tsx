@@ -191,7 +191,7 @@ export function PriceEstimateSection({
             <NumberField
               id="base-psf"
               label={`Lowest floor (level ${baseLevel})`}
-              hint={`Averages ${money(avgNow)} psf across all ${base.units.length.toLocaleString("en-SG")} homes.`}
+              hint={`Averages ${money(avgNow)} psf across all ${base.units.length.toLocaleString("en-SG")} units.`}
               value={estimate.basePsf}
               min={500}
               max={10_000}
@@ -201,8 +201,8 @@ export function PriceEstimateSection({
           ) : (
             <NumberField
               id="avg-psf"
-              label="Average across all homes"
-              hint={`Each home counted at its own level, so level ${baseLevel} is ${money(estimate.basePsf)} psf.`}
+              label="Average across all units"
+              hint={`Each unit counted at its own floor, so level ${baseLevel} is ${money(estimate.basePsf)} psf.`}
               value={avgTarget}
               min={500}
               max={10_000}
@@ -302,7 +302,7 @@ export function PriceEstimateSection({
                     <p className="font-display-normal text-sm leading-tight">
                       <span className="font-semibold">{r.name}</span>
                       <span className="block text-[0.8125rem] text-stone">
-                        {r.areaSqft.toLocaleString("en-SG")} sq ft · {r.homes} homes
+                        {r.areaSqft.toLocaleString("en-SG")} sq ft · {r.homes} units
                       </span>
                     </p>
                     <div className="relative mr-28 h-8">
@@ -335,7 +335,7 @@ export function PriceEstimateSection({
                             <br />
                             Levels {r.levels[0]}–{r.levels[1]}: {money(r.price[0])} to {money(r.price[1])}
                             <br />
-                            {money(r.psf[0])}–{money(r.psf[1])} psf · {r.homes} homes
+                            {money(r.psf[0])}–{money(r.psf[1])} psf · {r.homes} units
                           </span>
                         )}
                       </div>
@@ -361,7 +361,7 @@ export function PriceEstimateSection({
 
             <details className="mt-4">
               <summary className="cursor-pointer font-display-normal text-sm font-semibold">Show as a table</summary>
-              <div className="mt-2 overflow-x-auto">
+              <div className="relative mt-2 overflow-x-auto">
                 <table className="w-full min-w-[560px] text-left font-display-normal text-sm tabular-nums">
                   <thead className="text-stone">
                     <tr className="border-b border-canopy/15">

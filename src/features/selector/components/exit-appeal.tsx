@@ -20,7 +20,7 @@ export function ExitAppeal({ engine, unit }: { engine: Engine; unit: Unit | null
     <div className={`${card} p-5 sm:p-6`}>
       <h3 className="font-display text-lg font-extrabold">Exit appeal score</h3>
       <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
-        A score out of 100 for how a home may stand out when you sell, against the similar homes a buyer could choose instead. It is not a forecast of
+        A score out of 100 for how a unit may stand out when you sell, against the similar units a buyer could choose instead. It is not a forecast of
         profit or price.
       </p>
 
@@ -34,7 +34,7 @@ export function ExitAppeal({ engine, unit }: { engine: Engine; unit: Unit | null
                 <div className="rounded-lg bg-mist p-3">
                   <dt className="text-canopy/70">Less competition (up to 50)</dt>
                   <dd className="text-lg font-semibold tabular-nums">{competition!.toFixed(0)}</dd>
-                  <dd className="text-xs text-stone">{r.similarCount.toLocaleString("en-SG")} similar homes in the development</dd>
+                  <dd className="text-xs text-stone">{r.similarCount.toLocaleString("en-SG")} similar units in the project</dd>
                 </div>
                 <div className="rounded-lg bg-mist p-3">
                   <dt className="text-canopy/70">Floor band record (up to 30)</dt>
@@ -51,18 +51,18 @@ export function ExitAppeal({ engine, unit }: { engine: Engine; unit: Unit | null
               </dl>
             </>
           ) : (
-            <p className="mt-2 text-canopy/80">Not scored: this home&apos;s type or size isn&apos;t known yet.</p>
+            <p className="mt-2 text-canopy/80">Not scored: this unit&apos;s type or size isn&apos;t known yet.</p>
           )}
         </div>
       ) : (
-        <p className="mt-3 text-canopy/80">Select a home to see its score.</p>
+        <p className="mt-3 text-canopy/80">Choose a unit to see its score.</p>
       )}
 
       <h4 className="mt-5 font-display-normal text-base font-semibold">Limitations</h4>
       <ul className="mt-1 grid list-disc gap-1 pl-5 text-[0.9375rem] text-canopy/80">
-        <li>Similar homes are potential competition; it doesn&apos;t mean their owners will sell at the same time as you.</li>
+        <li>Similar units are potential competition; it doesn&apos;t mean their owners will sell at the same time as you.</li>
         <li>The floor band points come from another development&apos;s past resales, which may not repeat here.</li>
-        <li>Demand, interest rates, future supply and the home&apos;s condition are not in the score.</li>
+        <li>Demand, interest rates, future supply and the unit&apos;s condition are not in the score.</li>
       </ul>
     </div>
   );

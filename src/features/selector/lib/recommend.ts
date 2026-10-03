@@ -193,9 +193,9 @@ export function recommend(ranked: RankedUnit[]): Recommendation[] {
       ? "No prices are published yet. Recommendations appear once the developer's price list is loaded."
       : "No available unit meets your essentials. Try a higher budget or another bedroom type.";
     return [
-      empty("best-fit", "Best fit for your lifestyle", why),
-      empty("lowest-entry", "Lowest entry price", why),
-      empty("best-value", "Best supported value", why),
+      empty("best-fit", "Highest fit for your priorities", why),
+      empty("lowest-entry", "Lowest price that meets your needs", why),
+      empty("best-value", "Most extra fit for the money", why),
     ];
   }
 
@@ -234,7 +234,7 @@ export function recommend(ranked: RankedUnit[]): Recommendation[] {
     const e = explain(best);
     recs.push({
       kind: "best-fit",
-      title: "Best fit for your lifestyle",
+      title: "Highest fit for your priorities",
       unit: best.assessment.unit,
       ranked: best,
       reasons: [
@@ -247,7 +247,7 @@ export function recommend(ranked: RankedUnit[]): Recommendation[] {
     recs.push(
       empty(
         "best-fit",
-        "Best fit for your lifestyle",
+        "Highest fit for your priorities",
         "No eligible unit has enough data on your weighted criteria to rank fairly.",
       ),
     );
@@ -256,7 +256,7 @@ export function recommend(ranked: RankedUnit[]): Recommendation[] {
   const ee = explain(entry);
   recs.push({
     kind: "lowest-entry",
-    title: "Lowest entry price",
+    title: "Lowest price that meets your needs",
     unit: entry.assessment.unit,
     ranked: entry,
     reasons: [
@@ -271,11 +271,11 @@ export function recommend(ranked: RankedUnit[]): Recommendation[] {
     const extra = valueBest.assessment.unit.price! - entry.assessment.unit.price!;
     recs.push({
       kind: "best-value",
-      title: "Best supported value",
+      title: "Most extra fit for the money",
       unit: valueBest.assessment.unit,
       ranked: valueBest,
       reasons: [
-        `Adds ${Math.round(valueBest.fit.score! - entryFit)} fit points for $${extra.toLocaleString("en-SG")} more than the lowest entry unit: ${valueRate.toFixed(1)} points per $10,000, the best rate among well-evidenced units.`,
+        `Adds ${Math.round(valueBest.fit.score! - entryFit)} fit points for $${extra.toLocaleString("en-SG")} more than the lowest-priced unit: ${valueRate.toFixed(1)} points per $10,000, the best rate among well-evidenced units.`,
         ...ve.reasons,
       ],
       tradeOffs: ve.tradeOffs,
@@ -283,11 +283,11 @@ export function recommend(ranked: RankedUnit[]): Recommendation[] {
   } else {
     recs.push({
       kind: "best-value",
-      title: "Best supported value",
+      title: "Most extra fit for the money",
       unit: entry.assessment.unit,
       ranked: entry,
       reasons: [
-        "No well-evidenced unit adds at least 5 fit points over the lowest entry unit, so the lowest entry unit is also the value pick.",
+        "No well-evidenced unit adds at least 5 fit points over the lowest-priced unit, so the lowest-priced unit is shown here too.",
       ],
       tradeOffs: ee.tradeOffs,
     });

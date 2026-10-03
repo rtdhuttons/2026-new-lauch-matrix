@@ -70,10 +70,10 @@ export function PriceMatrix({
 
   return (
     <div>
-      <div className="max-h-[70vh] overflow-auto rounded-lg border border-canopy/10" tabIndex={0} aria-label="Price by level and unit type, scrollable">
+      <div className="relative max-h-[70vh] overflow-auto rounded-lg border border-canopy/10" tabIndex={0} aria-label="Price by level and unit type, scrollable">
         <table className="w-max min-w-full border-separate border-spacing-0 font-display-normal text-sm tabular-nums">
           <caption className="sr-only">
-            Illustrative price of each unit type at every level. Blank cells: that type has no homes on that level.
+            Illustrative price of each unit type at every level. Blank cells: that type has no units on that floor.
           </caption>
           <thead>
             <tr>
@@ -123,7 +123,7 @@ export function PriceMatrix({
                         key={c.key}
                         className="relative border-b border-white/70 px-3 py-2 text-right font-semibold text-canopy"
                         style={{ background: tint(c.bedrooms, "24") }}
-                        title={`${cell.homes} ${cell.homes === 1 ? "home" : "homes"}${cell.pes ? ", including homes with a private enclosed space" : ""}`}
+                        title={`${cell.homes} ${cell.homes === 1 ? "unit" : "units"}${cell.pes ? ", including units with a private enclosed space" : ""}`}
                       >
                         {cell.pes && (
                           <span aria-hidden="true" className="absolute left-0 top-0 size-0" style={PES_MARK} />
@@ -141,13 +141,13 @@ export function PriceMatrix({
       <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 font-display-normal text-[0.8125rem] text-canopy/80">
         <li className="flex items-center gap-1.5">
           <span className="rounded bg-canopy px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-mist">Avg</span>
-          Level closest to the average of {money(avg)} psf across all {base.units.length.toLocaleString("en-SG")} homes
+          Level closest to the average of {money(avg)} psf across all {base.units.length.toLocaleString("en-SG")} units
         </li>
         <li className="flex items-center gap-1.5">
           <span aria-hidden="true" className="inline-block size-0" style={PES_MARK} />
-          Includes homes with a private enclosed space (PES)
+          Includes units with a private enclosed space (PES)
         </li>
-        <li>Blank: no homes of that type on that level. Hover a price to see how many homes it covers.</li>
+        <li>Blank: no units of that type on that floor. Hover a price to see how many units it covers.</li>
       </ul>
     </div>
   );

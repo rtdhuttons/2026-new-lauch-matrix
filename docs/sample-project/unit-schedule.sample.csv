@@ -1,0 +1,5 @@
+block,stack,levels,type,note
+Block 1,01,2,2Ap,PES unit on the lowest floor
+Block 1,01,3-18,2A,
+Block 1,02,2-18,3B,
+Block 2,03,1-24,4C,Sky terrace on level 12 (no unit)

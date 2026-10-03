@@ -21,7 +21,7 @@ const monthText = (iso: string) =>
 
 function RentTable({ caption, rows }: { caption: string; rows: RentSummary[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[560px] border-collapse font-display-normal text-sm tabular-nums">
         <caption className="px-4 pb-2 pt-4 text-left font-display-normal text-base font-semibold">{caption}</caption>
         <thead>
@@ -58,7 +58,7 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
   if (evidence.length === 0) {
     return (
       <NotSupplied
-        title="Rental evidence"
+        title="Rental evidence has not been added for this project."
         needed={["Rental contracts for this project or a comparable one: lease month, size, monthly rent and bedrooms where recorded."]}
       />
     );
@@ -113,11 +113,11 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
       <div className={`${card} p-5 sm:p-6`}>
         <h3 className="font-display text-lg font-extrabold">Indicative gross yield</h3>
         {!unit || !layout?.areaSqft ? (
-          <p className="mt-2 text-canopy/80">Select a home on the 3D model or in Units &amp; Payments to see the leases for homes of its size.</p>
+          <p className="mt-2 text-canopy/80">Choose a unit to see the leases for units of its size.</p>
         ) : (
           <div className="mt-3 grid gap-4 sm:grid-cols-3">
             <div>
-              <p className="font-display-normal text-sm text-canopy/70">Selected home</p>
+              <p className="font-display-normal text-sm text-canopy/70">Selected unit</p>
               <p className="font-display-normal font-semibold">{unitLabel(engine.ix, unit)}</p>
               <p className="text-sm text-canopy/75">
                 {layout.areaSqft.toLocaleString("en-SG")} sq ft · {unit.price !== null ? `${money(unit.price)}${unit.priceIsEstimate ? " (estimate)" : ""}` : "price not published"}
@@ -157,7 +157,7 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
         )}
       </div>
 
-      <NotSupplied title="Net operating income and cash flow after financing" needed={[
+      <NotSupplied title="Net rental income and cash flow after the loan can't be estimated yet." needed={[
         "Maintenance fee estimates from the developer.",
         "Property tax on let homes for the relevant year (IRAS rates), agent fees, repairs and insurance assumptions.",
         "Vacancy assumption you want to use.",

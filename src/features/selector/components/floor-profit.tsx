@@ -5,7 +5,7 @@ import type { ComparableEvidence } from "../model/project";
 import type { ComparableTransaction } from "../model/types";
 import { bandStats, likeForLike, median, profitTrend } from "../lib/comparable";
 import { AssetImg } from "./asset-image";
-import { BEDROOM_COLOURS, card } from "./ui";
+import { BEDROOM_COLOURS, card, Disclosure } from "./ui";
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 const thousands = (n: number) =>
@@ -121,7 +121,7 @@ export function FloorProfit({ evidence, subjectName }: { evidence: ComparableEvi
   return (
     <div className="grid grid-cols-1 gap-6 [&>*]:min-w-0">
       <div className={`${card} overflow-hidden p-0`}>
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
           <table className="w-full min-w-[640px] border-collapse font-display-normal text-sm tabular-nums">
             <caption className="sr-only">Resale profit at {project.name} by floor band</caption>
             <thead>
@@ -165,10 +165,31 @@ export function FloorProfit({ evidence, subjectName }: { evidence: ComparableEvi
         </p>
       )}
 
+      <div className="rounded-2xl border-l-4 border-[#b3532e] bg-paper p-5 shadow-sm sm:p-6">
+        <h3 className="font-serif text-lg font-semibold">The takeaway</h3>
+        <p className="mt-2 max-w-[72ch] text-[1rem] leading-relaxed">
+          {trend.slope > 0 ? (
+            <>
+              The trend rises with height, about {thousands(trend.slope)} more profit for each floor. The {top.label.toLowerCase()} floors ({top.floors}) returned about{" "}
+              <strong>{thousands(top.avgProfit - low.avgProfit)} more on average</strong> than low floors.
+            </>
+          ) : (
+            <>The trend does not rise with height here: about {thousands(trend.slope)} profit for each floor higher.</>
+          )}
+        </p>
+        {trend.slope > 0 && top.band !== "low" && (
+          <p className="mt-2 max-w-[72ch] text-[1rem] leading-relaxed">
+            So at {project.name}, the premium for a higher floor came back to owners as stronger resale profit, on top of the better light, view and privacy while they lived there.
+          </p>
+        )}
+        <p className="mt-2 text-sm text-stone">Historical figures from a comparable development; past performance does not guarantee future results.</p>
+      </div>
+
+      <Disclosure title="View comparable transactions" hint={`All ${txs.length} resales by floor, with the median and trend`}>
       <div className={`${card} p-4 sm:p-6`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="font-serif text-lg font-semibold">Every resale, every floor</h3>
-          <p className="font-display-normal text-sm text-stone">Bubble size = home size</p>
+          <p className="font-display-normal text-sm font-semibold">Each dot is one resale</p>
+          <p className="font-display-normal text-sm text-stone">Bubble size = unit size</p>
         </div>
         <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-display-normal text-sm text-canopy/85" aria-label="Legend">
           {counts.map((c) => (
@@ -191,33 +212,15 @@ export function FloorProfit({ evidence, subjectName }: { evidence: ComparableEvi
         </div>
       </div>
 
-      <div className="rounded-2xl border-l-4 border-[#b3532e] bg-paper p-5 shadow-sm sm:p-6">
-        <h3 className="font-serif text-lg font-semibold">The takeaway</h3>
-        <p className="mt-2 max-w-[72ch] text-[1rem] leading-relaxed">
-          {trend.slope > 0 ? (
-            <>
-              The trend rises with height, about {thousands(trend.slope)} more profit for each floor. The {top.label.toLowerCase()} floors ({top.floors}) returned about{" "}
-              <strong>{thousands(top.avgProfit - low.avgProfit)} more on average</strong> than low floors.
-            </>
-          ) : (
-            <>The trend does not rise with height here: about {thousands(trend.slope)} profit for each floor higher.</>
-          )}
-        </p>
-        {trend.slope > 0 && top.band !== "low" && (
-          <p className="mt-2 max-w-[72ch] text-[1rem] leading-relaxed">
-            So at {project.name}, the premium for a higher floor came back to owners as stronger resale profit, on top of the better light, view and privacy while they lived there.
-          </p>
-        )}
-        <p className="mt-2 text-sm text-stone">Historical figures from a comparable development; past performance does not guarantee future results.</p>
-      </div>
+      </Disclosure>
 
+      <Disclosure title={`Why ${project.name} is a fair guide to ${subjectName}`} hint="What the two projects have in common">
       <div>
-        <h3 className="font-serif text-xl font-semibold">Why {project.name} is a fair guide to {subjectName}</h3>
-        <p className="mt-1 max-w-[72ch] text-[1rem] text-canopy/80">
+        <p className="max-w-[72ch] text-[1rem] text-canopy/80">
           The two share the traits that shaped this floor pattern, so {project.name}&apos;s record is a reasonable guide to how {subjectName} may behave.
         </p>
         <div className={`${card} mt-4 overflow-hidden p-0`}>
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[600px] border-collapse font-display-normal text-sm">
               <thead>
                 <tr className="bg-canopy text-left text-xs uppercase tracking-[0.08em] text-mist">
@@ -251,9 +254,11 @@ export function FloorProfit({ evidence, subjectName }: { evidence: ComparableEvi
         )}
       </div>
 
+      </Disclosure>
+
       <p className="border-t border-canopy/10 pt-4 text-sm text-stone">
         Data: {project.provenance.source}, as at {asAt(project.provenance.updated)}. {project.provenance.note} {project.excludedNote}
-        {project.bedroomsInferred ? " Bedroom counts are inferred from home size, not recorded." : ""}
+        {project.bedroomsInferred ? " Bedroom counts are inferred from unit size, not recorded." : ""}
         Figures are historical and not a guarantee of future performance.
       </p>
     </div>

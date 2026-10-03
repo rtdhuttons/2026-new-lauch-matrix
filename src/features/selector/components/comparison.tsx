@@ -53,7 +53,7 @@ export function Comparison({
       <div className={`${card} p-6`}>
         <p className="font-display-normal font-semibold">Your shortlist is empty.</p>
         <p className="mt-1 text-canopy/75">
-          Add up to three homes from the 3D model, the list of matching homes or the recommendations to compare them side by side.
+          Add up to three units from the site view, the unit list or the suggested units to compare them side by side.
         </p>
       </div>
     );
@@ -246,7 +246,7 @@ export function Comparison({
 
   return (
     <div className={`${card} overflow-hidden`}>
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table className="w-full min-w-[680px] border-collapse text-left">
           <thead>
             <tr className="border-b border-canopy/15 align-top">

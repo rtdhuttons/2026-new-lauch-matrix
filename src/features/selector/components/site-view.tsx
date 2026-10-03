@@ -297,17 +297,6 @@ export function SiteView({
             Flat plan
           </button>
         </div>
-        {mode === "3d" && canUse3D && (
-          <button
-            type="button"
-            aria-expanded={showKey}
-            aria-controls="facilities-key"
-            onClick={() => setShowKey((v) => !v)}
-            className="font-display-normal text-sm font-medium text-reservoir underline underline-offset-4"
-          >
-            Facilities key
-          </button>
-        )}
         {!canUse3D && (
           <p className="font-display-normal text-sm text-stone">3D needs WebGL, which this browser doesn&apos;t support.</p>
         )}
@@ -384,14 +373,7 @@ export function SiteView({
           )}
 
           <div className="grid gap-4 border-t border-canopy/10 p-4">
-            <div role="group" aria-label="Colour units by" className="flex flex-wrap gap-1 self-start rounded-full bg-mist-deep p-1">
-              {modes.map((m) => (
-                <button key={m.id} type="button" aria-pressed={colourMode === m.id} onClick={() => setColourMode(m.id)} className={segButton(colourMode === m.id)}>
-                  {m.label}
-                </button>
-              ))}
-            </div>
-            <ul className="flex flex-wrap gap-x-4 gap-y-1 font-display-normal text-sm text-canopy/80">
+            <ul className="flex flex-wrap gap-x-4 gap-y-1 font-display-normal text-sm text-canopy/80" aria-label={`Colour key: ${modes.find((m) => m.id === colourMode)?.label ?? ""}`}>
               {legend.map((l) => (
                 <li key={l.label} className="flex items-center gap-1.5">
                   <span aria-hidden="true" className="size-3 rounded-sm border border-canopy/10" style={{ background: l.colour }} />
@@ -399,14 +381,42 @@ export function SiteView({
                 </li>
               ))}
             </ul>
-            <div className="flex flex-wrap items-center gap-2">
-              <button type="button" aria-pressed={showSurroundings} onClick={() => setShowSurroundings((v) => !v)} className={toggleButton(showSurroundings)}>
-                Surroundings
-              </button>
-              <button type="button" aria-pressed={showSun} onClick={() => setShowSun((v) => !v)} className={toggleButton(showSun)}>
-                Sun &amp; shadows
-              </button>
-              <button type="button" onClick={() => setResetSignal((n) => n + 1)} className="ml-1 font-display-normal text-sm font-medium text-reservoir underline underline-offset-4">
+            <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
+              <details className="group min-w-0 flex-1">
+                <summary className="cursor-pointer list-none font-display-normal text-sm font-semibold text-reservoir underline underline-offset-4 [&::-webkit-details-marker]:hidden">
+                  Display options
+                </summary>
+                <div className="mt-3 grid gap-3">
+                  <div>
+                    <p className="mb-1.5 font-display-normal text-xs font-semibold text-canopy/70">Colour units by</p>
+                    <div role="group" aria-label="Colour units by" className="flex flex-wrap gap-1 self-start rounded-full bg-mist-deep p-1">
+                      {modes.map((m) => (
+                        <button key={m.id} type="button" aria-pressed={colourMode === m.id} onClick={() => setColourMode(m.id)} className={segButton(colourMode === m.id)}>
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button type="button" aria-pressed={showSurroundings} onClick={() => setShowSurroundings((v) => !v)} className={toggleButton(showSurroundings)}>
+                      {showSurroundings ? "✓ " : ""}Neighbourhood map
+                    </button>
+                    <button type="button" aria-pressed={showSun} onClick={() => setShowSun((v) => !v)} className={toggleButton(showSun)}>
+                      {showSun ? "✓ " : ""}Sun &amp; shadows
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={showKey}
+                      aria-controls="facilities-key"
+                      onClick={() => setShowKey((v) => !v)}
+                      className={toggleButton(showKey)}
+                    >
+                      {showKey ? "✓ " : ""}Facilities key
+                    </button>
+                  </div>
+                </div>
+              </details>
+              <button type="button" onClick={() => setResetSignal((n) => n + 1)} className="font-display-normal text-sm font-semibold text-reservoir underline underline-offset-4">
                 Reset view
               </button>
             </div>
@@ -463,7 +473,7 @@ export function SiteView({
           </div>
 
           <p className="border-t border-canopy/10 bg-mist px-4 py-2.5 text-[0.8125rem] text-canopy/75">
-            Drag to spin, pinch to zoom, tap a home for its price and floor plan. Towers are simple massing on the developer&apos;s site plan; shadows are indicative.
+            Drag to spin, pinch to zoom, tap a unit to see its details. Towers are simple massing on the developer&apos;s site plan; shadows are indicative.
           </p>
         </div>
       ) : (

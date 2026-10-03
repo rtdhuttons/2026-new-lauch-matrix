@@ -1,7 +1,8 @@
 # TRM website — summary of work so far
 
-Project: the TRM (The Realty Master) website, with its Thomson Reserve Stack
-& Unit Selector. Work done 30 September – 1 October 2026.
+Project: the TRM (The Realty Master) website, with Thomson Reserve as the
+first complete project and the template for future developments. Work done
+30 September – 3 October 2026.
 
 - Live page: https://claude.ai/artifact/5kRAW7usFiDUPDepbFZjSP (shared with
   anyone who has the link)
@@ -9,6 +10,43 @@ Project: the TRM (The Realty Master) website, with its Thomson Reserve Stack
   `claude/web-dev-plugins-setup-y5ynix` (33 commits)
 
 ---
+
+## 0. Latest: seven tabs, a reusable template and a simpler experience (3 Oct)
+
+- **Seven tabs, always in this order:** Project & 3D Site, Units &
+  Payments, Schools, Investor, Alternative Projects, PIVOT, My Upgrading
+  Plan. **My Shortlist** is on every tab. The selected unit, the comparison
+  and your payment figures stay as you move between tabs (the unit and
+  comparison also survive a page reload).
+- **Simpler wording and flow:** each tab opens with one line saying what you
+  can do there. Units & Payments is four numbered steps: choose bedroom type →
+  select a unit (site view or unit list) → compare units → payment estimate.
+  Detail sits behind named sections (Facing & view, Price by floor, Payment
+  breakdown, Assumptions & sources). Each task ends with one suggested next
+  step. Phones get a section menu, card layouts and no sideways scrolling.
+- **Comparison cards** for 2–3 units, with a plain sentence on each
+  difference ("Costs S$14,000 more and is 1 floor higher") and "Show
+  differences only".
+- **Payment estimate** from your own figures (cash, CPF, loan, rate, period):
+  cash needed upfront, monthly payment once the loan is fully drawn, cash
+  after CPF. What it leaves out (stamp duty, loan limits, stage payments,
+  maintenance) is listed beside it.
+- **Investor:** JadeScape resale results by floor band, the exit appeal
+  score explained, and **rental potential from the 881 JadeScape leases** you
+  sent, with an adjustable gross yield.
+- **PIVOT:** your e-book's five scores and reasons, its entry-price ($2,484
+  psf) and exit-benchmark ($3,098 psf) workings reproduced exactly and
+  editable, and the selected unit assessed against both.
+- **Reusable template:** everything about Thomson Reserve now lives in one
+  project bundle with source kinds and checked dates. A fictional sample
+  project runs on the same code (`/projects/sample-wrenfield`), and tests
+  confirm nothing from Thomson Reserve leaks into it. See
+  `docs/adding-a-project.md`, `docs/project-intake-checklist.md` and
+  `docs/sample-project/`.
+- **PIVOT e-book:** pages 9–12 now show Thomson Reserve's own floor plans
+  (BP2, CP1, DP2 (L), E1 (L)) instead of Parktown Residence's.
+- **Outstanding inputs and facts to confirm:**
+  `docs/audit-and-outstanding-inputs.md`.
 
 ## 1. Set-up
 
@@ -97,11 +135,15 @@ questions for every home:
 | `docs/how-to-use.md` | A plain-words guide for buyers using the selector |
 | `docs/website-content.md` / `.txt` | All the text on the website, page by page |
 | `docs/work-summary.md` | This summary |
+| `docs/adding-a-project.md` | How to add the next development |
+| `docs/project-intake-checklist.md`, `docs/sample-project/` | What to gather for a new project, with fictional sample files |
+| `docs/audit-and-outstanding-inputs.md` | Where each feature sits, and what's still needed |
 
 ## 7. Checks
 
-- 53 automated tests pass (prices, view clearance, sun, JadeScape figures,
-  map placement and more); typecheck and lint are clean.
+- 72 automated tests pass (prices, view clearance, sun, JadeScape figures,
+  rents, PIVOT workings, payment estimates, project checks, no leaks into
+  the sample project); typecheck and lint are clean.
 - The shared page was tested on desktop and phone widths, under the same
   image restrictions claude.ai uses.
 
@@ -120,12 +162,17 @@ questions for every home:
 
 1. The agent's name, CEA registration number, phone/WhatsApp and email (for
    the footer)
-2. The developer's price list and availability (these replace all the
-   estimates)
+2. The developer's price list, availability and payment schedule (these
+   replace all the estimates)
 3. Confirmation of the JadeScape facts in the comparison table
+4. How the PIVOT overall rating is worked out (8.6 stated; scores average
+   8.8), and the basis of $1,178 psf ppr
+5. For the remaining tabs: schools to highlight and P1 data, 3–5 alternative
+   projects, an upgrader case and your consultation sequence
+
+The full list is in `docs/audit-and-outstanding-inputs.md`.
 
 ## Optional next steps
 
-- Show the OpenStreetMap neighbourhood on the flat plan as well
 - Deploy the full website on Vercel with its own web address (the Vercel
   connection is currently blocked by this environment's network settings)

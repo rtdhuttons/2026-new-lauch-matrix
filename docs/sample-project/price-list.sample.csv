@@ -1,0 +1,5 @@
+unit,price,availability,price_list_date,source
+#02-01,1650000,available,2026-10-01,FICTIONAL sample price list
+#02-02,1702000,reserved,2026-10-01,FICTIONAL sample price list
+#03-01,1666000,sold,2026-10-01,FICTIONAL sample price list
+#03-02,,not released,2026-10-01,FICTIONAL sample price list

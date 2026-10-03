@@ -21,8 +21,14 @@ export function FloorPlan({ unit, compact = false }: { unit: Unit; compact?: boo
       >
         <AssetImg src={plan.src} alt="" loading="lazy" className="block h-auto w-full" />
       </button>
-      <figcaption className={compact ? "px-1 pb-0.5 pt-1.5 font-display-normal text-xs text-canopy/70" : "mt-1.5 text-sm text-canopy/75"}>
-        {title}. Tap to enlarge.{plan.mirrored ? " This stack is a mirror image of the plan shown." : ""}{compact ? "" : ` ${plan.credit}`}
+      <figcaption className={`flex flex-wrap items-center justify-between gap-2 ${compact ? "px-1 pb-0.5 pt-1.5 text-xs" : "mt-1.5 text-sm"} font-display-normal text-canopy/75`}>
+        <span>
+          {title}.{plan.mirrored ? " This stack is a mirror image of the plan shown." : ""}
+          {compact ? "" : ` ${plan.credit}`}
+        </span>
+        <button type="button" onClick={() => dialog.current?.showModal()} className="font-semibold text-reservoir underline underline-offset-4">
+          View floor plan
+        </button>
       </figcaption>
       <dialog
         ref={dialog}

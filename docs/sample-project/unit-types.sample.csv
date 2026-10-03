@@ -1,0 +1,5 @@
+type,category,bedrooms,area_sqm,area_sqft,features,floor_plan_file
+2A,2-Bedroom,2,62,667,,plans/2A.jpg
+2Ap,2-Bedroom,2,70,753,PES,plans/2Ap.jpg
+3B,3-Bedroom,3,90,969,,plans/3B.jpg
+4C,4-Bedroom Premium,4,128,1378,private lift,plans/4C.jpg

@@ -136,3 +136,59 @@ export function Stat({ label, value, sub }: { label: string; value: ReactNode; s
 }
 
 export const card = "rounded-xl border border-canopy/10 bg-paper";
+
+/** One prominent action per task area; secondary and text actions are quieter. */
+export const btnPrimary =
+  "inline-flex items-center justify-center gap-1.5 rounded-full bg-canopy px-5 py-2.5 font-display-normal text-sm font-semibold text-mist hover:bg-canopy-soft disabled:cursor-not-allowed disabled:opacity-40";
+export const btnSecondary =
+  "inline-flex items-center justify-center gap-1.5 rounded-full border border-canopy/25 bg-paper px-5 py-2.5 font-display-normal text-sm font-semibold text-canopy hover:bg-mist-deep disabled:cursor-not-allowed disabled:opacity-40";
+export const btnText = "font-display-normal text-sm font-semibold text-reservoir underline underline-offset-4 hover:text-canopy";
+
+/** A clearly named expandable section; the summary says what's inside. */
+export function Disclosure({
+  title,
+  hint,
+  children,
+  open,
+  onToggle,
+  id,
+}: {
+  title: string;
+  hint?: string;
+  children: ReactNode;
+  open?: boolean;
+  onToggle?: (open: boolean) => void;
+  id?: string;
+}) {
+  return (
+    <details
+      id={id}
+      open={open}
+      onToggle={onToggle ? (e) => onToggle(e.currentTarget.open) : undefined}
+      className="group scroll-mt-24 rounded-xl border border-canopy/10 bg-paper"
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 font-display-normal [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0">
+          <span className="block text-[0.9375rem] font-semibold">{title}</span>
+          {hint && <span className="block text-sm text-canopy/70">{hint}</span>}
+        </span>
+        <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-full border border-canopy/20 text-base transition-transform group-open:rotate-45">
+          +
+        </span>
+      </summary>
+      <div className="border-t border-canopy/10 p-4">{children}</div>
+    </details>
+  );
+}
+
+/** Suggests one logical next action at the end of a task. */
+export function NextStep({ label, onClick, note }: { label: string; onClick: () => void; note?: string }) {
+  return (
+    <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-mist-deep/70 px-4 py-3">
+      <p className="font-display-normal text-sm text-canopy/80">{note ?? "Next step"}</p>
+      <button type="button" onClick={onClick} className={btnPrimary}>
+        {label} →
+      </button>
+    </div>
+  );
+}

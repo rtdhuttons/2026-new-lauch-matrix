@@ -63,7 +63,7 @@ const sources: SourceRecord[] = [
   { item: "JadeScape rental contracts", kind: "third-party", source: "Huttons JadeScape rental report (URA Realis, EdgeProp, EcoProp, Huttons)", checked: "2026-10-03", status: "verified" },
   { item: "Why JadeScape is a fair guide (developer, homes, storeys, MRT)", kind: "agent", source: "TRM comparison", checked: "2026-10-01", status: "estimated", note: "Awaiting confirmation of the JadeScape facts." },
   { item: "PIVOT scores, entry-price and exit-benchmark worked examples", kind: "agent", source: "TRM 'PIVOT' Matrix e-book, 2 Jul 2026", checked: "2026-07-02", status: "estimated", note: "Overall stated as 8.6/10; the five scores average 8.8. Method to confirm." },
-  { item: "Land bid: $810,000,000, $1,178 psf ppr", kind: "agent", source: "TRM 'PIVOT' Matrix e-book (page 14)", checked: "2026-07-02", status: "estimated", note: "Official URA tender record to be attached." },
+  { item: "Land bid: $810,000,000, $1,178 psf ppr", kind: "agent", source: "TRM 'PIVOT' Matrix e-book (page 14)", checked: "2026-07-02", status: "estimated", note: "Official URA tender record to be attached. $810M over the factsheet's buildable area (51,567 sq m × plot ratio 2.1) is about $695 psf ppr; the basis of $1,178 is to be confirmed." },
   { item: "Schools named near the site", kind: "developer", source: "Developer's location map", checked: "2026-09-30", status: "estimated", note: "Distances and P1 history not checked yet." },
 ];
 
@@ -85,11 +85,11 @@ export const thomsonReserve: ProjectBundle = {
     provenance: FACTSHEET,
   },
   copy: {
-    eyebrow: "Bright Hill Drive · Upper Thomson · Stack & Unit Selector",
+    eyebrow: "Bright Hill Drive · Upper Thomson",
     tagline:
       "A sanctuary between the reservoirs and the city. Find your stack and floor, see how the view and the sun change as you rise, and what each level could cost.",
     heroFacts: [
-      { label: "Homes", value: "1,268" },
+      { label: "Units", value: "1,268" },
       { label: "Towers", value: "6, of 21 and 30 storeys" },
       { label: "Upper Thomson MRT", value: "65 m covered link" },
     ],
@@ -229,7 +229,7 @@ export const thomsonReserve: ProjectBundle = {
     "School distances from the address, MOE distance categories and past P1 registration results.",
     "Alternative projects to compare, with dated prices.",
     "How the PIVOT overall rating is worked out (the e-book states 8.6/10; the five scores average 8.8).",
-    "Official record of the land tender (URA) to back the $810M land bid.",
+    "Official record of the land tender (URA) to back the $810M land bid, and the basis of $1,178 psf ppr (the factsheet's site area and plot ratio give about $695).",
     "Confirmation of the JadeScape facts in the fair-guide table.",
   ],
 };

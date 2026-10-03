@@ -1,5 +1,9 @@
 # TRM — Thomson Reserve website content
 
+> **Snapshot of 1 October 2026.** The website has since been reorganised into
+> seven tabs with simpler wording (see `docs/how-to-use.md` and
+> `docs/work-summary.md`). This file records the earlier wording.
+
 All the words on the TRM website, page by page and section by section, as
 they appear today. Use it to review or edit the wording, brief a designer or
 translator, or reuse the copy elsewhere.

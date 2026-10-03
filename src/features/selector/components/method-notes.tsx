@@ -8,9 +8,9 @@ const RULES: { title: string; body: string[] }[] = [
     body: [
       "Essentials come first: a unit must be on sale, within budget, match the bedroom count and, if you ask, have an estimated clear main view.",
       "Lifestyle fit is a weighted average of the criterion scores you weighted, using only criteria that have data. The share of your weights that had data is always shown. Missing values are never replaced with an average.",
-      "Best fit for your lifestyle is the highest fit within your extra-spend limit, with at least 70% of your weights covered.",
-      "Lowest entry price is the cheapest unit that meets your essentials.",
-      "Best supported value is the unit that adds the most fit points per $10,000 over the lowest entry price. It must add at least 5 points, have at least 80% coverage and a view category that is not uncertain at its floor. Otherwise the lowest entry unit is the value pick.",
+      "Highest fit for your priorities is the highest fit within your extra-spend limit, with at least 70% of your weights covered.",
+      "Lowest price that meets your needs is the cheapest unit that meets your essentials.",
+      "Most extra fit for the money is the unit that adds the most fit points per $10,000 over the lowest entry price. It must add at least 5 points, have at least 80% coverage and a view category that is not uncertain at its floor. Otherwise the lowest-priced unit is shown instead.",
       "Appreciation potential is never ranked: there are no verified repeat-sale transactions, so the app says “insufficient evidence”.",
     ],
   },
@@ -21,7 +21,7 @@ const RULES: { title: string; body: string[] }[] = [
       "Views: below obstruction 10, partially cleared 45, estimated clear 85, clear with limited further gain 90. Uncertain floors use the conservative category.",
       "Quiet & privacy: 100 minus 22, 10 or 3 points for each higher, moderate or lower potential source or privacy issue in the screening.",
       "MRT: 100 at 5 minutes' walk or less, falling to 0 at 15 minutes.",
-      "Exit appeal, out of 100: up to 50 points for less competition (fewer similar homes in the development), up to 30 points for the floor band's resale record at a comparable development (the weakest band 0, the strongest 30, in proportion to each band's annualised return), and 10 points for each distinctive feature, up to 20.",
+      "Exit appeal, out of 100: up to 50 points for less competition (fewer similar units in the project), up to 30 points for the floor band's resale record at a comparable development (the weakest band 0, the strongest 30, in proportion to each band's annualised return), and 10 points for each distinctive feature, up to 20.",
     ],
   },
   {

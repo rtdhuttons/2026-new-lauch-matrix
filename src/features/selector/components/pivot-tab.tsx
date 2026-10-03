@@ -9,7 +9,8 @@ import { useState } from "react";
 import type { PivotInfo } from "../model/project";
 import { averageScore, entryPsfSteps, exitPsfSteps, PIVOT_CATEGORIES } from "../lib/pivot";
 import { NotSupplied } from "./tabs";
-import { card, SectionHeading } from "./ui";
+import { EstimateTag } from "./unit-summary";
+import { card } from "./ui";
 
 const psf = (n: number) => `$${Math.round(n).toLocaleString("en-SG")} psf`;
 const exact = (n: number) => `$${n.toLocaleString("en-SG", { maximumFractionDigits: 1 })}`;
@@ -33,7 +34,26 @@ function NumberField({ id, label, value, onChange, step = 1, suffix }: { id: str
   );
 }
 
-export function PivotTab({ pivot, projectName, illustrativeAveragePsf }: { pivot: PivotInfo; projectName: string; illustrativeAveragePsf: number | null }) {
+export interface PivotUnit {
+  name: string;
+  price: number | null;
+  areaSqft: number | null;
+  isEstimate: boolean;
+}
+
+export function PivotTab({
+  pivot,
+  projectName,
+  illustrativeAveragePsf,
+  unit,
+  onChooseUnit,
+}: {
+  pivot: PivotInfo;
+  projectName: string;
+  illustrativeAveragePsf: number | null;
+  unit: PivotUnit | null;
+  onChooseUnit: () => void;
+}) {
   const [entry, setEntry] = useState(pivot.entry);
   const [exit, setExit] = useState(pivot.exit);
   const avg = averageScore(pivot);
@@ -41,9 +61,8 @@ export function PivotTab({ pivot, projectName, illustrativeAveragePsf }: { pivot
   if (!pivot.scores && !pivot.entry && !pivot.exit) {
     return (
       <div className="grid gap-6">
-        <SectionHeading title="PIVOT" lede="TRM's five-segment assessment: Product mix, Investment entry, Value-add, Opportunity zone and Timing of exit." />
         <NotSupplied
-          title={`PIVOT assessment for ${projectName}`}
+          title={`A PIVOT assessment has not been added for ${projectName}.`}
           needed={["TRM's scores and reasons for the five segments.", "Land bid evidence for the entry-price working.", "An older nearby project's prices for the exit benchmark."]}
         />
       </div>
@@ -55,10 +74,12 @@ export function PivotTab({ pivot, projectName, illustrativeAveragePsf }: { pivot
 
   return (
     <div className="grid grid-cols-1 gap-8 [&>*]:min-w-0">
-      <SectionHeading
-        title="PIVOT"
-        lede={`TRM's five-segment way to judge whether ${projectName} is worth buying. Scores and workings are from TRM's PIVOT e-book; change any input to test it.`}
-      />
+      <UnitAssessment unit={unit} entry={e?.estimate ?? null} exit={x?.estimate ?? null} onChooseUnit={onChooseUnit} />
+
+      <p className="-mb-4 max-w-[72ch] text-[0.9375rem] text-canopy/80">
+        PIVOT is TRM&apos;s five-part way to judge whether {projectName} is worth buying. Scores and workings below are from TRM&apos;s PIVOT e-book; change
+        any input to test it.
+      </p>
 
       {pivot.scores && (
         <div className={`${card} p-0`}>
@@ -144,7 +165,7 @@ export function PivotTab({ pivot, projectName, illustrativeAveragePsf }: { pivot
       )}
 
       <NotSupplied
-        title="Break-even price, holding periods and selling scenarios"
+        title="Break-even price, holding periods and selling scenarios aren't available yet."
         needed={[
           ...(pivot.overallMethod === null && pivot.overallStated !== null
             ? [`How the overall rating is worked out (stated ${pivot.overallStated}/10${avg !== null ? `; the five scores average ${avg.toFixed(1)}` : ""}).`]
@@ -159,3 +180,48 @@ export function PivotTab({ pivot, projectName, illustrativeAveragePsf }: { pivot
     </div>
   );
 }
+
+/** The selected unit against the entry estimate and the exit benchmark. Conditional, gross figures only. */
+function UnitAssessment({ unit, entry, exit, onChooseUnit }: { unit: PivotUnit | null; entry: number | null; exit: number | null; onChooseUnit: () => void }) {
+  if (!unit || unit.price === null || unit.areaSqft === null) {
+    return (
+      <div className={`${card} p-5`}>
+        <p className="font-display-normal font-semibold">Choose a unit to assess its entry price.</p>
+        <button type="button" onClick={onChooseUnit} className="mt-2 font-display-normal text-sm font-semibold text-reservoir underline underline-offset-4">
+          Choose a unit
+        </button>
+      </div>
+    );
+  }
+  const unitPsf = unit.price / unit.areaSqft;
+  const vsEntry = entry !== null ? unitPsf - entry : null;
+  const atExit = exit !== null ? exit * unit.areaSqft : null;
+  const gain = atExit !== null ? atExit - unit.price : null;
+  return (
+    <section aria-labelledby="pivot-unit" className="rounded-2xl bg-canopy p-5 text-mist sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 id="pivot-unit" className="font-display text-xl font-extrabold text-white">Assess this unit: {unit.name}</h3>
+        {unit.isEstimate && <EstimateTag />}
+      </div>
+      <dl className="mt-4 grid gap-3 font-display-normal sm:grid-cols-3">
+        <div className="rounded-xl bg-white/10 p-4">
+          <dt className="text-sm text-mist/75">Its price per sq ft</dt>
+          <dd className="text-2xl font-extrabold tabular-nums text-white">{psf(unitPsf)}</dd>
+          <dd className="text-xs text-mist/70">${unit.price.toLocaleString("en-SG")} ÷ {unit.areaSqft.toLocaleString("en-SG")} sq ft</dd>
+        </div>
+        <div className="rounded-xl bg-white/10 p-4">
+          <dt className="text-sm text-mist/75">Against the entry estimate</dt>
+          <dd className="text-2xl font-extrabold tabular-nums text-white">{vsEntry !== null ? `${vsEntry >= 0 ? "+" : "−"}${psf(Math.abs(vsEntry))}` : "—"}</dd>
+          <dd className="text-xs text-mist/70">{entry !== null ? `Entry estimate ${psf(entry)} from the land bid (below).` : "No entry estimate."}</dd>
+        </div>
+        <div className="rounded-xl bg-white/10 p-4">
+          <dt className="text-sm text-mist/75">If sold at the exit benchmark</dt>
+          <dd className="text-2xl font-extrabold tabular-nums text-white">{gain !== null ? `${gain >= 0 ? "+" : "−"}$${Math.round(Math.abs(gain)).toLocaleString("en-SG")}` : "—"}</dd>
+          <dd className="text-xs text-mist/70">{exit !== null ? `At ${psf(exit)} on completion. Gross: before stamp duty, fees, loan repayment and CPF refund.` : "No exit benchmark."}</dd>
+        </div>
+      </dl>
+      <p className="mt-3 text-xs text-mist/70">A scenario under the assumptions below, not a forecast or a guaranteed return.</p>
+    </section>
+  );
+}
+

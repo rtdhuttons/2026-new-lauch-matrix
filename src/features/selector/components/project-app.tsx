@@ -1,8 +1,11 @@
 "use client";
 
-// The project website: seven tabs in a fixed order for every project, with
-// the selected home and the shortlist kept as the buyer moves between them.
-// Everything project-specific comes from the bundle passed in.
+// The project website, shaped like a consultation: each tab says what the
+// buyer can do there, shows the useful information first and puts the
+// detail behind named sections, then suggests one next step. Seven tabs in
+// a fixed order for every project; the selected unit, the comparison and
+// the payment inputs stay as the buyer moves between them. Everything
+// project-specific comes from the bundle passed in.
 
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { ProjectBundle } from "../model/project";
@@ -10,19 +13,21 @@ import type { Unit } from "../model/types";
 import { FLOOR_BANDS } from "../lib/comparable";
 import { createEngine } from "../lib/engine";
 import type { PriceEstimate } from "../lib/estimate";
-import { applyPriceEstimate, averagePsf, canEstimate } from "../lib/estimate";
+import { applyPriceEstimate, averagePsf, canEstimate, describeEstimate, lowestHomeLevel } from "../lib/estimate";
+import type { PaymentInputs } from "../lib/payments";
+import { EMPTY_PAYMENT_INPUTS, estimatePayments } from "../lib/payments";
 import { compactMoney, money } from "../lib/format";
-import type { Preferences, Purpose } from "../lib/recommend";
+import type { Preferences } from "../lib/recommend";
 import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
 import { AssetImg } from "./asset-image";
+import { CompareCards } from "./compare-cards";
 import { Comparison } from "./comparison";
 import { ExitAppeal } from "./exit-appeal";
-import { FilterBar } from "./filter-bar";
-import { FloorPlan } from "./floor-plan";
 import { FloorProfit } from "./floor-profit";
 import { LocationSection } from "./location";
 import { MatchingHomes } from "./matching-homes";
 import { MethodNotes } from "./method-notes";
+import { PaymentCalculator } from "./payment-calculator";
 import { PivotTab } from "./pivot-tab";
 import { PreferencesPanel } from "./preferences-panel";
 import { PriceEstimateSection } from "./price-estimate";
@@ -30,14 +35,16 @@ import { Gallery, ProjectHero } from "./project-hero";
 import { Recommendations } from "./recommendations";
 import { RentalPotential } from "./rental-evidence";
 import { SchoolsTab } from "./schools-tab";
-import { MAX_SHORTLIST, ShortlistBar } from "./shortlist";
+import { comparisonFeedback, ComparisonBar, MAX_SHORTLIST, ShortlistButton, ShortlistDialog, useShortlistDialog } from "./shortlist";
 import { SiteView } from "./site-view";
 import { StackExplorer } from "./stack-explorer";
 import type { TabId } from "./tabs";
-import { NotSupplied, TabNav, tabFromHash, TABS } from "./tabs";
-import { card, SectionHeading } from "./ui";
+import { NotSupplied, TabIntro, TabNav, tabFromHash } from "./tabs";
+import { btnPrimary, btnSecondary, btnText, card, Disclosure, NextStep } from "./ui";
 import { UnitDetails } from "./unit-details";
-import { UnitPanel } from "./unit-panel";
+import type { UnitFilterState } from "./unit-filters";
+import { UnitFilters } from "./unit-filters";
+import { unitNumber, UnitSummary } from "./unit-summary";
 
 interface SavedSelection {
   shortlist: string[];
@@ -65,31 +72,30 @@ function saveSelection(id: string, s: SavedSelection) {
 }
 
 function scrollToId(id: string) {
-  requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start" }));
+  requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" }));
 }
 
-const JOURNEYS: { purpose: Purpose; title: string; body: string; steps: { tab: TabId; label: string }[] }[] = [
-  {
-    purpose: "own",
-    title: "Buying to live in",
-    body: "Start with the views, sun and floor plans, then check schools and what you'd pay each month.",
-    steps: [
-      { tab: "units", label: "Find a home" },
-      { tab: "schools", label: "Schools" },
-      { tab: "upgrading", label: "My Upgrading Plan" },
-    ],
-  },
-  {
-    purpose: "invest",
-    title: "Buying to invest",
-    body: "Start with past resale profits and rents at a comparable project, then test the PIVOT assessment.",
-    steps: [
-      { tab: "investor", label: "Investor" },
-      { tab: "pivot", label: "PIVOT" },
-      { tab: "alternatives", label: "Alternatives" },
-    ],
-  },
-];
+const NO_FILTERS: UnitFilterState = { floorBand: "any", blockId: "any" };
+
+function Step({ n, title, id, children, hint }: { n: number; title: string; id?: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <section id={id} aria-labelledby={`step-${n}`} className="mt-12 scroll-mt-24 first:mt-0">
+      <div className="mb-4 flex items-baseline gap-3">
+        <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-full bg-canopy font-display-normal text-sm font-bold text-mist">
+          {n}
+        </span>
+        <div>
+          <h3 id={`step-${n}`} className="font-display text-xl font-extrabold">
+            <span className="sr-only">Step {n}: </span>
+            {title}
+          </h3>
+          {hint && <p className="mt-0.5 text-[0.9375rem] text-canopy/75">{hint}</p>}
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export function ProjectApp({ project }: { project: ProjectBundle }) {
   const dataset = project.dataset;
@@ -116,7 +122,9 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
     const top = Math.max(0, ...start.units.map((u) => u.price ?? 0));
     return top > 0 ? { ...DEFAULT_PREFERENCES, budget: Math.ceil(top / 50_000) * 50_000 } : DEFAULT_PREFERENCES;
   });
-  const [floorBand, setFloorBand] = useState("any");
+  const [filters, setFilters] = useState<UnitFilterState>(NO_FILTERS);
+  const [browse, setBrowse] = useState<"site" | "list">("site");
+  const [payments, setPayments] = useState<PaymentInputs>(EMPTY_PAYMENT_INPUTS);
 
   const firstStack = dataset.stacks[0]?.id ?? "";
   const [stackId, setStackId] = useState(firstStack);
@@ -125,15 +133,16 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
     return levels[Math.floor(levels.length / 2)] ?? 1;
   });
   const [shortlist, setShortlist] = useState<string[]>([]);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [referenceId, setReferenceId] = useState<string | null>(
     () => dataset.units.filter((u) => u.stackId === firstStack).sort((a, b) => a.level - b.level)[0]?.id ?? null,
   );
-  const [analysisOpen, setAnalysisOpen] = useState(false);
   const [month, setMonth] = useState(5);
   const [minutes, setMinutes] = useState(16 * 60);
   const [shadowsSignal, setShadowsSignal] = useState(0);
   const [unitQuery, setUnitQuery] = useState("");
   const [unitQueryError, setUnitQueryError] = useState<string | null>(null);
+  const shortlistDialog = useShortlistDialog();
 
   // Restore the last selection and follow the address bar's tab. Saved
   // state is read after hydration (the server can't see it), so the first
@@ -167,6 +176,11 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   useEffect(() => {
     if (restored) saveSelection(project.id, { shortlist, stackId, level });
   }, [restored, project.id, shortlist, stackId, level]);
+  useEffect(() => {
+    if (!feedback) return;
+    const t = window.setTimeout(() => setFeedback(null), 4500);
+    return () => window.clearTimeout(t);
+  }, [feedback]);
 
   const goTo = (t: TabId, section?: string) => {
     setTab(t);
@@ -181,6 +195,8 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   const unit = ix.unitsInStack(stackId).find((u) => u.level === level) ?? null;
   const reference = referenceId ? ix.unit(referenceId) ?? null : null;
   const shortlistUnits = shortlist.map((id) => ix.unit(id)).filter((u): u is Unit => !!u);
+  const payment = unit ? estimatePayments(unit.price, payments) : null;
+  const priceNote = estimatable && estimateOn && deferredEstimate ? `Estimate: ${describeEstimate(deferredEstimate, lowestHomeLevel(dataset))}. Not the developer's price.` : null;
 
   const selectStack = (id: string) => {
     const levels = ix.levelsForStack(id);
@@ -191,9 +207,9 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
     setStackId(u.stackId);
     setLevel(u.level);
   };
-  const openInUnits = (u?: Unit) => {
-    if (u) selectUnit(u);
-    goTo("units", "units-selected");
+  const viewDetails = (u: Unit) => {
+    selectUnit(u);
+    goTo("units", "unit-details");
   };
 
   const showShadowsAt4pm = () => {
@@ -202,67 +218,108 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
     scrollToId("site-plan");
   };
 
-  // "#12-25", "12-25" or "12 25": level 12, stack 25.
+  // "#12-25", "12-25" or "12 25": floor 12, stack 25.
   const goToUnit = (query: string) => {
     const m = query.match(/(\d{1,2})\s*[-–\s]\s*(\d{1,2})/);
     const found = m ? ix.unit(`${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`) : undefined;
     if (!found) {
-      setUnitQueryError(m ? `There is no home #${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}.` : "Type a unit number such as #12-25.");
+      setUnitQueryError(m ? `There is no unit #${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}. Check the floor and stack numbers.` : "Type a unit number such as #12-25.");
       return;
     }
     setUnitQueryError(null);
     selectUnit(found);
+    scrollToId("unit-details");
   };
 
-  const toggleShortlist = (u: Unit) =>
-    setShortlist((list) => (list.includes(u.id) ? list.filter((id) => id !== u.id) : list.length >= MAX_SHORTLIST ? list : [...list, u.id]));
+  const toggleShortlist = (u: Unit) => {
+    if (shortlist.includes(u.id)) {
+      setShortlist(shortlist.filter((id) => id !== u.id));
+      setFeedback(`Unit ${unitNumber(u)} removed from the comparison.`);
+    } else if (shortlist.length >= MAX_SHORTLIST) {
+      setFeedback(comparisonFeedback(u, shortlist.length, false));
+    } else {
+      setShortlist([...shortlist, u.id]);
+      setFeedback(comparisonFeedback(u, shortlist.length + 1, true));
+    }
+  };
 
-  const band = FLOOR_BANDS.find((b) => b.id === floorBand);
+  const band = FLOOR_BANDS.find((b) => b.id === filters.floorBand);
   const topStorey = Math.max(...dataset.blocks.map((b) => b.storeys));
   const floorBands = FLOOR_BANDS.filter((b) => b.from <= topStorey).map((b) => ({
     id: b.id,
-    label: `${b.label} (${b.from}${Number.isFinite(b.to) && b.to < topStorey ? `–${b.to}` : "+"})`,
+    label: `${b.label} (floors ${b.from}${Number.isFinite(b.to) && b.to < topStorey ? `–${b.to}` : "+"})`,
   }));
-  // Homes that match the filters, highlighted in 3D and listed in Units & Payments.
+  // Units that match the filters: highlighted in the site view and listed in the unit list.
   const focus = useCallback(
     (u: Unit) =>
       (prefs.bedrooms === "any" || ix.stackLayout(u.stackId).bedrooms === prefs.bedrooms) &&
       (u.price === null || u.price <= prefs.budget) &&
-      (!band || (u.level >= band.from && u.level <= band.to)),
-    [ix, prefs.bedrooms, prefs.budget, band],
+      (!band || (u.level >= band.from && u.level <= band.to)) &&
+      (filters.blockId === "any" || ix.stackBlock(u.stackId).id === filters.blockId),
+    [ix, prefs.bedrooms, prefs.budget, band, filters.blockId],
   );
   const matching = useMemo(() => priced.units.filter(focus), [priced, focus]);
   const bedroomOptions = [...new Set(dataset.layouts.map((l) => l.bedrooms).filter((b): b is number => b !== null))].sort();
-
-  const openAnalysis = () => {
-    setAnalysisOpen(true);
-    scrollToId("analysis");
+  const clearFilters = () => {
+    setFilters(NO_FILTERS);
+    setPrefs((p) => ({ ...p, bedrooms: "any", budget: budgetRange.max || p.budget }));
   };
 
   const priceFact =
     estimatable && estimateOn && deferredEstimate
-      ? { label: "Illustrative price from", value: `$${deferredEstimate.basePsf.toLocaleString("en-SG")} psf` }
+      ? { label: "Estimated price from", value: `$${deferredEstimate.basePsf.toLocaleString("en-SG")} psf` }
       : project.profile.tenure
         ? { label: "Tenure", value: project.profile.tenure }
         : null;
   const heroFacts = [...project.copy.heroFacts];
   if (priceFact) heroFacts.splice(2, 0, priceFact);
-
-  const unitPanelProps = {
-    engine,
-    stackId,
-    unit,
-    level,
-    onLevel: setLevel,
-    onCompare: toggleShortlist,
-    inCompare: unit ? shortlist.includes(unit.id) : false,
-    compareFull: shortlist.length >= MAX_SHORTLIST,
-    onFullAnalysis: () => {
-      goTo("project");
-      openAnalysis();
-    },
-    mrtName: project.profile.nearestMrt,
+  const layoutName = (u: Unit) => {
+    const l = ix.stackLayout(u.stackId);
+    return l.category ?? (l.bedrooms ? `${l.bedrooms}-bedroom` : l.name);
   };
+
+  const summary = (extra?: React.ReactNode) => (
+    <UnitSummary
+      engine={engine}
+      unit={unit}
+      stackId={stackId}
+      level={level}
+      onLevel={setLevel}
+      inComparison={unit ? shortlist.includes(unit.id) : false}
+      comparisonFull={shortlist.length >= MAX_SHORTLIST}
+      onToggleComparison={toggleShortlist}
+      onViewPayments={() => goTo("units", "payments")}
+      payment={payment?.ok ? payment.value : null}
+      priceNote={priceNote}
+      mrtName={project.profile.nearestMrt}
+      footer={extra}
+    />
+  );
+
+  const siteView = (
+    <SiteView
+      engine={engine}
+      ranked={ranked}
+      selectedStackId={stackId}
+      selectedUnit={unit}
+      level={level}
+      onSelectStack={selectStack}
+      onSelectUnit={selectUnit}
+      month={month}
+      minutes={minutes}
+      onMonth={setMonth}
+      onMinutes={setMinutes}
+      shadowsSignal={shadowsSignal}
+      focus={focus}
+    />
+  );
+
+  /** On phones the details sit below the site view, so offer a jump after a tap. */
+  const jumpToDetails = unit && (
+    <button type="button" onClick={() => scrollToId("unit-details")} className={`${btnSecondary} mt-3 w-full lg:hidden`}>
+      View details of unit {unitNumber(unit)} ↓
+    </button>
+  );
 
   const unitSearch = (
     <form
@@ -273,19 +330,19 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       }}
       className="flex flex-wrap items-center gap-1.5"
     >
-      <label htmlFor="unit-search" className="sr-only">Go to a unit number</label>
+      <label htmlFor="unit-search" className="sr-only">Unit number</label>
       <input
         id="unit-search"
         type="search"
         inputMode="numeric"
         value={unitQuery}
         onChange={(e) => setUnitQuery(e.target.value)}
-        placeholder="Unit no., e.g. #12-25"
+        placeholder="e.g. #12-25"
         aria-describedby={unitQueryError ? "unit-search-error" : undefined}
-        className="w-44 rounded-full border border-canopy/15 bg-paper px-4 py-2 font-display-normal text-sm"
+        className="w-40 rounded-full border border-canopy/25 bg-paper px-4 py-2 font-display-normal text-sm"
       />
-      <button type="submit" className="rounded-full bg-canopy px-4 py-2 font-display-normal text-sm font-semibold text-mist">
-        Go
+      <button type="submit" className={`${btnSecondary} px-4 py-2`}>
+        Show this unit
       </button>
       {unitQueryError && (
         <p id="unit-search-error" role="alert" className="w-full font-display-normal text-sm text-[#9b2f28]">
@@ -299,32 +356,55 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
     id: `panel-${id}`,
     role: "tabpanel" as const,
     "aria-labelledby": `tab-${id}`,
-    hidden: tab !== id,
-    className: "mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-8",
+    className: "mx-auto max-w-7xl px-4 pb-32 pt-8 sm:px-8",
   });
 
   const isSample = project.status === "sample";
   const avgPsf = estimatable && estimateOn && deferredEstimate ? averagePsf(dataset, deferredEstimate) : null;
+  const unitLayout = unit ? ix.stackLayout(unit.stackId) : null;
+
+  const intro = (
+    <>
+      <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-white/90 sm:text-xl">
+        Explore {project.profile.name}, compare units, and understand your next purchase.
+      </p>
+      <div className="mt-5 flex flex-wrap items-center gap-3 [text-shadow:none]">
+        <button type="button" onClick={() => goTo("units")} className="rounded-full bg-white px-6 py-3 font-display-normal text-[0.9375rem] font-semibold text-canopy hover:bg-mist">
+          Explore units
+        </button>
+        <button type="button" onClick={() => goTo("project", "explore")} className="rounded-full border border-white/50 px-5 py-2.5 font-display-normal text-sm font-semibold text-white hover:bg-white/10">
+          View project &amp; site
+        </button>
+        <button type="button" onClick={() => goTo("investor")} className="px-2 py-2 font-display-normal text-sm font-semibold text-white/85 underline underline-offset-4 hover:text-white">
+          Investing? View investment analysis
+        </button>
+      </div>
+    </>
+  );
 
   return (
     <>
       <div className={isSample ? "border-b border-[#e8b4ad] bg-[#fbe9e6]" : "border-b border-[#e2cf9f] bg-[#f4ead3]"}>
-        <p className={`mx-auto max-w-7xl px-4 py-2.5 font-display-normal text-sm sm:px-8 ${isSample ? "text-[#7a231b]" : "text-[#5c3f0b]"}`}>
-          <strong className="font-semibold">{isSample ? "Sample project — fictional data, not for publication." : "Work in progress."}</strong>{" "}
-          {dataset.project.display?.notice ?? dataset.project.demoNotice}
+        <p className={`mx-auto max-w-7xl px-4 py-2 font-display-normal text-sm sm:px-8 ${isSample ? "text-[#7a231b]" : "text-[#5c3f0b]"}`}>
+          <strong className="font-semibold">{isSample ? "Sample project — fictional data, not for publication." : estimatable ? "Prices are estimates." : "Work in progress."}</strong>{" "}
+          {isSample
+            ? dataset.project.display?.notice ?? dataset.project.demoNotice
+            : estimatable
+              ? "The developer's price list hasn't been released. Each section shows its sources and dates."
+              : dataset.project.display?.notice ?? ""}
         </p>
       </div>
 
       {project.media.hero ? (
         <ProjectHero image={project.media.hero} name={project.profile.name} eyebrow={project.copy.eyebrow} facts={heroFacts}>
-          <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-white/90 sm:text-xl">{project.copy.tagline}</p>
+          {intro}
         </ProjectHero>
       ) : (
         <section aria-label={`${project.profile.name} at a glance`} className="bg-canopy text-white">
           <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8">
             <p className="font-display-normal text-sm font-semibold uppercase tracking-[0.18em] text-white/80">{project.copy.eyebrow}</p>
             <h1 className="mt-2 font-display text-[2.6rem] font-extrabold leading-none tracking-tight sm:text-6xl">{project.profile.name}</h1>
-            <p className="mt-4 max-w-[60ch] text-lg text-white/85">{project.copy.tagline}</p>
+            {intro}
             <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-white/25 pt-4 sm:grid-cols-4">
               {heroFacts.map((f) => (
                 <div key={f.label}>
@@ -338,262 +418,230 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       )}
 
       <div id="project-tabs" className="scroll-mt-0">
-        <TabNav active={tab} onChange={(t) => goTo(t)} />
+        <TabNav active={tab} onChange={(t) => goTo(t)} shortlistButton={<ShortlistButton count={shortlist.length} onOpen={shortlistDialog.open} />} />
       </div>
 
-      {/* 1. Project & 3D Site — kept mounted so the 3D view keeps its camera between tabs. */}
-      <div {...panel("project")}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {JOURNEYS.map((j) => (
-            <div key={j.purpose} className={`${card} p-5 ${prefs.purpose === j.purpose ? "ring-2 ring-canopy" : ""}`}>
-              <p className="font-display text-lg font-extrabold">{j.title}</p>
-              <p className="mt-1 text-[0.9375rem] text-canopy/80">{j.body}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {j.steps.map((s) => (
-                  <button
-                    key={s.tab}
-                    type="button"
-                    onClick={() => {
-                      setPrefs((p) => ({ ...p, purpose: j.purpose }));
-                      goTo(s.tab);
-                    }}
-                    className="rounded-full border border-canopy/20 px-3.5 py-1.5 font-display-normal text-sm font-semibold hover:bg-mist-deep"
-                  >
-                    {s.label} →
-                  </button>
-                ))}
+      {/* 1. Project & 3D Site */}
+      {tab === "project" && (
+        <div {...panel("project")}>
+          <TabIntro tab="project" />
+          <section id="explore" aria-label="Site view" className="scroll-mt-24">
+            <p className="mb-3 font-display-normal text-sm text-canopy/75">
+              Tap any unit to see its details. Units that don&apos;t match your filters are faded ({matching.length.toLocaleString("en-SG")} of{" "}
+              {priced.units.length.toLocaleString("en-SG")} match).{" "}
+              <button type="button" onClick={() => goTo("units")} className={btnText}>Change filters</button>
+            </p>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
+              <div id="site-plan" className={`${card} scroll-mt-24 p-3 sm:p-4`}>
+                {siteView}
+                {jumpToDetails}
+              </div>
+              <div id="unit-details" className="scroll-mt-24 lg:sticky lg:top-20 lg:self-start">
+                {summary(
+                  unit && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilters({ ...NO_FILTERS, blockId: ix.stackBlock(unit.stackId).id });
+                        setBrowse("list");
+                        goTo("units", "select-unit");
+                      }}
+                      className={`${btnText} mt-3 block`}
+                    >
+                      Explore units in {ix.stackBlock(unit.stackId).name} →
+                    </button>
+                  ),
+                )}
               </div>
             </div>
-          ))}
-        </div>
 
-        <section id="explore" aria-labelledby="explore-title" className="mt-10 scroll-mt-20">
-          <SectionHeading id="explore-title" title="The site in 3D" lede="Tap any home on the model for its price, facing and view, then open it in Units & Payments for the floor plan and costs." />
-          <p className="-mt-2 mb-4 font-display-normal text-sm text-canopy/75">
-            {matching.length.toLocaleString("en-SG")} of {priced.units.length.toLocaleString("en-SG")} homes match your filters; the rest are faded.{" "}
-            <button type="button" onClick={() => goTo("units")} className="font-semibold text-reservoir underline underline-offset-4">
-              Change filters
-            </button>
-          </p>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
-            <div id="site-plan" className={`${card} scroll-mt-20 p-3 sm:p-4`}>
-              <SiteView
-                engine={engine}
-                ranked={ranked}
-                selectedStackId={stackId}
-                selectedUnit={unit}
-                level={level}
-                onSelectStack={selectStack}
-                onSelectUnit={selectUnit}
-                month={month}
-                minutes={minutes}
-                onMonth={setMonth}
-                onMinutes={setMinutes}
-                shadowsSignal={shadowsSignal}
-                focus={focus}
-              />
+            <div className="mt-6">
+              <Disclosure id="analysis" title={`Sun, privacy and view for every floor of stack ${stackId}`} hint="A stack is a column of units directly above one another, with the same layout and facing.">
+                <div className="grid grid-cols-1 gap-6 [&>*]:min-w-0">
+                  <StackExplorer
+                    engine={engine}
+                    stackId={stackId}
+                    level={level}
+                    onLevel={setLevel}
+                    reference={reference}
+                    onSetReference={(u) => setReferenceId(u.id)}
+                    shortlist={shortlist}
+                    onToggleShortlist={toggleShortlist}
+                    onShowShadows={showShadowsAt4pm}
+                  />
+                  <UnitDetails engine={engine} unit={unit} reference={reference} month={month} minutes={minutes} onMonth={setMonth} onMinutes={setMinutes} />
+                </div>
+              </Disclosure>
             </div>
-            <div className="lg:sticky lg:top-20 lg:self-start">
-              <UnitPanel {...unitPanelProps} onOpenUnits={() => openInUnits()} />
-            </div>
-          </div>
+          </section>
 
-          <details
-            id="analysis"
-            open={analysisOpen}
-            onToggle={(e) => setAnalysisOpen(e.currentTarget.open)}
-            className="group mt-6 scroll-mt-20 rounded-2xl border border-canopy/10 bg-paper"
-          >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-display-normal [&::-webkit-details-marker]:hidden">
-              <span>
-                <span className="block font-display text-lg font-extrabold">Sun, facing, privacy and view: stack {stackId}</span>
-                <span className="block text-sm text-canopy/75">Every floor&apos;s view clearance, afternoon sun, noise and privacy, and walk to the MRT.</span>
-              </span>
-              <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full border border-canopy/20 text-lg transition-transform group-open:rotate-45">+</span>
-            </summary>
-            <div className="grid grid-cols-1 gap-6 border-t border-canopy/10 p-3 sm:p-5 [&>*]:min-w-0">
-              <StackExplorer
-                engine={engine}
-                stackId={stackId}
-                level={level}
-                onLevel={setLevel}
-                reference={reference}
-                onSetReference={(u) => setReferenceId(u.id)}
-                shortlist={shortlist}
-                onToggleShortlist={toggleShortlist}
-                onShowShadows={showShadowsAt4pm}
-              />
-              <UnitDetails engine={engine} unit={unit} reference={reference} month={month} minutes={minutes} onMonth={setMonth} onMinutes={setMinutes} />
-            </div>
-          </details>
-        </section>
+          <section id="gallery" aria-labelledby="gallery-title" className="mt-14 scroll-mt-24">
+            <h3 id="gallery-title" className="mb-1 font-display text-xl font-extrabold">{project.copy.galleryTitle}</h3>
+            <p className="mb-4 text-canopy/75">{project.copy.galleryLede}</p>
+            {project.media.gallery.length > 0 ? (
+              <Gallery images={project.media.gallery} />
+            ) : (
+              <NotSupplied title="Renders have not been added for this project." needed={["The developer's renders, each labelled as an artist's impression."]} />
+            )}
+          </section>
 
-        <section id="gallery" aria-labelledby="gallery-title" className="mt-16 scroll-mt-20">
-          <SectionHeading id="gallery-title" title={project.copy.galleryTitle} lede={project.copy.galleryLede} />
-          {project.media.gallery.length > 0 ? (
-            <Gallery images={project.media.gallery} />
-          ) : (
-            <NotSupplied title="Renders and photos" needed={["The developer's renders, each labelled as an artist's impression."]} />
-          )}
-        </section>
+          <section id="location" aria-labelledby="location-title" className="mt-14 scroll-mt-24">
+            <h3 id="location-title" className="mb-1 font-display text-xl font-extrabold">{project.copy.locationTitle}</h3>
+            <p className="mb-4 text-canopy/75">{project.copy.locationLede}</p>
+            {project.location ? (
+              <LocationSection location={project.location} projectName={project.profile.name} />
+            ) : (
+              <NotSupplied title="Location information has not been added for this project." needed={["The developer's location map.", "Nearby transport, nature, food and shopping, from the developer's material."]} />
+            )}
+          </section>
 
-        <section id="location" aria-labelledby="location-title" className="mt-16 scroll-mt-20">
-          <SectionHeading id="location-title" title={project.copy.locationTitle} lede={project.copy.locationLede} />
-          {project.location ? (
-            <LocationSection location={project.location} projectName={project.profile.name} />
-          ) : (
-            <NotSupplied title="Location" needed={["The developer's location map.", "Nearby transport, nature, food and shopping, from the developer's material."]} />
-          )}
-        </section>
-
-        <section id="method" aria-labelledby="method-title" className="mt-16 scroll-mt-20">
-          <details className="rounded-2xl border border-canopy/10 bg-paper">
-            <summary className="cursor-pointer px-5 py-4">
-              <span id="method-title" className="font-display text-lg font-extrabold">How this works and where the data comes from</span>
-            </summary>
-            <div className="border-t border-canopy/10 p-3 sm:p-5">
+          <section id="method" className="mt-14 scroll-mt-24">
+            <Disclosure title="Assumptions & sources" hint="How each figure is worked out, where it comes from and what's still missing">
               <MethodNotes gaps={project.gaps} sources={project.sources} map={dataset.project.display?.mapContext ? { note: dataset.project.display.mapContext.provenance.note } : null} />
-            </div>
-          </details>
-        </section>
-      </div>
+            </Disclosure>
+          </section>
+
+          <NextStep note={unit ? `Unit ${unitNumber(unit)} is selected.` : "Ready to look at units?"} label="Explore units" onClick={() => goTo("units")} />
+        </div>
+      )}
 
       {/* 2. Units & Payments */}
       {tab === "units" && (
         <div {...panel("units")}>
-          <SectionHeading title="Units & Payments" lede="Choose a bedroom count, budget or floor, pick a home, and compare up to three." />
-          <FilterBar
-            prefs={prefs}
-            onChange={setPrefs}
-            bedroomOptions={bedroomOptions}
-            budgetMax={budgetRange.max}
-            matches={matching.length}
-            unitSearch={unitSearch}
-            floorBand={floorBand}
-            floorBands={floorBands}
-            onFloorBand={setFloorBand}
-          />
+          <TabIntro tab="units" />
 
-          <section id="units-selected" aria-label="Selected home" className="mt-6 grid scroll-mt-20 grid-cols-1 gap-6 lg:grid-cols-[380px_minmax(0,1fr)] [&>*]:min-w-0">
-            <UnitPanel {...unitPanelProps} showPlan={false} />
-            <div className={`${card} p-3 sm:p-4`}>
-              {unit?.floorPlan ? (
-                <FloorPlan unit={unit} />
-              ) : (
-                <p className="p-4 text-canopy/75">{unit ? "No floor plan supplied for this home's type yet." : "Select a home to see its floor plan."}</p>
-              )}
-            </div>
-          </section>
-
-          <section aria-labelledby="matching-title" className="mt-10">
-            <h2 id="matching-title" className="mb-3 font-display text-xl font-extrabold">Homes that match</h2>
-            <MatchingHomes
-              engine={engine}
-              units={matching}
-              selectedId={unit?.id ?? null}
-              shortlist={shortlist}
-              onSelect={(u) => {
-                selectUnit(u);
-                scrollToId("units-selected");
-              }}
-              onToggleShortlist={toggleShortlist}
-              shortlistFull={shortlist.length >= MAX_SHORTLIST}
-            />
-          </section>
-
-          <section id="compare" aria-labelledby="compare-title" className="mt-14 scroll-mt-20">
-            <SectionHeading id="compare-title" title="Compare your shortlist" lede="Up to three homes side by side: layout, facing, view, price and premiums, with data confidence." />
-            <Comparison
-              engine={engine}
-              shortlist={shortlistUnits}
-              reference={reference}
+          <Step n={1} title="Choose bedroom type">
+            <UnitFilters
               prefs={prefs}
-              onRemove={toggleShortlist}
-              onOpen={(u) => {
-                selectUnit(u);
-                scrollToId("units-selected");
-              }}
-              onSetReference={(u) => setReferenceId(u.id)}
+              onPrefs={setPrefs}
+              filters={filters}
+              onFilters={setFilters}
+              bedroomOptions={bedroomOptions}
+              budgetMax={budgetRange.max}
+              floorBands={floorBands}
+              blocks={dataset.blocks.map((b) => ({ id: b.id, name: b.name }))}
+              matches={matching.length}
+              unitSearch={unitSearch}
+              onClear={clearFilters}
             />
-          </section>
+          </Step>
 
-          <section id="payments" aria-labelledby="payments-title" className="mt-14 scroll-mt-20">
-            <SectionHeading id="payments-title" title="Payments and affordability" lede="Cash and CPF needed, progress payments during construction, and monthly loan payments." />
-            <NotSupplied
-              title="Payment and affordability planner"
-              needed={[
-                "The developer's payment schedule for this project.",
-                "The latest dated price list and availability.",
-                "Maintenance fee estimates, if available.",
-                "Any financing examples you want to use (fictional buyers only).",
-              ]}
-            >
-              <p>
-                {project.profile.expectedCompletion
-                  ? `Known so far: expected vacant possession ${new Date(`${project.profile.expectedCompletion.date}T00:00:00Z`).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })} (${project.profile.expectedCompletion.provenance.source}). ${project.profile.expectedCompletion.provenance.note ?? ""}`
-                  : "Expected completion date not supplied."}
-              </p>
-              <p className="mt-1">
-                The planner will use the shortlisted homes above, so prices won&apos;t need to be typed in again. Until a dated price list arrives, any prices
-                it uses stay marked as estimates.
-              </p>
-            </NotSupplied>
-          </section>
-
-          {estimatable && estimate && defaults && (
-            <section id="prices" aria-labelledby="prices-title" className="mt-14 scroll-mt-20">
-              <SectionHeading
-                id="prices-title"
-                title="Illustrative prices"
-                lede="The price list isn't out yet. Set a starting PSF and a step per floor to see what each unit type could cost; every price on the site follows these assumptions."
-              />
-              <PriceEstimateSection
-                base={dataset}
-                priced={priced}
-                enabled={estimateOn}
-                onEnabled={setEstimateOn}
-                estimate={estimate}
-                onEstimate={setEstimate}
-                defaults={defaults}
-                bedrooms={prefs.bedrooms}
-              />
-            </section>
-          )}
-
-          <section id="recommendations" aria-labelledby="rec-title" className="mt-14 scroll-mt-20">
-            <SectionHeading id="rec-title" title="Recommendations" lede="Three separate answers, each with its reasons and trade-offs, based on your filters and preferences." />
-            <Recommendations
-              engine={engine}
-              recs={recs}
-              shortlist={shortlist}
-              onOpen={(u) => {
-                selectUnit(u);
-                scrollToId("units-selected");
-              }}
-              onToggleShortlist={toggleShortlist}
-            />
-            <details className="mt-4 rounded-2xl border border-canopy/10 bg-paper">
-              <summary className="cursor-pointer px-5 py-4 font-display-normal text-sm font-semibold">Fine-tune your preferences ({eligibleCount} homes meet them)</summary>
-              <div className="border-t border-canopy/10 p-5">
-                <PreferencesPanel prefs={prefs} onChange={setPrefs} eligibleCount={eligibleCount} budgetRange={budgetRange} />
+          <Step n={2} id="select-unit" title="Select a unit" hint="Browse on the site or as a list; your selection stays the same either way.">
+            <div role="group" aria-label="Browse units by" className="mb-4 inline-flex rounded-full border border-canopy/15 bg-paper p-1">
+              {([
+                ["site", "Site view"],
+                ["list", "Unit list"],
+              ] as const).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={browse === id}
+                  onClick={() => setBrowse(id)}
+                  className={`rounded-full px-5 py-2 font-display-normal text-sm font-semibold ${browse === id ? "bg-canopy text-mist" : "text-canopy/75"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
+              <div>
+                {browse === "site" ? (
+                  <div id="site-plan" className={`${card} p-3 sm:p-4`}>
+                    {siteView}
+                    {jumpToDetails}
+                  </div>
+                ) : (
+                  <MatchingHomes
+                    engine={engine}
+                    units={matching}
+                    selectedId={unit?.id ?? null}
+                    shortlist={shortlist}
+                    onSelect={(u) => {
+                      selectUnit(u);
+                      if (window.matchMedia("(max-width: 1023px)").matches) scrollToId("unit-details");
+                    }}
+                    onToggleShortlist={(u) => {
+                      // Adding a unit also selects it, so its details and payments follow.
+                      if (!shortlist.includes(u.id)) selectUnit(u);
+                      toggleShortlist(u);
+                    }}
+                    shortlistFull={shortlist.length >= MAX_SHORTLIST}
+                  />
+                )}
               </div>
-            </details>
-          </section>
+              <div id="unit-details" className="scroll-mt-24 lg:sticky lg:top-20 lg:self-start">
+                {summary()}
+              </div>
+            </div>
+          </Step>
+
+          <Step n={3} id="compare" title="Compare units" hint="Up to three units side by side, with the differences that matter.">
+            <CompareCards engine={engine} units={shortlistUnits} payments={payments} onRemove={toggleShortlist} onSelect={viewDetails} />
+            {shortlistUnits.length >= 2 && (
+              <div className="mt-4">
+                <Disclosure title="All factors" hint="Sun, noise and privacy, MRT walk, resale competition and how reliable each figure is">
+                  <Comparison
+                    engine={engine}
+                    shortlist={shortlistUnits}
+                    reference={reference}
+                    prefs={prefs}
+                    onRemove={toggleShortlist}
+                    onOpen={viewDetails}
+                    onSetReference={(u) => setReferenceId(u.id)}
+                  />
+                </Disclosure>
+                <NextStep note="Seen the differences?" label="Compare payment estimates" onClick={() => scrollToId("payments")} />
+              </div>
+            )}
+          </Step>
+
+          <Step n={4} id="payments" title="Payment estimate" hint="Enter your own figures; nothing is saved or sent anywhere.">
+            <PaymentCalculator unit={unit} unitName={unit ? layoutName(unit) : null} inputs={payments} onInputs={setPayments} payments={project.payments} profile={project.profile} />
+            {payment?.ok && <NextStep note="Upgrading from a home you own?" label="Plan my upgrade" onClick={() => goTo("upgrading")} />}
+          </Step>
+
+          <div className="mt-12 grid gap-3">
+            {estimatable && estimate && defaults && (
+              <Disclosure id="prices" title="Price by floor for every unit type" hint={priceNote ?? undefined}>
+                <PriceEstimateSection
+                  base={dataset}
+                  priced={priced}
+                  enabled={estimateOn}
+                  onEnabled={setEstimateOn}
+                  estimate={estimate}
+                  onEstimate={setEstimate}
+                  defaults={defaults}
+                  bedrooms={prefs.bedrooms}
+                />
+              </Disclosure>
+            )}
+            <Disclosure id="recommendations" title="Suggested units for your priorities" hint={`Three picks, each with its reasons and trade-offs (${eligibleCount.toLocaleString("en-SG")} units meet your needs)`}>
+              <Recommendations engine={engine} recs={recs} shortlist={shortlist} onOpen={viewDetails} onToggleShortlist={toggleShortlist} />
+              <div className="mt-4">
+                <Disclosure title="Change what matters to you" hint="Budget, bedrooms and how much each factor counts">
+                  <PreferencesPanel prefs={prefs} onChange={setPrefs} eligibleCount={eligibleCount} budgetRange={budgetRange} />
+                </Disclosure>
+              </div>
+            </Disclosure>
+          </div>
         </div>
       )}
 
       {/* 3. Schools */}
       {tab === "schools" && (
         <div {...panel("schools")}>
+          <TabIntro tab="schools" />
           <SchoolsTab
             schools={project.schools}
             projectName={project.profile.name}
             map={
               project.location?.map ? (
-                <figure className={`${card} overflow-hidden p-0`}>
-                  <AssetImg src={project.location.map.src} srcSet={project.location.map.srcSet} sizes="(min-width: 1024px) 1100px, 100vw" alt={project.location.map.alt} loading="lazy" className="block h-auto w-full" />
-                  <figcaption className="px-4 py-2.5 font-display-normal text-xs text-stone">{project.location.mapCaption}</figcaption>
-                </figure>
+                <Disclosure title="Location map" hint="The developer's map, showing the schools named here">
+                  <figure>
+                    <AssetImg src={project.location.map.src} srcSet={project.location.map.srcSet} sizes="(min-width: 1024px) 1100px, 100vw" alt={project.location.map.alt} loading="lazy" className="block h-auto w-full rounded-lg" />
+                    <figcaption className="pt-2 font-display-normal text-xs text-stone">{project.location.mapCaption}</figcaption>
+                  </figure>
+                </Disclosure>
               ) : null
             }
           />
@@ -603,72 +651,68 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       {/* 4. Investor */}
       {tab === "investor" && (
         <div {...panel("investor")}>
-          <SectionHeading title="Investor" lede="What owners made when they resold at a comparable project, and what similar homes rent for." />
-          <section id="floor-profit" aria-labelledby="hist-title" className="scroll-mt-20">
-            <h2 id="hist-title" className="mb-1 font-display text-2xl font-extrabold">Historical profitability</h2>
+          <TabIntro tab="investor" />
+          <section id="floor-profit" aria-labelledby="hist-title" className="scroll-mt-24">
+            <h3 id="hist-title" className="font-display text-xl font-extrabold">Past resale results</h3>
             {project.comparables.length > 0 ? (
               project.comparables.map((c) => (
-                <div key={c.project.name} className="mt-4">
+                <div key={c.project.name} className="mt-2">
                   <p className="mb-4 max-w-[72ch] text-[1rem] text-canopy/80">
-                    Recorded gross gains (sale price minus purchase price, before costs) at {c.project.name}
-                    {c.project.location ? `, ${c.project.location}` : ""}, by floor band. Not net returns.
+                    Recorded gains when owners resold at {c.project.name}
+                    {c.project.location ? `, ${c.project.location}` : ""}, by floor: sale price minus purchase price, before costs. Not net returns, and not a
+                    forecast for {project.profile.name}.
                   </p>
                   <FloorProfit evidence={c} subjectName={project.profile.name} />
                 </div>
               ))
             ) : (
-              <NotSupplied title="Comparison project resales" needed={["Matched purchase-and-sale records for one or more comparable projects, with why each is relevant."]} />
+              <div className="mt-3">
+                <NotSupplied title="Comparable resale records have not been added for this project." needed={["Matched purchase-and-sale records for one or more comparable projects, with why each is relevant."]} />
+              </div>
             )}
             <div className="mt-6">
-              <ExitAppeal engine={engine} unit={unit} />
+              <Disclosure title={`Exit appeal score${unit ? ` for unit ${unitNumber(unit)}` : ""}`} hint="What it measures and what it can't tell you">
+                <ExitAppeal engine={engine} unit={unit} />
+              </Disclosure>
             </div>
           </section>
-          <section id="rental" aria-labelledby="rent-title" className="mt-14 scroll-mt-20">
-            <h2 id="rent-title" className="mb-3 font-display text-2xl font-extrabold">Rental potential</h2>
+          <section id="rental" aria-labelledby="rent-title" className="mt-14 scroll-mt-24">
+            <h3 id="rent-title" className="mb-3 font-display text-xl font-extrabold">Rental potential</h3>
             <RentalPotential evidence={project.rentals} engine={engine} unit={unit} />
           </section>
+          <NextStep note="Reviewed the past results?" label="Explore exit scenarios" onClick={() => goTo("pivot")} />
         </div>
       )}
 
       {/* 5. Alternative Projects */}
       {tab === "alternatives" && (
         <div {...panel("alternatives")}>
-          <SectionHeading title="Alternative Projects" lede={`How ${project.profile.name} compares with other projects within your budget.`} />
+          <TabIntro tab="alternatives" />
           {project.alternatives.length > 0 ? (
-            <div className={`${card} overflow-x-auto p-0`}>
-              <table className="w-full min-w-[720px] border-collapse font-display-normal text-sm">
-                <thead>
-                  <tr className="bg-canopy text-left text-xs uppercase tracking-[0.08em] text-mist">
-                    <th className="px-4 py-3">Project</th>
-                    <th className="px-3 py-3">Why consider it</th>
-                    <th className="px-3 py-3">Tenure</th>
-                    <th className="px-3 py-3">Completion</th>
-                    <th className="px-4 py-3">Prices (labelled)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {project.alternatives.map((a) => (
-                    <tr key={a.name} className="border-t border-canopy/10 align-top">
-                      <th scope="row" className="px-4 py-3 text-left font-semibold">{a.name}</th>
-                      <td className="px-3 py-3">{a.why}</td>
-                      <td className="px-3 py-3">{a.tenure ?? "—"}</td>
-                      <td className="px-3 py-3">{a.completion ?? "—"}</td>
-                      <td className="px-4 py-3">
-                        {a.prices.map((p, i) => (
-                          <span key={i} className="block">
-                            {p.basis === "asking" ? "Asking" : p.basis === "developer-guide" ? "Developer guide" : "Transacted"}: {p.price !== null ? money(p.price) : "—"}
-                            {p.psf !== null ? ` ($${p.psf.toLocaleString("en-SG")} psf)` : ""} · {p.date}
-                          </span>
-                        ))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <ul className="grid gap-4 md:grid-cols-2">
+              {project.alternatives.map((a) => (
+                <li key={a.name} className={`${card} p-5`}>
+                  <p className="font-display text-lg font-extrabold">{a.name}</p>
+                  <p className="mt-1 text-[0.9375rem] text-canopy/80">{a.why}</p>
+                  <dl className="mt-3 grid gap-1 font-display-normal text-sm">
+                    <div className="flex justify-between gap-3"><dt className="text-canopy/70">Tenure</dt><dd>{a.tenure ?? "Not known"}</dd></div>
+                    <div className="flex justify-between gap-3"><dt className="text-canopy/70">Completion</dt><dd>{a.completion ?? "Not known"}</dd></div>
+                  </dl>
+                  <ul className="mt-3 grid gap-1 font-display-normal text-sm">
+                    {a.prices.map((p, i) => (
+                      <li key={i}>
+                        <span className="font-semibold">{p.basis === "asking" ? "Asking price" : p.basis === "developer-guide" ? "Developer guide price" : "Transacted price"}:</span>{" "}
+                        {p.price !== null ? money(p.price) : "—"}
+                        {p.psf !== null ? ` ($${p.psf.toLocaleString("en-SG")} psf)` : ""} · {p.date}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
           ) : (
             <NotSupplied
-              title="Alternative projects"
+              title="Alternative projects have not been added yet."
               needed={[
                 "An initial shortlist of three to five alternative projects, new launches or resale.",
                 "Why you consider each one relevant.",
@@ -684,32 +728,44 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       {/* 6. PIVOT */}
       {tab === "pivot" && (
         <div {...panel("pivot")}>
-          <PivotTab pivot={project.pivot} projectName={project.profile.name} illustrativeAveragePsf={avgPsf} />
+          <TabIntro tab="pivot" />
+          <PivotTab
+            pivot={project.pivot}
+            projectName={project.profile.name}
+            illustrativeAveragePsf={avgPsf}
+            unit={unit && unitLayout ? { name: `Unit ${unitNumber(unit)}`, price: unit.price, areaSqft: unitLayout.areaSqft, isEstimate: !!unit.priceIsEstimate } : null}
+            onChooseUnit={() => goTo("units", "select-unit")}
+          />
         </div>
       )}
 
       {/* 7. My Upgrading Plan */}
       {tab === "upgrading" && (
         <div {...panel("upgrading")}>
-          <SectionHeading title="My Upgrading Plan" lede="For homeowners moving up: what your current home frees up, when, and whether it covers the next one." />
+          <TabIntro tab="upgrading" />
           <div className={`${card} p-5 sm:p-6`}>
-            <h3 className="font-display text-lg font-extrabold">Your next home</h3>
+            <h3 className="font-display-normal text-lg font-semibold">Your next home</h3>
             {shortlistUnits.length > 0 || unit ? (
               <ul className="mt-3 grid gap-2 font-display-normal text-sm">
                 {(shortlistUnits.length > 0 ? shortlistUnits : unit ? [unit] : []).map((u) => (
                   <li key={u.id} className="flex flex-wrap justify-between gap-2 rounded-lg bg-mist px-4 py-2.5">
-                    <span className="font-semibold">{ix.stackBlock(u.stackId).name} #{String(u.level).padStart(2, "0")}-{u.stackId}</span>
+                    <span className="font-semibold">Unit {unitNumber(u)} · {layoutName(u)}</span>
                     <span>{u.price !== null ? `${compactMoney(u.price)}${u.priceIsEstimate ? " (estimate)" : ""}` : "price not published"}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-canopy/80">Shortlist a home in Units &amp; Payments and it appears here, so its price needn&apos;t be typed again.</p>
+              <p className="mt-2 text-canopy/80">Choose a unit in Units &amp; Payments and it appears here, so you don&apos;t have to enter its price again.</p>
+            )}
+            {!unit && (
+              <button type="button" onClick={() => goTo("units")} className={`${btnPrimary} mt-4`}>
+                Choose units
+              </button>
             )}
           </div>
           <div className="mt-6">
             <NotSupplied
-              title="Upgrading planner"
+              title="The upgrading planner isn't available yet."
               needed={[
                 "One fictional upgrader case to build and test against.",
                 "Your usual consultation sequence.",
@@ -717,23 +773,22 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
                 "Any planning worksheet you already use.",
               ]}
             >
-              The planner will show the current home&apos;s sale proceeds, outstanding loan, CPF refund and selling costs; compare selling first with buying
-              first; and flag overlapping payments and cash gaps. Sale proceeds are never counted before the assumed completion date.
+              It will show your current home&apos;s sale proceeds, outstanding loan, CPF refund and selling costs; compare selling first with buying first; and
+              flag overlapping payments and cash gaps. Sale proceeds will never be counted before the assumed completion date.
             </NotSupplied>
           </div>
         </div>
       )}
 
-      <ShortlistBar
+      <ShortlistDialog
+        dialogRef={shortlistDialog.ref}
         engine={engine}
-        selected={unit}
         shortlist={shortlistUnits}
-        onOpen={(u) => openInUnits(u)}
+        onOpen={viewDetails}
         onRemove={toggleShortlist}
         onCompare={() => goTo("units", "compare")}
       />
+      <ComparisonBar shortlist={shortlistUnits} feedback={feedback} onCompare={() => goTo("units", "compare")} onOpenList={shortlistDialog.open} />
     </>
   );
 }
-
-export { TABS };

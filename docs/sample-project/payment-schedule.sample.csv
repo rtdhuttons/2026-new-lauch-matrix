@@ -1,0 +1,6 @@
+stage,percent,expected_date,date_is_estimate
+Booking fee,5,on signing,no
+Sale and purchase agreement,15,within 8 weeks,no
+Foundation,10,2027-06,yes
+Reinforced concrete framework,10,2028-03,yes
+FICTIONAL remaining stages,60,2029-2031,yes
