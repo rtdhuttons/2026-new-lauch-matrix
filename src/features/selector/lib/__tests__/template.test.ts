@@ -12,6 +12,8 @@ import { estimatePayments, EMPTY_PAYMENT_INPUTS, monthlyInstalment } from "../pa
 import { annualisedSpread, averageScore, entryPsfSteps, EXIT_YEARS, exitProjection, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE } from "../selling";
 import { checkValuationRequest } from "../valuation";
+import { closestBySize, ownUnitTypes, sizePriceSentence } from "../alternatives";
+import { indexDataset } from "../dataset-index";
 import { jadescape } from "../../data/comparables/jadescape";
 import { floorBand } from "../comparable";
 import { checkProject } from "../project-check";
@@ -27,7 +29,7 @@ describe("project bundles", () => {
     const tr = checkProject(thomsonReserve).missing;
     expect(tr).toContain("Developer's price list");
     expect(tr).toContain("Payment schedule");
-    expect(tr).toContain("Alternative projects");
+    expect(tr).not.toContain("Alternative projects");
     expect(tr).not.toContain("PIVOT assessment");
     expect(tr).not.toContain("Rental evidence");
     expect(checkProject(sampleProject).missing).toContain("Gallery images");
@@ -85,12 +87,12 @@ describe("PIVOT", () => {
     expect(Math.round(x.estimate)).toBe(p.exit!.statedPsf);
   });
 
-  it("keeps the stated overall separate from the simple average", () => {
+  it("states the overall rating as the average of the five scores", () => {
     expect(PIVOT_CATEGORIES.map((c) => c.letter).join("")).toBe("PIVOT");
     expect(p.scores!.map((s) => s.score)).toEqual([9, 8, 10, 8, 9]);
     expect(averageScore(p)).toBeCloseTo(8.8, 5);
-    expect(p.overallStated).toBe(8.6);
-    expect(p.overallMethod).toBeNull();
+    expect(p.overallStated).toBe(8.8);
+    expect(p.overallMethod).toMatch(/average of the five scores/);
   });
 });
 
@@ -269,5 +271,35 @@ describe("valuation request", () => {
     expect(checkValuationRequest({ ...base, contact: "123" })).toMatch(/mobile/);
     expect(checkValuationRequest({ ...base, contactMethod: "email", contact: "alex@example.com" })).toBeNull();
     expect(checkValuationRequest({ ...base, contactMethod: "email", contact: "alex" })).toMatch(/email/);
+  });
+});
+
+describe("alternative projects", () => {
+  it("lists four alternatives with dated, sourced prices", () => {
+    expect(thomsonReserve.alternatives.map((a) => a.name)).toEqual(["Lentor Gardens Residences", "Lentoria", "Springleaf Residence", "Chuan Park"]);
+    for (const a of thomsonReserve.alternatives) {
+      expect(a.provenance.updated).toBe("2026-09-27");
+      expect(a.unitTypes.length).toBeGreaterThan(0);
+    }
+    expect(sampleProject.alternatives).toEqual([]);
+  });
+
+  it("compares Thomson Reserve's types size for size", () => {
+    const priced = applyPriceEstimate(thomsonReserve.dataset, thomsonReserve.pricing.estimate!);
+    const own = ownUnitTypes(priced.units, indexDataset(priced));
+    const units = own.reduce((n, t) => n + t.units, 0);
+    expect(units).toBe(priced.units.filter((u) => u.price !== null).length);
+    const threeBed = own.find((t) => t.bedrooms === 3)!;
+    const lentor = thomsonReserve.alternatives[0];
+    const match = closestBySize(threeBed, lentor.unitTypes)!;
+    expect(match.bedrooms).toBe(3);
+    expect(sizePriceSentence(threeBed, match)).toMatch(/sq ft (larger|smaller)|same size|Within/);
+  });
+
+  it("words the difference in size and price", () => {
+    const own = { key: "x", bedrooms: 2, type: "2BR", sizeSqft: 700, fromPrice: 2_000_000, isEstimate: true, units: 10 };
+    expect(sizePriceSentence(own, { bedrooms: 2, type: "y", sizeSqft: { min: 646, max: 678 }, fromPrice: 1_571_300, unitsLeft: 34 })).toBe(
+      "About 22–54 sq ft smaller, with a starting price about S$429,000 lower.",
+    );
   });
 });

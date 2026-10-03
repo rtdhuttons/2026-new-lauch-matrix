@@ -76,7 +76,18 @@ guarantee a place.
 
 ## 5. Alternative Projects
 
-*See what other projects offer within a similar budget.* Being added.
+*See what other projects offer within a similar budget.*
+
+- **Compared with your unit:** the closest size at each alternative project,
+  with the difference in size and starting price.
+- **Same bedroom type, different projects:** choose a bedroom type to see
+  every project's units side by side: size, starting price, price per sq ft
+  and units left. Sort by lowest price, largest size or lowest price per
+  sq ft. Thomson Reserve's prices are marked "Estimate".
+- **The alternatives:** what each project offers and who it suits.
+
+Other projects' prices are the lowest among the units still available on the
+date shown; availability changes daily.
 
 ## 6. PIVOT
 

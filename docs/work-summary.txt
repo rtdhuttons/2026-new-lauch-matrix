@@ -11,6 +11,18 @@ first complete project and the template for future developments. Work done
 
 ---
 
+## 0b. Latest (3 Oct, evening)
+
+- **Alternative Projects** now shows Lentor Gardens Residences, Lentoria,
+  Springleaf Residence and Chuan Park from your comparison page: unit types,
+  sizes, starting prices and units left, side by side with Thomson Reserve's
+  estimates by bedroom type, and your selected unit against the closest size
+  at each project.
+- **PIVOT** overall rating is 8.8 (the average of the five scores), and the
+  $1,178 psf ppr land cost is recorded as based on the 30-storey scheme, as
+  you confirmed.
+- The website is generic: no personal contact details are needed.
+
 ## 0a. Latest additions (3 Oct, later)
 
 - **Schools by distance:** primary schools grouped within 1 km, 1–2 km and
@@ -159,7 +171,7 @@ questions for every home:
 
 ## 7. Checks
 
-- 80 automated tests pass (prices, view clearance, sun, JadeScape figures,
+- 83 automated tests pass (prices, view clearance, sun, JadeScape figures,
   rents, PIVOT workings, payment estimates, project checks, no leaks into
   the sample project); typecheck and lint are clean.
 - The shared page was tested on desktop and phone widths, under the same
@@ -178,15 +190,16 @@ questions for every home:
 
 ## Still needed from you before go-live
 
-1. The agent's name, CEA registration number, phone/WhatsApp and email (for
-   the footer)
-2. The developer's price list, availability and payment schedule (these
+1. The developer's price list, availability and payment schedule (these
    replace all the estimates)
+2. Where enquiries should be sent (an inbox, sheet or CRM), so the register
+   and valuation forms can record requests
 3. Confirmation of the JadeScape facts in the comparison table
-4. How the PIVOT overall rating is worked out (8.6 stated; scores average
-   8.8), and the basis of $1,178 psf ppr
-5. For the remaining tabs: schools to highlight and P1 data, 3–5 alternative
-   projects, an upgrader case and your consultation sequence
+4. For the remaining tabs: P1 data, the URA land tender record, an upgrader
+   case and your consultation sequence
+
+The website is generic, so no agent name, CEA number or personal contact
+details are needed.
 
 The full list is in `docs/audit-and-outstanding-inputs.md`.
 

@@ -7,6 +7,7 @@ import type { ProjectBundle, SourceRecord } from "../../model/project";
 import type { Provenance } from "../../model/types";
 import { jadescape } from "../comparables/jadescape";
 import { jadescapeRentals } from "../comparables/jadescape-rentals";
+import { alternatives } from "./alternatives";
 import { gallery, heroImage, locationMap } from "./gallery";
 import { thomsonReserveDataset, thomsonReserveGaps, thomsonReserveMrtExit } from "./index";
 
@@ -63,7 +64,7 @@ const sources: SourceRecord[] = [
   { item: "JadeScape rental contracts", kind: "third-party", source: "Huttons JadeScape rental report (URA Realis, EdgeProp, EcoProp, Huttons)", checked: "2026-10-03", status: "verified" },
   { item: "Why JadeScape is a fair guide (developer, homes, storeys, MRT)", kind: "agent", source: "TRM comparison", checked: "2026-10-01", status: "estimated", note: "Awaiting confirmation of the JadeScape facts." },
   { item: "PIVOT scores, entry-price and exit-benchmark worked examples", kind: "agent", source: "TRM 'PIVOT' Matrix e-book, 2 Jul 2026", checked: "2026-07-02", status: "estimated", note: "Overall stated as 8.6/10; the five scores average 8.8. Method to confirm." },
-  { item: "Land bid: $810,000,000, $1,178 psf ppr", kind: "agent", source: "TRM 'PIVOT' Matrix e-book (page 14)", checked: "2026-07-02", status: "estimated", note: "Official URA tender record to be attached. $810M over the factsheet's buildable area (51,567 sq m × plot ratio 2.1) is about $695 psf ppr; the basis of $1,178 is to be confirmed." },
+  { item: "Land bid: $810,000,000, $1,178 psf ppr", kind: "agent", source: "TRM 'PIVOT' Matrix e-book (page 14)", checked: "2026-07-02", status: "estimated", note: "TRM confirms the e-book's $1,178 psf ppr, based on the 30-storey scheme (3 Oct 2026). Official URA tender record to be attached." },
   { item: "Schools named near the site", kind: "developer", source: "Developer's location map", checked: "2026-09-30", status: "estimated", note: "P1 history not checked yet." },
   { item: "Ai Tong School about 400–480 m from each block (within 1 km)", kind: "calculated", source: "OpenStreetMap school boundary and the traced site plan", checked: "2026-10-03", status: "estimated", note: "Indicative; official OneMap distance not checked (OneMap is blocked from the build environment)." },
 ];
@@ -209,7 +210,7 @@ export const thomsonReserve: ProjectBundle = {
     },
   ],
   rentals: [jadescapeRentals],
-  alternatives: [],
+  alternatives,
   pivot: {
     scores: [
       { category: "product-mix", score: 9, reason: "1,268 homes give a large variety of unit types in the mix, creating opportunities for both homeowners and investors." },
@@ -218,8 +219,8 @@ export const thomsonReserve: ProjectBundle = {
       { category: "opportunity-zone", score: 8, reason: "Ongoing transformation around it: the Bright Hill MRT interchange with the upcoming Cross Island Line, and Bishan 2.0." },
       { category: "timing-of-exit", score: 9, reason: "Surrounded by landed properties, which may attract nearby retirees in future once their children move out of the landed home." },
     ],
-    overallStated: 8.6,
-    overallMethod: null,
+    overallStated: 8.8,
+    overallMethod: "The average of the five scores (confirmed by TRM, 3 Oct 2026).",
     entry: {
       landPrice: 810_000_000,
       landPsfPpr: 1178,
@@ -249,7 +250,7 @@ export const thomsonReserve: ProjectBundle = {
     "Official OneMap home-school distances for each block's address, distances for schools beyond the map data, and past P1 registration results.",
     "Alternative projects to compare, with dated prices.",
     "How the PIVOT overall rating is worked out (the e-book states 8.6/10; the five scores average 8.8).",
-    "Official record of the land tender (URA) to back the $810M land bid, and the basis of $1,178 psf ppr (the factsheet's site area and plot ratio give about $695).",
+    "Official record of the land tender (URA) to back the $810M land bid.",
     "Confirmation of the JadeScape facts in the fair-guide table.",
   ],
 };

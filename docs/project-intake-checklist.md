@@ -36,7 +36,7 @@ their values are fictional.
 | 3–4 headline facts for the opening screen | You | Opening screen |
 | Disclaimer wording for this project | You | Footer |
 
-Agency-wide contact details (agent name, CEA number, phone/WhatsApp, email)
+Agency-wide details (the site is generic: no personal contact details are needed)
 are set once in `src/content/site.ts`, not per project.
 
 Never include the project's bank account details.
@@ -95,7 +95,7 @@ Never include the project's bank account details.
 | Comparison projects and why each is relevant | You | Same district, developer scale, MRT, landed neighbours |
 | Matched purchase-and-sale records for each comparison project | URA Realis / Huttons report | Floor, size, bedrooms (say if inferred), dates and prices |
 | Rental contracts | URA Realis / Huttons report | Month, size band, rent, bedrooms where recorded (`sample-project/rentals.sample.csv`) |
-| Alternative projects: name, why relevant, tenure, completion, dated prices | You, portals, URA | Label each price: developer guide, asking or transacted |
+| Alternative projects: name, role, why relevant, nearest MRT, total units, tenure, completion, and for each unit type its bedrooms, size range, starting price and units left, with the date | You, portals, URA | Say what the price is (e.g. lowest price among units still available) — see `sample-project/alternatives.sample.csv` |
 
 ## 8. PIVOT inputs and project-specific assumptions
 
@@ -116,4 +116,4 @@ Never include the project's bank account details.
 - [ ] Every source has a checked date.
 - [ ] Renders say "Artist's impression"; estimates say "Estimate".
 - [ ] No bank account details, no personal financial information.
-- [ ] Agent name, CEA number, phone/WhatsApp and email are filled in.
+- [ ] Enquiries are connected (`LEAD_WEBHOOK_URL`) on the deployed website.

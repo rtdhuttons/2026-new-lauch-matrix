@@ -1,0 +1,96 @@
+// Alternative projects for Thomson Reserve buyers, from TRM's "What can your
+// budget buy?" comparison page (published 27 Sep 2026). Prices are the
+// lowest among the units still available then; availability changes daily.
+
+import type { AlternativeProject } from "../../model/project";
+
+const base = process.env.NEXT_PUBLIC_TR_IMAGE_BASE ?? "/thomson-reserve/images";
+
+const provenance = {
+  source: "TRM comparison page, \"What can your budget buy?\"",
+  updated: "2026-09-27",
+  status: "verified" as const,
+  note: "Starting prices and units left as supplied by TRM. Check the latest availability and price before deciding.",
+};
+const priceBasis = "Lowest price among the units still available";
+
+export const alternatives: AlternativeProject[] = [
+  {
+    name: "Lentor Gardens Residences",
+    tag: "More choices across 2 to 4 bedrooms",
+    why: "The broadest selection in this comparison: 2-bedroom through 4-bedroom units, together with strata terrace units. Useful for comparing similar-sized units at a different entry price.",
+    bestFor: "2-bedroom + study, 3-bedroom family units and 4-bedroom value comparisons.",
+    nearestMrt: "Lentor MRT",
+    totalUnits: null,
+    tenure: null,
+    completion: null,
+    image: { src: `${base}/alt-lentor-gardens.jpg`, alt: "Lentor Gardens Residences. Artist's impression." },
+    unitTypes: [
+      { bedrooms: 2, type: "2BR Premium", sizeSqft: { min: 646, max: 678 }, fromPrice: 1_571_300, unitsLeft: 34 },
+      { bedrooms: 2, type: "2BR Premium HS", sizeSqft: { min: 689, max: 689 }, fromPrice: 1_705_500, unitsLeft: 1 },
+      { bedrooms: 2, type: "2BR + Study", sizeSqft: { min: 732, max: 732 }, fromPrice: 1_715_000, unitsLeft: 103 },
+      { bedrooms: 3, type: "3BR Premium + Study", sizeSqft: { min: 969, max: 969 }, fromPrice: 2_221_400, unitsLeft: 8 },
+      { bedrooms: 3, type: "3BR Premium", sizeSqft: { min: 1001, max: 1012 }, fromPrice: 2_297_500, unitsLeft: 10 },
+      { bedrooms: 4, type: "4BR Compact", sizeSqft: { min: 1184, max: 1184 }, fromPrice: 2_738_000, unitsLeft: 9 },
+      { bedrooms: 4, type: "4BR Premium", sizeSqft: { min: 1346, max: 1356 }, fromPrice: 3_129_200, unitsLeft: 34 },
+    ],
+    priceBasis,
+    provenance,
+    kind: "agent",
+  },
+  {
+    name: "Lentoria",
+    tag: "Lower price, limited choices",
+    why: "A 267-unit development along Lentor Hills Road, about a five-minute walk from Lentor MRT and the nearby mall.",
+    bestFor: "Buyers who put a lower entry price first in the Lentor and Upper Thomson area.",
+    nearestMrt: "Lentor MRT (about a five-minute walk)",
+    totalUnits: 267,
+    tenure: "99-year leasehold",
+    completion: null,
+    image: { src: `${base}/alt-lentoria.jpg`, alt: "Lentoria. Artist's impression." },
+    unitTypes: [
+      { bedrooms: 1, type: "1BR", sizeSqft: null, fromPrice: 1_288_000, unitsLeft: null },
+      { bedrooms: 2, type: "2BR", sizeSqft: { min: 700, max: 732 }, fromPrice: 1_800_000, unitsLeft: 5 },
+      { bedrooms: 3, type: "3BR", sizeSqft: { min: 936, max: 936 }, fromPrice: 2_279_000, unitsLeft: 3 },
+    ],
+    priceBasis,
+    provenance,
+    kind: "agent",
+  },
+  {
+    name: "Springleaf Residence",
+    tag: "The space alternative",
+    why: "941 units beside the Springleaf green enclave, close to Springleaf MRT and the surrounding forest. The units left are mostly larger ones.",
+    bestFor: "Buyers who need more space without pushing the price too high.",
+    nearestMrt: "Springleaf MRT",
+    totalUnits: 941,
+    tenure: null,
+    completion: null,
+    image: { src: `${base}/alt-springleaf-residence.jpg`, alt: "Springleaf Residence. Artist's impression." },
+    unitTypes: [
+      { bedrooms: 3, type: "3BR + Study + Utility", sizeSqft: { min: 1259, max: 1259 }, fromPrice: 2_732_000, unitsLeft: 6 },
+      { bedrooms: 5, type: "5BR", sizeSqft: { min: 1453, max: 1475 }, fromPrice: 3_224_000, unitsLeft: 10 },
+    ],
+    priceBasis,
+    provenance,
+    kind: "agent",
+  },
+  {
+    name: "Chuan Park",
+    tag: "Very few units left",
+    why: "A 916-unit project beside Lorong Chuan MRT, with three 22-storey and two 19-storey blocks. The 4-bedroom and 5-bedroom types are sold out.",
+    bestFor: "Not necessarily the lowest price, but very limited remaining supply.",
+    nearestMrt: "Lorong Chuan MRT",
+    totalUnits: 916,
+    tenure: "99-year leasehold",
+    completion: null,
+    image: { src: `${base}/alt-chuan-park.jpg`, alt: "Chuan Park. Artist's impression." },
+    unitTypes: [
+      { bedrooms: 2, type: "2BR + Study", sizeSqft: { min: 743, max: 743 }, fromPrice: 2_021_600, unitsLeft: 3 },
+      { bedrooms: 3, type: "3BR", sizeSqft: { min: 1206, max: 1227 }, fromPrice: 3_234_900, unitsLeft: 10 },
+    ],
+    priceBasis,
+    provenance,
+    kind: "agent",
+  },
+];

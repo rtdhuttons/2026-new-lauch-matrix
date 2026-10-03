@@ -10,17 +10,19 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { ProjectBundle } from "../model/project";
 import type { Unit } from "../model/types";
+import { ownTypeKey, ownUnitTypes } from "../lib/alternatives";
 import { FLOOR_BANDS } from "../lib/comparable";
 import { createEngine } from "../lib/engine";
 import type { PriceEstimate } from "../lib/estimate";
 import { applyPriceEstimate, averagePsf, canEstimate, describeEstimate, lowestHomeLevel } from "../lib/estimate";
 import type { PaymentInputs } from "../lib/payments";
 import { EMPTY_PAYMENT_INPUTS, estimatePayments } from "../lib/payments";
-import { compactMoney, money } from "../lib/format";
+import { compactMoney } from "../lib/format";
 import type { Preferences } from "../lib/recommend";
 import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
 import type { SellingInputs } from "../lib/selling";
 import { EMPTY_SELLING_INPUTS } from "../lib/selling";
+import { AlternativesTab } from "./alternatives-tab";
 import { AssetImg } from "./asset-image";
 import { CompareCards } from "./compare-cards";
 import { Comparison } from "./comparison";
@@ -367,6 +369,8 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   const isSample = project.status === "sample";
   const avgPsf = estimatable && estimateOn && deferredEstimate ? averagePsf(dataset, deferredEstimate) : null;
   const unitLayout = unit ? ix.stackLayout(unit.stackId) : null;
+  const ownTypes = useMemo(() => ownUnitTypes(priced.units, ix), [priced, ix]);
+  const selectedOwnType = unitLayout ? ownTypes.find((t) => t.key === ownTypeKey(unitLayout)) ?? null : null;
 
   const intro = (
     <>
@@ -693,40 +697,12 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       {tab === "alternatives" && (
         <div {...panel("alternatives")}>
           <TabIntro tab="alternatives" />
-          {project.alternatives.length > 0 ? (
-            <ul className="grid gap-4 md:grid-cols-2">
-              {project.alternatives.map((a) => (
-                <li key={a.name} className={`${card} p-5`}>
-                  <p className="font-display text-lg font-extrabold">{a.name}</p>
-                  <p className="mt-1 text-[0.9375rem] text-canopy/80">{a.why}</p>
-                  <dl className="mt-3 grid gap-1 font-display-normal text-sm">
-                    <div className="flex justify-between gap-3"><dt className="text-canopy/70">Tenure</dt><dd>{a.tenure ?? "Not known"}</dd></div>
-                    <div className="flex justify-between gap-3"><dt className="text-canopy/70">Completion</dt><dd>{a.completion ?? "Not known"}</dd></div>
-                  </dl>
-                  <ul className="mt-3 grid gap-1 font-display-normal text-sm">
-                    {a.prices.map((p, i) => (
-                      <li key={i}>
-                        <span className="font-semibold">{p.basis === "asking" ? "Asking price" : p.basis === "developer-guide" ? "Developer guide price" : "Transacted price"}:</span>{" "}
-                        {p.price !== null ? money(p.price) : "—"}
-                        {p.psf !== null ? ` ($${p.psf.toLocaleString("en-SG")} psf)` : ""} · {p.date}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <NotSupplied
-              title="Alternative projects have not been added yet."
-              needed={[
-                "An initial shortlist of three to five alternative projects, new launches or resale.",
-                "Why you consider each one relevant.",
-                "Their factsheets, floor plans, and dated prices: developer guide prices, asking prices and transacted prices, each labelled.",
-              ]}
-            >
-              Comparisons will use similar unit types and dated evidence, with asking, guide and transacted prices kept separate.
-            </NotSupplied>
-          )}
+          <AlternativesTab
+            alternatives={project.alternatives}
+            projectName={project.profile.name}
+            ownTypes={ownTypes}
+            selected={selectedOwnType && unit ? { label: `Unit ${unitNumber(unit)}`, type: selectedOwnType } : null}
+          />
         </div>
       )}
 

@@ -175,13 +175,33 @@ export interface RentalEvidence {
   kind: SourceKind;
 }
 
+export interface AlternativeUnitType {
+  bedrooms: number;
+  /** As the project names it, e.g. "3BR Premium + Study". */
+  type: string;
+  sizeSqft: { min: number; max: number } | null;
+  /** Lowest price among the remaining units of this type. */
+  fromPrice: number | null;
+  /** Units of this type still available; null if not stated. */
+  unitsLeft: number | null;
+}
+
 export interface AlternativeProject {
   name: string;
+  /** The role it plays in the comparison, e.g. "The space alternative". */
+  tag: string;
   why: string;
+  bestFor: string | null;
+  nearestMrt: string | null;
+  totalUnits: number | null;
   tenure: string | null;
   completion: string | null;
-  /** Each price is labelled with what it is. */
-  prices: { label: string; basis: "asking" | "developer-guide" | "transacted"; bedrooms: number | null; sizeSqft: number | null; price: number | null; psf: number | null; date: string; provenance: Provenance }[];
+  image: { src: string; alt: string } | null;
+  unitTypes: AlternativeUnitType[];
+  /** What the prices are, e.g. "Lowest price among remaining units". */
+  priceBasis: string;
+  provenance: Provenance;
+  kind: SourceKind;
 }
 
 export interface PaymentScheduleStage {

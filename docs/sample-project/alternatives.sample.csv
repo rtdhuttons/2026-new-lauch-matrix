@@ -1,4 +1,4 @@
-project,why_relevant,tenure,completion,price_basis,bedrooms,size_sqft,price,psf,price_date,source
-Fictional Park Residences,Same MRT line and budget,99-year,2029,developer guide,3,990,2450000,2475,2026-09-15,FICTIONAL brochure
-Fictional Park Residences,Same MRT line and budget,99-year,2029,transacted,3,990,2380000,2404,2026-08-20,FICTIONAL record
-Fictional Grove,Older resale nearby,Freehold,2012,asking,3,1100,2200000,2000,2026-09-30,FICTIONAL listing
+project,role,why_relevant,nearest_mrt,total_units,tenure,completion,bedrooms,unit_type,size_min_sqft,size_max_sqft,from_price,units_left,price_basis,as_at,source
+Fictional Park Residences,The lower-price option,Same MRT line and budget,Fictional MRT,420,99-year,2029,3,3BR,990,1012,2450000,12,Lowest price among units still available,2026-09-15,FICTIONAL brochure
+Fictional Park Residences,The lower-price option,Same MRT line and budget,Fictional MRT,420,99-year,2029,2,2BR,700,700,1720000,5,Lowest price among units still available,2026-09-15,FICTIONAL brochure
+Fictional Grove,The space option,Older and larger nearby,Fictional MRT,310,Freehold,2012,3,3BR,1100,1100,2200000,,Asking price (resale listing),2026-09-30,FICTIONAL listing
