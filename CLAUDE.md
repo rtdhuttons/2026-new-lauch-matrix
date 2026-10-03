@@ -120,15 +120,22 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   privacy), `access.ts` (MRT walk), `estimate.ts` (illustrative prices),
   `pricing.ts`, `recommend.ts`, `resale.ts` (exit appeal), `comparable.ts`
   (profit by floor band), `scene.ts` (3D), `payments.ts` (payment
-  estimate), `rentals.ts` (rent evidence), `pivot.ts` (PIVOT framework and
-  workings), `project-check.ts` (checks a bundle before publishing).
+  estimate), `rentals.ts` (rent evidence), `pivot.ts` (PIVOT framework,
+  workings and exit projection), `selling.ts` (cash proceeds from selling),
+  `valuation.ts` (checks a valuation request), `project-check.ts` (checks a
+  bundle before publishing).
   Tests are in `lib/__tests__/`.
 - `src/features/selector/components/` — the UI. `project-app.tsx` lays out
   the seven tabs; `tabs.tsx` has the tab names, introductions and "Not added
   yet" card; `ui.tsx` the shared buttons, `Disclosure` and `NextStep`;
   `unit-summary.tsx` the selected unit; `compare-cards.tsx` the comparison;
-  `payment-calculator.tsx`; `site-3d.tsx` the 3D model;
+  `payment-calculator.tsx`; `pivot-tab.tsx`; `upgrading-tab.tsx` (valuation
+  request and cash proceeds); `site-3d.tsx` the 3D model;
   `price-matrix.tsx` the price-by-floor table.
+- `src/app/actions.ts` — `registerInterest` and `requestValuation` post to
+  `LEAD_WEBHOOK_URL` and only report success when it accepts the request.
+  The single-page build swaps in `scripts/artifact/actions-stub.ts`, which
+  never reports a request as sent.
 - `docs/adding-a-project.md`, `docs/project-intake-checklist.md` and
   `docs/sample-project/` — how to add the next development.
 - `public/thomson-reserve/` — site plan, its mask (`site-plan-mask.png`,

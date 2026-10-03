@@ -35,7 +35,12 @@ const js = await build({
   target: "es2020",
   jsx: "automatic",
   write: false,
-  alias: { "next/dynamic": "./scripts/artifact/next-dynamic-shim.tsx", "@trm/project-entry": `./${cfg.entry}` },
+  alias: {
+    "next/dynamic": "./scripts/artifact/next-dynamic-shim.tsx",
+    "@trm/project-entry": `./${cfg.entry}`,
+    // No server in a single page: requests report that they can't be sent.
+    "@/app/actions": "./scripts/artifact/actions-stub.ts",
+  },
   define: {
     "process.env.NODE_ENV": '"production"',
     ...defines,

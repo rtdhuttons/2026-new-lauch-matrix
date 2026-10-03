@@ -58,9 +58,10 @@ behind the estimated prices), and **Suggested units for your priorities**.
 
 *Explore nearby primary schools and understand the registration considerations.*
 
-Schools named near the project, and the difference between being near a
-school, being eligible to register, and how competitive registration has been.
-Living nearby doesn't guarantee a place.
+Primary schools grouped by distance from the project: within 1 km, between
+1 and 2 km, and not measured yet. Each distance says whether it is official
+(OneMap) or indicative (worked out from map data). Living nearby doesn't
+guarantee a place.
 
 ## 4. Investor
 
@@ -82,16 +83,43 @@ Living nearby doesn't guarantee a place.
 *Assess your selected unit's entry price and explore possible exit outcomes.*
 
 Your selected unit's price per sq ft against TRM's entry estimate from the
-land bid, and what it would be worth at the exit benchmark. Below are TRM's
-five PIVOT scores and the two workings, with every input you can change.
-These are scenarios, not forecasts.
+land bid, and what it would be worth at the exit benchmark.
+
+**Exit outcomes by year of sale** grows your unit's price at the median
+yearly return JadeScape owners made when they resold, for selling after 4
+years (around completion) up to 10 years. Switch between all JadeScape
+resales and only those on the same floor band as your unit, and open "Show a
+lower and a higher case" for the range. Gains are before stamp duty, fees,
+interest, loan repayment and CPF refund. These are scenarios, not forecasts.
+
+Below are TRM's five PIVOT scores and the two workings, with every input you
+can change.
 
 ## 7. My Upgrading Plan
 
-*Work out how selling your current home could support your next purchase.*
-Shows the units you've chosen; the planner is being added.
+*Start with your current home. Request a valuation report or estimate how
+much cash you could receive from selling.*
+
+1. **What could your home sell for?** Enter your address or postal code,
+   unit number, name and a mobile number or email, then "Request valuation
+   report". You get an indicative market assessment from TRM, not a formal
+   valuation by a licensed valuer. "Request received" only appears once your
+   request has been recorded.
+2. **How much cash could you receive?** Enter an estimated selling price,
+   your outstanding housing loan and the total CPF refund for all owners
+   (enter 0 if there is none; blanks are never counted as zero). "Calculate
+   cash proceeds" shows the cash before selling costs; open "Add selling
+   costs" to see it after costs. If the sale wouldn't cover the loan and CPF
+   refund, the result is flagged for review. Your figures stay as you move
+   between tabs.
 
 ---
+
+## Getting around
+
+All seven tabs are along the top. On a phone, swipe the row of tabs to see
+them all; the current one is highlighted. Each tab ends with buttons for the
+previous and next section.
 
 ## Good to know
 

@@ -16,7 +16,7 @@ export const TABS: { id: TabId; label: string; intro: string }[] = [
   { id: "investor", label: "Investor", intro: "Review past resale results and rental potential using comparable properties." },
   { id: "alternatives", label: "Alternative Projects", intro: "See what other projects offer within a similar budget." },
   { id: "pivot", label: "PIVOT", intro: "Assess your selected unit's entry price and explore possible exit outcomes." },
-  { id: "upgrading", label: "My Upgrading Plan", intro: "Work out how selling your current home could support your next purchase." },
+  { id: "upgrading", label: "My Upgrading Plan", intro: "Start with your current home. Request a valuation report or estimate how much cash you could receive from selling." },
 ];
 
 /** Older links (#prices, #compare, …) open the tab that now holds that section. */
@@ -46,70 +46,60 @@ export function tabFromHash(hash: string): { tab: TabId; section: string | null 
 }
 
 /**
- * Desktop: all seven tabs in a row. Phone: a menu button that names the
- * current tab and opens the full list, so no label is cut short.
+ * Every tab is always visible as a pill. Desktop: one row. Phone and tablet:
+ * the same pills in a strip you can swipe, with the current tab scrolled
+ * into view and a fade at the edge showing there are more.
  */
 export function TabNav({ active, onChange, shortlistButton }: { active: TabId; onChange: (t: TabId) => void; shortlistButton?: React.ReactNode }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const current = TABS.find((t) => t.id === active)!;
-  const index = TABS.indexOf(current);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ start: false, end: true });
 
+  const updateEdges = () => {
+    const el = stripRef.current;
+    if (!el) return;
+    setEdges({ start: el.scrollLeft > 4, end: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  };
+
+  // Keep the current tab in view (horizontally only, so the page doesn't jump).
   useEffect(() => {
-    if (!menuOpen) return;
-    const close = (e: MouseEvent | KeyboardEvent) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : !menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
-    };
-    document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", close);
-    return () => {
-      document.removeEventListener("mousedown", close);
-      document.removeEventListener("keydown", close);
-    };
-  }, [menuOpen]);
+    const el = stripRef.current;
+    const pill = el?.querySelector<HTMLElement>(`[data-tab="${active}"]`);
+    if (!el || !pill) return;
+    el.scrollTo({ left: pill.offsetLeft - (el.clientWidth - pill.offsetWidth) / 2, behavior: "smooth" });
+    const t = window.setTimeout(updateEdges, 350);
+    return () => window.clearTimeout(t);
+  }, [active]);
+
+  const fade = `${edges.start ? "transparent, black 28px" : "black"}, ${edges.end ? "black calc(100% - 40px), transparent" : "black"}`;
 
   return (
     <nav aria-label="Project sections" className="sticky top-0 z-30 border-b border-canopy/10 bg-paper/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 sm:px-6">
-        {/* Phone */}
-        <div ref={menuRef} className="relative min-w-0 flex-1 py-2 lg:hidden">
-          <button
-            type="button"
-            aria-expanded={menuOpen}
-            aria-controls="section-menu"
-            onClick={() => setMenuOpen((o) => !o)}
-            className="flex w-full items-center justify-between gap-2 rounded-full border border-canopy/20 bg-paper px-4 py-2 text-left font-display-normal text-sm"
-          >
-            <span className="min-w-0 truncate">
-              <span className="text-canopy/65">
-                <span className="sm:hidden">{index + 1}/{TABS.length} </span>
-                <span className="hidden sm:inline">Section {index + 1} of {TABS.length}: </span>
-              </span>
-              <span className="font-semibold">{current.label}</span>
-            </span>
-            <span aria-hidden="true" className={`transition-transform ${menuOpen ? "rotate-180" : ""}`}>▾</span>
-          </button>
-          {menuOpen && (
-            <ul id="section-menu" className="absolute inset-x-0 top-full z-40 mt-1 overflow-hidden rounded-2xl border border-canopy/15 bg-paper shadow-lg">
-              {TABS.map((t, i) => (
-                <li key={t.id}>
-                  <button
-                    type="button"
-                    aria-current={t.id === active ? "page" : undefined}
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onChange(t.id);
-                    }}
-                    className={`flex w-full items-center gap-3 px-4 py-3 text-left font-display-normal text-[0.9375rem] ${t.id === active ? "bg-mist font-semibold" : ""}`}
-                  >
-                    <span aria-hidden="true" className="w-4 text-canopy/50">{i + 1}</span>
-                    {t.label}
-                    {t.id === active && <span className="ml-auto text-xs text-canopy/60">Current</span>}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+        {/* Phone and tablet */}
+        <div
+          ref={stripRef}
+          onScroll={updateEdges}
+          className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+          style={{ maskImage: `linear-gradient(to right, ${fade})`, WebkitMaskImage: `linear-gradient(to right, ${fade})` }}
+        >
+          {TABS.map((t, i) => {
+            const on = t.id === active;
+            return (
+              <button
+                key={t.id}
+                data-tab={t.id}
+                type="button"
+                aria-current={on ? "page" : undefined}
+                onClick={() => onChange(t.id)}
+                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-2 font-display-normal text-sm font-semibold ${
+                  on ? "border-canopy bg-canopy text-mist" : "border-canopy/20 bg-paper text-canopy/80"
+                }`}
+              >
+                <span aria-hidden="true" className={`text-xs ${on ? "text-mist/70" : "text-canopy/45"}`}>{i + 1}</span>
+                {t.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Desktop */}
@@ -189,3 +179,32 @@ export function NotSupplied({
     </div>
   );
 }
+
+/** Previous and next section at the foot of every tab, so the order is easy to follow. */
+export function SectionPager({ active, onChange }: { active: TabId; onChange: (t: TabId) => void }) {
+  const i = TABS.findIndex((t) => t.id === active);
+  const prev = TABS[i - 1];
+  const next = TABS[i + 1];
+  const base = "flex min-w-0 flex-1 flex-col rounded-xl border border-canopy/15 bg-paper px-4 py-3 font-display-normal hover:bg-mist-deep";
+  return (
+    <nav aria-label="Previous and next section" className="mt-12 flex gap-3">
+      {prev ? (
+        <button type="button" onClick={() => onChange(prev.id)} className={`${base} items-start text-left`}>
+          <span className="text-xs text-canopy/60">← Previous</span>
+          <span className="truncate text-sm font-semibold">{prev.label}</span>
+        </button>
+      ) : (
+        <span className="flex-1" />
+      )}
+      {next ? (
+        <button type="button" onClick={() => onChange(next.id)} className={`${base} items-end text-right`}>
+          <span className="text-xs text-canopy/60">Next section {i + 2} of {TABS.length} →</span>
+          <span className="max-w-full truncate text-sm font-semibold">{next.label}</span>
+        </button>
+      ) : (
+        <span className="flex-1" />
+      )}
+    </nav>
+  );
+}
+

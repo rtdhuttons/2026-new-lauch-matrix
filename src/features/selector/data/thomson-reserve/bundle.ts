@@ -64,7 +64,8 @@ const sources: SourceRecord[] = [
   { item: "Why JadeScape is a fair guide (developer, homes, storeys, MRT)", kind: "agent", source: "TRM comparison", checked: "2026-10-01", status: "estimated", note: "Awaiting confirmation of the JadeScape facts." },
   { item: "PIVOT scores, entry-price and exit-benchmark worked examples", kind: "agent", source: "TRM 'PIVOT' Matrix e-book, 2 Jul 2026", checked: "2026-07-02", status: "estimated", note: "Overall stated as 8.6/10; the five scores average 8.8. Method to confirm." },
   { item: "Land bid: $810,000,000, $1,178 psf ppr", kind: "agent", source: "TRM 'PIVOT' Matrix e-book (page 14)", checked: "2026-07-02", status: "estimated", note: "Official URA tender record to be attached. $810M over the factsheet's buildable area (51,567 sq m × plot ratio 2.1) is about $695 psf ppr; the basis of $1,178 is to be confirmed." },
-  { item: "Schools named near the site", kind: "developer", source: "Developer's location map", checked: "2026-09-30", status: "estimated", note: "Distances and P1 history not checked yet." },
+  { item: "Schools named near the site", kind: "developer", source: "Developer's location map", checked: "2026-09-30", status: "estimated", note: "P1 history not checked yet." },
+  { item: "Ai Tong School about 400–480 m from each block (within 1 km)", kind: "calculated", source: "OpenStreetMap school boundary and the traced site plan", checked: "2026-10-03", status: "estimated", note: "Indicative; official OneMap distance not checked (OneMap is blocked from the build environment)." },
 ];
 
 export const thomsonReserve: ProjectBundle = {
@@ -155,7 +156,26 @@ export const thomsonReserve: ProjectBundle = {
     schools: [
       {
         ...school("Ai Tong School", ["primary"]),
-        note: "TRM's PIVOT e-book: within 1 km, about an 11-minute walk. Not yet checked with the official OneMap distance.",
+        highlighted: true,
+        distance: {
+          byAddress: [
+            { address: "1 Bright Hill Drive (Block 1)", metres: 470 },
+            { address: "3 Bright Hill Drive (Block 3)", metres: 480 },
+            { address: "5 Bright Hill Drive (Block 5)", metres: 440 },
+            { address: "7 Bright Hill Drive (Block 7)", metres: 410 },
+            { address: "9 Bright Hill Drive (Block 9)", metres: 420 },
+            { address: "11 Bright Hill Drive (Block 11)", metres: 400 },
+          ],
+          method: "straight line from each block's position on the site plan to the school boundary",
+          provenance: {
+            source: "OpenStreetMap school boundary (Ai Tong School, Bright Hill Drive 579646) and the traced site plan; scripts/osm/school-distance.py",
+            updated: "2026-10-03",
+            status: "estimated",
+            note: "Indicative. The official home-school distance from SLA OneMap has not been checked yet.",
+          },
+        },
+        distanceCategory: { value: "within-1km", basis: "indicative" },
+        note: "TRM's PIVOT e-book also says within 1 km, about an 11-minute walk.",
       },
       {
         ...school("CHIJ St. Nicholas Girls' School", ["primary", "secondary"]),
@@ -226,7 +246,7 @@ export const thomsonReserve: ProjectBundle = {
     ...thomsonReserveGaps,
     "Developer's payment schedule, and maintenance fee estimates.",
     "Rental evidence for Thomson Reserve itself (none until it completes); JadeScape rents are used as the guide.",
-    "School distances from the address, MOE distance categories and past P1 registration results.",
+    "Official OneMap home-school distances for each block's address, distances for schools beyond the map data, and past P1 registration results.",
     "Alternative projects to compare, with dated prices.",
     "How the PIVOT overall rating is worked out (the e-book states 8.6/10; the five scores average 8.8).",
     "Official record of the land tender (URA) to back the $810M land bid, and the basis of $1,178 psf ppr (the factsheet's site area and plot ratio give about $695).",

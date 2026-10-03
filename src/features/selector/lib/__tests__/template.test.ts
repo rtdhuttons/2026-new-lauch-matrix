@@ -9,7 +9,11 @@ import { createEngine } from "../engine";
 import { applyPriceEstimate } from "../estimate";
 import * as estimate from "../estimate";
 import { estimatePayments, EMPTY_PAYMENT_INPUTS, monthlyInstalment } from "../payments";
-import { averageScore, entryPsfSteps, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
+import { annualisedSpread, averageScore, entryPsfSteps, EXIT_YEARS, exitProjection, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
+import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE } from "../selling";
+import { checkValuationRequest } from "../valuation";
+import { jadescape } from "../../data/comparables/jadescape";
+import { floorBand } from "../comparable";
 import { checkProject } from "../project-check";
 import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../rentals";
 
@@ -204,5 +208,66 @@ describe("comparison wording", () => {
     expect(Math.abs(diff - 5 * 15 * size)).toBeLessThan(1000);
     expect(differenceSentence(engine, high, low)).toBe(`Costs S$${diff.toLocaleString("en-SG")} more and is 5 floors higher than #14-01.`);
     expect(differenceSentence(engine, low, low)).toBe("Same price, size, floor and facing as #14-01.");
+  });
+});
+
+describe("PIVOT exit projection", () => {
+  it("uses JadeScape's median yearly return across all resales", () => {
+    const all = annualisedSpread(jadescape.transactions.map((t) => t.annualised))!;
+    expect(all.n).toBe(321);
+    expect(all.median).toBeCloseTo(0.0534, 4);
+    expect(all.q1).toBeLessThan(all.median);
+    expect(all.q3).toBeGreaterThan(all.median);
+    const high = annualisedSpread(jadescape.transactions.filter((t) => floorBand(t.floor) === "high").map((t) => t.annualised))!;
+    expect(high.n).toBe(39);
+  });
+
+  it("grows the purchase price each year from +4 to +10 years", () => {
+    expect(EXIT_YEARS).toEqual([4, 5, 6, 7, 8, 9, 10]);
+    const rows = exitProjection(2_000_000, 0.05);
+    expect(rows[0].years).toBe(4);
+    expect(rows[0].value).toBeCloseTo(2_000_000 * 1.05 ** 4, 6);
+    expect(rows.at(-1)!.gain).toBeCloseTo(2_000_000 * (1.05 ** 10 - 1), 6);
+    expect(annualisedSpread([])).toBeNull();
+  });
+});
+
+describe("selling calculator", () => {
+  it("reproduces the illustrative example", () => {
+    const before = estimateProceeds({ ...ILLUSTRATIVE_SELLING_EXAMPLE, otherCosts: null });
+    expect(before.ok && before.value.beforeCosts).toBe(400_000);
+    expect(before.ok && before.value.afterCosts).toBeNull();
+    const after = estimateProceeds(ILLUSTRATIVE_SELLING_EXAMPLE);
+    expect(after.ok && after.value.afterCosts).toBe(375_000);
+    expect(after.ok && after.value.headline).toBe(375_000);
+  });
+
+  it("never treats a missing loan or CPF refund as zero", () => {
+    const r = estimateProceeds({ ...EMPTY_SELLING_INPUTS, sellingPrice: 1_000_000 });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.problems).toContain("Enter your outstanding housing loan (enter 0 if there is none).");
+      expect(r.problems).toContain("Enter the total CPF refund for all owners (enter 0 if no CPF was used).");
+    }
+    const zeros = estimateProceeds({ ...EMPTY_SELLING_INPUTS, sellingPrice: 1_000_000, outstandingLoan: 0, cpfRefund: 0 });
+    expect(zeros.ok && zeros.value.beforeCosts).toBe(1_000_000);
+  });
+
+  it("flags a shortfall instead of hiding it", () => {
+    const r = estimateProceeds({ ...EMPTY_SELLING_INPUTS, sellingPrice: 800_000, outstandingLoan: 500_000, cpfRefund: 350_000 });
+    expect(r.ok && r.value.shortfall).toBe(true);
+    expect(r.ok && r.value.beforeCosts).toBe(-50_000);
+  });
+});
+
+describe("valuation request", () => {
+  const base = { project: "x", address: "123 Example Road", unitNumber: "", name: "Alex Tan", contactMethod: "mobile" as const, contact: "9123 4567" };
+  it("needs an address, a name and one way to reach you", () => {
+    expect(checkValuationRequest(base)).toBeNull();
+    expect(checkValuationRequest({ ...base, address: "" })).toMatch(/address/);
+    expect(checkValuationRequest({ ...base, name: "" })).toMatch(/name/);
+    expect(checkValuationRequest({ ...base, contact: "123" })).toMatch(/mobile/);
+    expect(checkValuationRequest({ ...base, contactMethod: "email", contact: "alex@example.com" })).toBeNull();
+    expect(checkValuationRequest({ ...base, contactMethod: "email", contact: "alex" })).toMatch(/email/);
   });
 });

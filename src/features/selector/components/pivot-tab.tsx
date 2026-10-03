@@ -7,10 +7,11 @@
 
 import { useState } from "react";
 import type { PivotInfo } from "../model/project";
-import { averageScore, entryPsfSteps, exitPsfSteps, PIVOT_CATEGORIES } from "../lib/pivot";
+import { floorBand, FLOOR_BANDS } from "../lib/comparable";
+import { annualisedSpread, averageScore, entryPsfSteps, exitPsfSteps, exitProjection, PIVOT_CATEGORIES } from "../lib/pivot";
 import { NotSupplied } from "./tabs";
 import { EstimateTag } from "./unit-summary";
-import { card } from "./ui";
+import { card, Disclosure } from "./ui";
 
 const psf = (n: number) => `$${Math.round(n).toLocaleString("en-SG")} psf`;
 const exact = (n: number) => `$${n.toLocaleString("en-SG", { maximumFractionDigits: 1 })}`;
@@ -39,6 +40,14 @@ export interface PivotUnit {
   price: number | null;
   areaSqft: number | null;
   isEstimate: boolean;
+  level: number;
+}
+
+export interface ExitEvidence {
+  project: string;
+  /** Floor and yearly return of each recorded resale. */
+  resales: { floor: number; annualised: number }[];
+  asAt: string;
 }
 
 export function PivotTab({
@@ -47,12 +56,18 @@ export function PivotTab({
   illustrativeAveragePsf,
   unit,
   onChooseUnit,
+  evidence,
+  completionDate,
 }: {
   pivot: PivotInfo;
   projectName: string;
   illustrativeAveragePsf: number | null;
   unit: PivotUnit | null;
   onChooseUnit: () => void;
+  /** Resale returns at a comparison project, for the exit projection. */
+  evidence: ExitEvidence | null;
+  /** Expected completion (ISO date), to mark the year around completion. */
+  completionDate: string | null;
 }) {
   const [entry, setEntry] = useState(pivot.entry);
   const [exit, setExit] = useState(pivot.exit);
@@ -75,6 +90,8 @@ export function PivotTab({
   return (
     <div className="grid grid-cols-1 gap-8 [&>*]:min-w-0">
       <UnitAssessment unit={unit} entry={e?.estimate ?? null} exit={x?.estimate ?? null} onChooseUnit={onChooseUnit} />
+
+      {unit && unit.price !== null && evidence && <ExitOutcomes unit={unit} evidence={evidence} completionDate={completionDate} />}
 
       <p className="-mb-4 max-w-[72ch] text-[0.9375rem] text-canopy/80">
         PIVOT is TRM&apos;s five-part way to judge whether {projectName} is worth buying. Scores and workings below are from TRM&apos;s PIVOT e-book; change
@@ -221,6 +238,112 @@ function UnitAssessment({ unit, entry, exit, onChooseUnit }: { unit: PivotUnit |
         </div>
       </dl>
       <p className="mt-3 text-xs text-mist/70">A scenario under the assumptions below, not a forecast or a guaranteed return.</p>
+    </section>
+  );
+}
+
+const pctText = (r: number) => `${(r * 100).toFixed(2)}%`;
+const dollars = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
+
+/** The unit's price grown at the comparison project's yearly returns, by year of sale. */
+function ExitOutcomes({ unit, evidence, completionDate }: { unit: PivotUnit; evidence: ExitEvidence; completionDate: string | null }) {
+  const [basis, setBasis] = useState<"all" | "band">("all");
+  // Read the clock once, so the year around completion stays stable between renders.
+  const [now] = useState(() => Date.now());
+  const band = floorBand(unit.level);
+  const bandInfo = FLOOR_BANDS.find((b) => b.id === band)!;
+  const pool = basis === "all" ? evidence.resales : evidence.resales.filter((r) => floorBand(r.floor) === band);
+  const spread = annualisedSpread(pool.map((r) => r.annualised));
+  if (!spread || unit.price === null) return null;
+  const price = unit.price;
+  const yearsToCompletion = completionDate ? (new Date(`${completionDate}T00:00:00Z`).getTime() - now) / (365.25 * 24 * 3600 * 1000) : null;
+  const completionYear = yearsToCompletion !== null ? Math.max(1, Math.round(yearsToCompletion)) : null;
+  const mid = exitProjection(price, spread.median);
+  const low = exitProjection(price, spread.q1);
+  const high = exitProjection(price, spread.q3);
+  const label = (y: number) => `+${y} years${completionYear === y ? " (around completion)" : ""}`;
+
+  return (
+    <section aria-labelledby="exit-outcomes" className={`${card} p-5 sm:p-6`}>
+      <h3 id="exit-outcomes" className="font-display text-lg font-extrabold">Exit outcomes by year of sale</h3>
+      <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
+        {unit.name}&apos;s price of {dollars(price)}
+        {unit.isEstimate ? " (an estimate)" : ""}, grown each year at the median yearly return owners made when they resold at {evidence.project}:{" "}
+        <strong>{pctText(spread.median)} a year</strong> ({spread.n} resales).
+      </p>
+      <div role="group" aria-label="Which resales to use" className="mt-3 inline-flex flex-wrap rounded-full border border-canopy/15 bg-paper p-1">
+        {([
+          ["all", `All ${evidence.project} resales`],
+          ["band", `${bandInfo.label} floors only, like this unit`],
+        ] as const).map(([id, text]) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={basis === id}
+            onClick={() => setBasis(id)}
+            className={`rounded-full px-4 py-1.5 font-display-normal text-sm font-semibold ${basis === id ? "bg-canopy text-mist" : "text-canopy/75"}`}
+          >
+            {text}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative mt-4 overflow-x-auto">
+        <table className="w-full border-collapse font-display-normal text-sm tabular-nums">
+          <caption className="sr-only">Projected selling price and gross gain by year of sale</caption>
+          <thead>
+            <tr className="bg-mist text-left text-xs uppercase tracking-[0.06em] text-canopy/70">
+              <th scope="col" className="px-3 py-2.5 font-semibold">Sell after</th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">Projected price</th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">Gain before costs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mid.map((r) => (
+              <tr key={r.years} className="border-t border-canopy/10">
+                <th scope="row" className="px-3 py-2.5 text-left font-semibold">{label(r.years)}</th>
+                <td className="px-3 py-2.5 text-right">{dollars(r.value)}</td>
+                <td className="px-3 py-2.5 text-right font-semibold">+{dollars(r.gain)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-4">
+        <Disclosure title="Show a lower and a higher case" hint={`Middle half of ${evidence.project}'s yearly returns: ${pctText(spread.q1)} to ${pctText(spread.q3)} a year`}>
+          <div className="relative overflow-x-auto">
+            <table className="w-full border-collapse font-display-normal text-sm tabular-nums">
+              <caption className="sr-only">Lower, middle and higher case projected selling prices</caption>
+              <thead>
+                <tr className="text-left text-xs text-canopy/65">
+                  <th scope="col" className="py-1.5 pr-3 font-semibold">Sell after</th>
+                  <th scope="col" className="py-1.5 pr-3 text-right font-semibold">Lower ({pctText(spread.q1)})</th>
+                  <th scope="col" className="py-1.5 pr-3 text-right font-semibold">Middle ({pctText(spread.median)})</th>
+                  <th scope="col" className="py-1.5 text-right font-semibold">Higher ({pctText(spread.q3)})</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mid.map((r, i) => (
+                  <tr key={r.years} className="border-t border-canopy/10">
+                    <th scope="row" className="py-1.5 pr-3 text-left font-semibold">+{r.years} years</th>
+                    <td className="py-1.5 pr-3 text-right">{dollars(low[i].value)}</td>
+                    <td className="py-1.5 pr-3 text-right font-semibold">{dollars(r.value)}</td>
+                    <td className="py-1.5 text-right">{dollars(high[i].value)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-2 text-xs text-stone">A quarter of {evidence.project}&apos;s resales did worse than the lower case, and a quarter did better than the higher case.</p>
+        </Disclosure>
+      </div>
+
+      <p className="mt-3 text-xs text-stone">
+        Gain before costs: projected price minus the purchase price, before stamp duty, legal fees, interest, loan repayment and CPF refund. Past returns at{" "}
+        {evidence.project} (as at {evidence.asAt}) are a guide for a similar project, not a forecast for this unit.
+        {completionYear !== null ? ` Years count from buying now; completion is expected in about ${completionYear} years.` : " Years count from buying now."}
+      </p>
     </section>
   );
 }

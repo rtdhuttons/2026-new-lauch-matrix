@@ -11,7 +11,25 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0. Latest: seven tabs, a reusable template and a simpler experience (3 Oct)
+## 0a. Latest additions (3 Oct, later)
+
+- **Schools by distance:** primary schools grouped within 1 km, 1–2 km and
+  not measured yet. Ai Tong School is within 1 km of every block (about
+  400–480 m), marked indicative because it comes from map data, not OneMap.
+  OneMap is blocked from this environment, so official distances are still
+  outstanding.
+- **PIVOT exit outcomes:** your unit's price grown at JadeScape's median
+  yearly resale return (5.34% a year across 321 resales; or the same floor
+  band) for selling after 4 years (around completion) up to 10 years, with a
+  lower and higher case.
+- **My Upgrading Plan:** request a valuation report for your current home,
+  and a cash proceeds calculator (price − loan − CPF refund, optional selling
+  costs). Requests are only shown as received once recorded.
+- **Easier tab navigation on phones:** every tab is visible as a swipeable
+  row of buttons instead of a "1/7" menu, and each tab ends with previous and
+  next section buttons.
+
+## 0. Seven tabs, a reusable template and a simpler experience (3 Oct)
 
 - **Seven tabs, always in this order:** Project & 3D Site, Units &
   Payments, Schools, Investor, Alternative Projects, PIVOT, My Upgrading
@@ -141,7 +159,7 @@ questions for every home:
 
 ## 7. Checks
 
-- 72 automated tests pass (prices, view clearance, sun, JadeScape figures,
+- 80 automated tests pass (prices, view clearance, sun, JadeScape figures,
   rents, PIVOT workings, payment estimates, project checks, no leaks into
   the sample project); typecheck and lint are clean.
 - The shared page was tested on desktop and phone widths, under the same

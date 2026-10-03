@@ -1,5 +1,7 @@
 "use server";
 
+import { checkValuationRequest, readValuationForm, type ValuationState } from "@/features/selector/lib/valuation";
+
 export type RegisterState =
   | { status: "idle" }
   | { status: "error"; message: string }
@@ -60,4 +62,49 @@ export async function registerInterest(
     };
   }
   return { status: "sent", name };
+}
+
+/**
+ * Records a request for a valuation report on the visitor's current home.
+ * Success is only reported once the enquiry webhook has accepted it.
+ */
+export async function requestValuation(
+  _prev: ValuationState,
+  formData: FormData,
+): Promise<ValuationState> {
+  const request = readValuationForm(formData);
+  const problem = checkValuationRequest(request);
+  if (problem) return { status: "error", message: problem };
+
+  const webhook = process.env.LEAD_WEBHOOK_URL;
+  if (!webhook) {
+    return {
+      status: "error",
+      message:
+        "Online requests aren't connected yet. Please contact TRM directly.",
+    };
+  }
+
+  const res = await fetch(webhook, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "valuation-request",
+      project: request.project || "Not stated",
+      address: request.address,
+      unitNumber: request.unitNumber,
+      name: request.name,
+      mobile: request.contactMethod === "mobile" ? request.contact : "",
+      email: request.contactMethod === "email" ? request.contact : "",
+      submittedAt: new Date().toISOString(),
+    }),
+  });
+
+  if (!res.ok) {
+    return {
+      status: "error",
+      message: "Your request didn't go through. Try again in a minute.",
+    };
+  }
+  return { status: "sent", name: request.name };
 }

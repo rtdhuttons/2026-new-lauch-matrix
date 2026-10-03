@@ -19,6 +19,8 @@ import { EMPTY_PAYMENT_INPUTS, estimatePayments } from "../lib/payments";
 import { compactMoney, money } from "../lib/format";
 import type { Preferences } from "../lib/recommend";
 import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
+import type { SellingInputs } from "../lib/selling";
+import { EMPTY_SELLING_INPUTS } from "../lib/selling";
 import { AssetImg } from "./asset-image";
 import { CompareCards } from "./compare-cards";
 import { Comparison } from "./comparison";
@@ -39,12 +41,13 @@ import { comparisonFeedback, ComparisonBar, MAX_SHORTLIST, ShortlistButton, Shor
 import { SiteView } from "./site-view";
 import { StackExplorer } from "./stack-explorer";
 import type { TabId } from "./tabs";
-import { NotSupplied, TabIntro, TabNav, tabFromHash } from "./tabs";
+import { NotSupplied, SectionPager, TabIntro, TabNav, tabFromHash } from "./tabs";
 import { btnPrimary, btnSecondary, btnText, card, Disclosure, NextStep } from "./ui";
 import { UnitDetails } from "./unit-details";
 import type { UnitFilterState } from "./unit-filters";
 import { UnitFilters } from "./unit-filters";
 import { unitNumber, UnitSummary } from "./unit-summary";
+import { UpgradingTab } from "./upgrading-tab";
 
 interface SavedSelection {
   shortlist: string[];
@@ -125,6 +128,8 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   const [filters, setFilters] = useState<UnitFilterState>(NO_FILTERS);
   const [browse, setBrowse] = useState<"site" | "list">("site");
   const [payments, setPayments] = useState<PaymentInputs>(EMPTY_PAYMENT_INPUTS);
+  const [selling, setSelling] = useState<SellingInputs>(EMPTY_SELLING_INPUTS);
+  const [sellingCalculated, setSellingCalculated] = useState<SellingInputs | null>(null);
 
   const firstStack = dataset.stacks[0]?.id ?? "";
   const [stackId, setStackId] = useState(firstStack);
@@ -356,7 +361,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
     id: `panel-${id}`,
     role: "tabpanel" as const,
     "aria-labelledby": `tab-${id}`,
-    className: "mx-auto max-w-7xl px-4 pb-32 pt-8 sm:px-8",
+    className: "mx-auto max-w-7xl px-4 pt-8 sm:px-8",
   });
 
   const isSample = project.status === "sample";
@@ -680,7 +685,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
             <h3 id="rent-title" className="mb-3 font-display text-xl font-extrabold">Rental potential</h3>
             <RentalPotential evidence={project.rentals} engine={engine} unit={unit} />
           </section>
-          <NextStep note="Reviewed the past results?" label="Explore exit scenarios" onClick={() => goTo("pivot")} />
+          <NextStep note="Reviewed the past results?" label="Explore exit scenarios" onClick={() => goTo("pivot", unit ? "exit-outcomes" : undefined)} />
         </div>
       )}
 
@@ -733,8 +738,18 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
             pivot={project.pivot}
             projectName={project.profile.name}
             illustrativeAveragePsf={avgPsf}
-            unit={unit && unitLayout ? { name: `Unit ${unitNumber(unit)}`, price: unit.price, areaSqft: unitLayout.areaSqft, isEstimate: !!unit.priceIsEstimate } : null}
+            unit={unit && unitLayout ? { name: `Unit ${unitNumber(unit)}`, price: unit.price, areaSqft: unitLayout.areaSqft, isEstimate: !!unit.priceIsEstimate, level: unit.level } : null}
             onChooseUnit={() => goTo("units", "select-unit")}
+            evidence={
+              project.comparables[0]
+                ? {
+                    project: project.comparables[0].project.name,
+                    resales: project.comparables[0].project.transactions.map((t) => ({ floor: t.floor, annualised: t.annualised })),
+                    asAt: project.comparables[0].project.provenance.updated,
+                  }
+                : null
+            }
+            completionDate={project.profile.expectedCompletion?.date ?? null}
           />
         </div>
       )}
@@ -743,42 +758,41 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       {tab === "upgrading" && (
         <div {...panel("upgrading")}>
           <TabIntro tab="upgrading" />
-          <div className={`${card} p-5 sm:p-6`}>
-            <h3 className="font-display-normal text-lg font-semibold">Your next home</h3>
-            {shortlistUnits.length > 0 || unit ? (
-              <ul className="mt-3 grid gap-2 font-display-normal text-sm">
-                {(shortlistUnits.length > 0 ? shortlistUnits : unit ? [unit] : []).map((u) => (
-                  <li key={u.id} className="flex flex-wrap justify-between gap-2 rounded-lg bg-mist px-4 py-2.5">
-                    <span className="font-semibold">Unit {unitNumber(u)} · {layoutName(u)}</span>
-                    <span>{u.price !== null ? `${compactMoney(u.price)}${u.priceIsEstimate ? " (estimate)" : ""}` : "price not published"}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-canopy/80">Choose a unit in Units &amp; Payments and it appears here, so you don&apos;t have to enter its price again.</p>
-            )}
-            {!unit && (
-              <button type="button" onClick={() => goTo("units")} className={`${btnPrimary} mt-4`}>
-                Choose units
-              </button>
-            )}
-          </div>
-          <div className="mt-6">
-            <NotSupplied
-              title="The upgrading planner isn't available yet."
-              needed={[
-                "One fictional upgrader case to build and test against.",
-                "Your usual consultation sequence.",
-                "Moving-cost and temporary accommodation assumptions.",
-                "Any planning worksheet you already use.",
-              ]}
-            >
-              It will show your current home&apos;s sale proceeds, outstanding loan, CPF refund and selling costs; compare selling first with buying first; and
-              flag overlapping payments and cash gaps. Sale proceeds will never be counted before the assumed completion date.
-            </NotSupplied>
-          </div>
+          <UpgradingTab
+            projectName={project.profile.name}
+            selling={selling}
+            onSelling={setSelling}
+            calculated={sellingCalculated}
+            onCalculate={setSellingCalculated}
+            nextHome={
+              <div className={`${card} p-5 sm:p-6`}>
+                <h3 className="font-display-normal text-lg font-semibold">Your next home</h3>
+                {shortlistUnits.length > 0 || unit ? (
+                  <ul className="mt-3 grid gap-2 font-display-normal text-sm">
+                    {(shortlistUnits.length > 0 ? shortlistUnits : unit ? [unit] : []).map((u) => (
+                      <li key={u.id} className="flex flex-wrap justify-between gap-2 rounded-lg bg-mist px-4 py-2.5">
+                        <span className="font-semibold">Unit {unitNumber(u)} · {layoutName(u)}</span>
+                        <span>{u.price !== null ? `${compactMoney(u.price)}${u.priceIsEstimate ? " (estimate)" : ""}` : "price not published"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-canopy/80">Choose a unit in Units &amp; Payments and it appears here, so you don&apos;t have to enter its price again.</p>
+                )}
+                {!unit && (
+                  <button type="button" onClick={() => goTo("units")} className={`${btnPrimary} mt-4`}>
+                    Choose units
+                  </button>
+                )}
+              </div>
+            }
+          />
         </div>
       )}
+
+      <div className="mx-auto max-w-7xl px-4 pb-32 sm:px-8">
+        <SectionPager active={tab} onChange={(t) => goTo(t)} />
+      </div>
 
       <ShortlistDialog
         dialogRef={shortlistDialog.ref}
