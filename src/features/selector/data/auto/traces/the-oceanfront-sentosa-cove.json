@@ -1,0 +1,118 @@
+{
+ "image": "https://img.singmap.com/upload/broke/c7cc0e4a3aaf449497f82cd2c97c59d4/307f403e5f6c401eae5c0d1d34c7bebf/siteplanImg/20240513/Site Plan 1.png",
+ "widthPx": 1600,
+ "heightPx": 1203,
+ "pxPerM": 1.573,
+ "scaleFrom": "site area",
+ "northDeg": 315,
+ "crop": [
+  40,
+  500,
+  400,
+  732
+ ],
+ "blocks": [
+  {
+   "block": "Blk 289",
+   "core": [
+    134,
+    685
+   ],
+   "stacks": {
+    "12": [
+     123,
+     696
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the key plan inset (left of the site plan sheet), which draws the plot boundary as a clear line and prints the block numbers (281-297), the stack numbers and the north point; the large illustrated plan has no boundary line, scale bar or north point of its own. Scale from the published site area, 197,151 sq ft = 18,316 m\u00b2, over the traced plot boundary (about \u00b11%). No second scale method on the sheet. North point leans 45\u00b0 right of plan up. Blk 289 holds stacks 11 and 12; only stack 12 has units in the list.",
+ "siteBoundary": [
+  [
+   49,
+   713
+  ],
+  [
+   57,
+   726
+  ],
+  [
+   75,
+   724
+  ],
+  [
+   102,
+   720
+  ],
+  [
+   359,
+   719
+  ],
+  [
+   359,
+   706
+  ],
+  [
+   349,
+   698
+  ],
+  [
+   342,
+   685
+  ],
+  [
+   343,
+   670
+  ],
+  [
+   352,
+   658
+  ],
+  [
+   363,
+   654
+  ],
+  [
+   373,
+   650
+  ],
+  [
+   373,
+   544
+  ],
+  [
+   364,
+   536
+  ],
+  [
+   333,
+   527
+  ],
+  [
+   333,
+   519
+  ],
+  [
+   319,
+   512
+  ],
+  [
+   295,
+   508
+  ],
+  [
+   287,
+   510
+  ],
+  [
+   76,
+   657
+  ],
+  [
+   68,
+   667
+  ]
+ ]
+}

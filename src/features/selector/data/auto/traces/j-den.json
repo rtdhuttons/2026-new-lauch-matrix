@@ -1,0 +1,16 @@
+{
+ "image": "https://img.singmap.com/upload/broke/26a7e3532c1e40c493ccd4d1302549f3/b43a59ee25424f54adb7ea7639a7aee5/siteplanImg/20231005/Site Plan.jpg",
+ "widthPx": 1113,
+ "heightPx": 1558,
+ "pxPerM": 7.44,
+ "scaleFrom": "site area",
+ "northDeg": 348,
+ "crop": [40, 150, 1060, 1160],
+ "siteBoundary": [[181, 214], [876, 214], [880, 684], [818, 722], [560, 940], [502, 966], [470, 950], [195, 705], [185, 680]],
+ "blocks": [
+  {"block": "J'den", "core": [484, 666], "stacks": {"01": [555, 608], "02": [629, 608], "03": [660, 738], "04": [552, 738], "05": [496, 738], "06": [436, 738], "07": [361, 719], "08": [346, 608], "09": [446, 608], "10": [499, 608]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Level 3 garden plan. Its scale bar is labelled 0-5 m over 224 px, which cannot be right (the tower would be about 9 m long), so it is not used. Scale from the published site area (7,771.2 m²) over the outline of the Level 3 deck, taken as the plot boundary (429,664 px²): 7.44 px/m. If the plot runs past the deck edge to the road verges the true scale is smaller. Cross-check: the Lake Pool, which the developer states is 50 m, measures about 400 px along its long outer edge, about 7.9 px/m, 6% off; the pool is curved, so this is only a rough check. North point about 12° clockwise from plan up. Stack numbers 01-10 are printed on the plan; core between the two lift cores."
+}

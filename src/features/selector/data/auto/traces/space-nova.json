@@ -1,0 +1,16 @@
+{
+ "image": "https://img.singmap.com/upload/broke/458ddee6111847498a3221706f8499ba/afac3a972b2949c0be0e89e42e9f2a09/siteplanImg/20260706/Site_Plan.png",
+ "widthPx": 1789,
+ "heightPx": 1255,
+ "pxPerM": 16.05,
+ "scaleFrom": "site area",
+ "northDeg": 23,
+ "crop": [40, 60, 1340, 880],
+ "siteBoundary": [[120, 117], [1317, 117], [1317, 842], [120, 842]],
+ "blocks": [
+  {"block": "SPACE NOVA", "core": [935, 598]}
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "1st storey plan; no scale bar. Scale from the published site area (3,368.4 m²) over the plot boundary (the dashed boundary lines on the left and right and the solid boundary line along the top and bottom, 867,825 px²) gives 16.05 px/m. Cross-check with the strata areas printed on the same sheet: the three 1st-storey shops measure 15.7-15.9 px/m (#01-01 195 m², #01-02 248 m², #01-03 176 m²), within 2%. North point about 23° anticlockwise from plan up. Core at the passenger lift lobby (legend 02). Only the 1st-storey shop numbers are printed, and the distribution chart numbers units differently on each floor, so stacks are arranged round the core."
+}

@@ -112,10 +112,11 @@ def zoom(slug, idx, x0, y0, x1, y1):
 
 def site_area_m2(s):
     a = s["facts"].get("siteArea") or ""
-    m = re.search(r"([\d,]+(?:\.\d+)?)\s*(sq\s*ft|sqft|sf|sq\s*m|sqm|m2|m²)", a, re.I)
+    # Thousands may be written "197,151", "197, 151" or "197 151".
+    m = re.search(r"(\d{1,3}(?:[,\s]\s*\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(sq\s*ft|sqft|sf|sq\s*m|sqm|m2|m²)", a, re.I)
     if not m:
         return None
-    v = float(m.group(1).replace(",", ""))
+    v = float(re.sub(r"[,\s]", "", m.group(1)))
     return v / 10.7639 if "f" in m.group(2).lower() else v
 
 

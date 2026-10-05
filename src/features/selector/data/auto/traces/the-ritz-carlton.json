@@ -1,0 +1,76 @@
+{
+ "image": "https://img.singmap.com/upload/broke/5ee44bd31df24df9afd2d37cb2c05ef1/84c852f5e4334c808facaf3560bb387a/siteplanImg/87e0559dd60d4a1884feea3a9f4fc6fd.jpg",
+ "widthPx": 1600,
+ "heightPx": 1129,
+ "pxPerM": 8.59,
+ "scaleFrom": "site area",
+ "northDeg": null,
+ "crop": [
+  125,
+  200,
+  1140,
+  1060
+ ],
+ "siteBoundary": [
+  [
+   136,
+   217
+  ],
+  [
+   1003,
+   385
+  ],
+  [
+   967,
+   526
+  ],
+  [
+   1021,
+   540
+  ],
+  [
+   1124,
+   825
+  ],
+  [
+   843,
+   922
+  ],
+  [
+   768,
+   688
+  ],
+  [
+   500,
+   690
+  ],
+  [
+   604,
+   1005
+  ],
+  [
+   524,
+   1033
+  ],
+  [
+   409,
+   700
+  ],
+  [
+   261,
+   729
+  ]
+ ],
+ "blocks": [
+  {
+   "block": "The Ritz-Carlton Residences",
+   "core": [
+    500,
+    478
+   ]
+  }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "Ground floor facilities plan; no scale bar and no north point. Scale from the site area: the plot outline (with the access driveway, cut at the footpath line along the road) traced as siteBoundary (404,730 px²) against the published 5,481 m² gives 8.59 px/m. Cross-check: the tennis court (23.77 m by 10.97 m doubles lines) measures 214.5 x 99.5 px, about 9.05 px/m, and the lap pool labelled 25 m measures about 232 px (9.3 px/m), so the drawn facilities are some 5-8% larger than the site-area scale; the site-area scale is kept as the guide prefers it. Core at the tower's central lift core. Unit numbers are not printed on the plan, so stacks 01 and 02 are arranged round the core."
+}

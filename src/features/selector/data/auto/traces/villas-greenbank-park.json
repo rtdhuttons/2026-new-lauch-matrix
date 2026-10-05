@@ -1,0 +1,16 @@
+{
+ "image": "https://img.singmap.com/upload/broke/43f80b9550a14e999f55c9913445741e/9072d5ee72fe4606bdbc6c8f76229272/siteplanImg/20250515/Site_Plan.jpg",
+ "widthPx": 1600,
+ "heightPx": 1200,
+ "pxPerM": 17.1,
+ "scaleFrom": "site area",
+ "northDeg": null,
+ "crop": [0, 0, 1600, 1200],
+ "siteBoundary": [[50, 697], [885, 144], [891, 155], [912, 141], [904, 131], [938, 109], [938, 1057]],
+ "blocks": [
+  {"block": "Villas @ Greenbank Park", "core": [610, 580], "stacks": {"50": [857, 506], "52": [857, 656], "54": [432, 732]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Aerial site plan; no scale bar and no north point. Scale from the published site area (1,439.5 m²) over the triangular plot: the boundary wall is drawn along both long sides to the tip on the left, and the Greenbank Park side is taken where the forecourt paving meets the pale road verge (x ≈ 938). Polygon 420,662 px² gives 17.10 px/m. No second scale method on the plan (no scale bar, tennis court or stated pool length); as a rough sanity check only, the cars drawn come out 4-5.6 m long. House numbers 50, 52 (semi-detached pair) and 54 (bungalow) are printed on the plan and used as the stack positions. There is no lift core: the block's core is placed at the middle of the three houses' footprint."
+}

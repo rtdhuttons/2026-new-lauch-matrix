@@ -398,7 +398,7 @@ export const autoListings: AutoListing[] = [
     "area": "Boon Lay / Jurong / Tuas",
     "summary": "368 units · 99 Years · D22",
     "image": "https://img.singmap.com/upload/broke/26a7e3532c1e40c493ccd4d1302549f3/b43a59ee25424f54adb7ea7639a7aee5/imgs/20230928/489fd4dbd98f451a96fa2483da8618aa.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "jansen-house",
@@ -812,7 +812,7 @@ export const autoListings: AutoListing[] = [
     "area": "Hougang / Punggol / Sengkang",
     "summary": "47 units · Freehold · D19",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/afac3a972b2949c0be0e89e42e9f2a09/imgs/20260605/9065a7abef9d4202b11a30e3dc4f8f37.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "springleaf-residence",
@@ -920,7 +920,7 @@ export const autoListings: AutoListing[] = [
     "area": "Harbourfront / Telok Blangah",
     "summary": "1 units · 99 Years · D04",
     "image": "https://img.singmap.com/upload/broke/c7cc0e4a3aaf449497f82cd2c97c59d4/307f403e5f6c401eae5c0d1d34c7bebf/imgs/20240513/6230b4e7e49c446588481f658f383262.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-oliv",
@@ -956,7 +956,7 @@ export const autoListings: AutoListing[] = [
     "area": "Harbourfront / Telok Blangah",
     "summary": "228 units · 99 Years · D04",
     "image": "https://img.singmap.com/upload/broke/5e29cd22a7d64d27ba9c41e94e68c2d6/661aa8688a254e52a53146a28d5820fe/imgs/20230203/3ff029e575e24b318f0fec3306418557.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-ritz-carlton",
@@ -965,7 +965,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "57 units · Freehold · D09",
     "image": "https://img.singmap.com/upload/broke/5ee44bd31df24df9afd2d37cb2c05ef1/84c852f5e4334c808facaf3560bb387a/imgs/29f2ab81007a4911ba8ff25b48a35404.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-robertson-opus",
@@ -1082,7 +1082,7 @@ export const autoListings: AutoListing[] = [
     "area": "Clementi / Upper Bukit Timah",
     "summary": "3 units · Freehold · D21",
     "image": "https://img.singmap.com/upload/broke/43f80b9550a14e999f55c9913445741e/9072d5ee72fe4606bdbc6c8f76229272/imgs/20250515/0338ea0069e945ffb8c614cc4dc72154.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "villas-old-tampines-road",
@@ -1281,6 +1281,7 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "grand-dunman": () => import("./traces/grand-dunman.json"),
   "grange-1866": () => import("./traces/grange-1866.json"),
   "hudson-place-residences": () => import("./traces/hudson-place-residences.json"),
+  "j-den": () => import("./traces/j-den.json"),
   "jansen-house": () => import("./traces/jansen-house.json"),
   "kassia": () => import("./traces/kassia.json"),
   "kovan-jewel": () => import("./traces/kovan-jewel.json"),
@@ -1308,6 +1309,7 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "sophia-meadow": () => import("./traces/sophia-meadow.json"),
   "sophia-regency": () => import("./traces/sophia-regency.json"),
   "sora": () => import("./traces/sora.json"),
+  "space-nova": () => import("./traces/space-nova.json"),
   "springleaf-residence": () => import("./traces/springleaf-residence.json"),
   "terra-hill": () => import("./traces/terra-hill.json"),
   "the-arcady-at-boon-keng": () => import("./traces/the-arcady-at-boon-keng.json"),
@@ -1315,7 +1317,10 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "the-hillshore": () => import("./traces/the-hillshore.json"),
   "the-line-tanjong-rhu": () => import("./traces/the-line-tanjong-rhu.json"),
   "the-myst": () => import("./traces/the-myst.json"),
+  "the-oceanfront-sentosa-cove": () => import("./traces/the-oceanfront-sentosa-cove.json"),
   "the-orie": () => import("./traces/the-orie.json"),
+  "the-residences-at-w-singapore-sentosa-cove": () => import("./traces/the-residences-at-w-singapore-sentosa-cove.json"),
+  "the-ritz-carlton": () => import("./traces/the-ritz-carlton.json"),
   "the-robertson-opus": () => import("./traces/the-robertson-opus.json"),
   "the-sen": () => import("./traces/the-sen.json"),
   "the-shorefront": () => import("./traces/the-shorefront.json"),
@@ -1325,6 +1330,7 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "upperhouse-at-orchard-boulevard": () => import("./traces/upperhouse-at-orchard-boulevard.json"),
   "vela-bay": () => import("./traces/vela-bay.json"),
   "verde-joo-chiat": () => import("./traces/verde-joo-chiat.json"),
+  "villas-greenbank-park": () => import("./traces/villas-greenbank-park.json"),
   "w-residences-marina-view-singapore": () => import("./traces/w-residences-marina-view-singapore.json"),
   "zyon-grand": () => import("./traces/zyon-grand.json"),
 };
