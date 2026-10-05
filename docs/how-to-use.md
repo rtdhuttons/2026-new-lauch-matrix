@@ -65,9 +65,9 @@ behind the estimated prices), and **Suggested units for your priorities**.
 
 *Explore nearby primary schools and understand the registration considerations.*
 
-Primary schools grouped by distance from the project: within 1 km (Ai Tong
-School) and between 1 and 2 km (Catholic High, Marymount Convent and CHIJ St.
-Nicholas Girls'), and not measured yet. Each distance says whether it is official
+Primary schools grouped by distance, measured on OneMap from each block:
+within 1 km (Ai Tong School) and between 1 and 2 km (Catholic High, Ang Mo Kio
+Primary and CHIJ St. Nicholas Girls'); Marymount Convent is just over 2 km. Each distance says whether it is official
 (OneMap) or indicative (worked out from map data). Living nearby doesn't
 guarantee a place.
 

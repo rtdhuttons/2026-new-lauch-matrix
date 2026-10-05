@@ -17,9 +17,9 @@ first complete project and the template for future developments. Work done
 - **Payment estimate** uses LTV (75%), interest (2%) and loan period (25
   years), all changeable, and shows the loan amount; cash and CPF inputs and
   the suggested units section were removed.
-- **Schools**: Catholic High, Marymount Convent and CHIJ St. Nicholas Girls'
-  added in the 1–2 km group from published distances (OneMap still blocked
-  from this environment).
+- **Schools measured on OneMap** from each block's address point: Ai Tong
+  within 1 km; Catholic High, Ang Mo Kio Primary and CHIJ St. Nicholas Girls'
+  between 1 and 2 km; Marymount Convent just over 2 km.
 - **Exit outcomes**: choose bedroom type, model, floor or your own price, and
   your own yearly growth rate.
 

@@ -10,15 +10,25 @@ import { jadescapeRentals } from "../comparables/jadescape-rentals";
 import { alternatives } from "./alternatives";
 import { gallery, heroImage, locationMap } from "./gallery";
 
-/** A distance published by property websites, until the official OneMap check is done. */
-const published = (metres: number) => ({
-  byAddress: [{ address: "Thomson Reserve", metres }],
-  method: "as published by property websites (straight line from the project)",
+/** OneMap address points of the six blocks (searched 5 Oct 2026). */
+const BLOCK_ADDRESSES: Record<number, string> = {
+  1: "Block 1 (579580)",
+  3: "Block 3 (579587)",
+  5: "Block 5 (579594)",
+  7: "Block 7 (579599)",
+  9: "Block 9 (579600)",
+  11: "Block 11 (579608)",
+};
+
+/** Straight-line distance from each block's OneMap address point to the school's. */
+const onemap = (byBlock: [number, number][]) => ({
+  byAddress: byBlock.map(([b, metres]) => ({ address: BLOCK_ADDRESSES[b], metres })),
+  method: "on OneMap, as a straight line from each block's address point to the school's address point",
   provenance: {
-    source: "Property websites listing school distances from Thomson Reserve (econdo.sg, thomsonreservescondo.sg and project review sites)",
+    source: "SLA OneMap address search (block and school address points), 5 Oct 2026",
     updated: "2026-10-05",
-    status: "estimated" as const,
-    note: "Not checked on OneMap; sources differ. The official home-school distance is measured from your block's address.",
+    status: "verified" as const,
+    note: "MOE's official home-school distance is measured from your address to the school boundary, so it can be a little shorter than these figures.",
   },
 });
 
@@ -184,43 +194,31 @@ export const thomsonReserve: ProjectBundle = {
       {
         ...school("Ai Tong School", ["primary"]),
         highlighted: true,
-        distance: {
-          byAddress: [
-            { address: "1 Bright Hill Drive (Block 1)", metres: 470 },
-            { address: "3 Bright Hill Drive (Block 3)", metres: 480 },
-            { address: "5 Bright Hill Drive (Block 5)", metres: 440 },
-            { address: "7 Bright Hill Drive (Block 7)", metres: 410 },
-            { address: "9 Bright Hill Drive (Block 9)", metres: 420 },
-            { address: "11 Bright Hill Drive (Block 11)", metres: 400 },
-          ],
-          method: "straight line from each block's position on the site plan to the school boundary",
-          provenance: {
-            source: "OpenStreetMap school boundary (Ai Tong School, Bright Hill Drive 579646) and the traced site plan; scripts/osm/school-distance.py",
-            updated: "2026-10-03",
-            status: "estimated",
-            note: "Indicative. The official home-school distance from SLA OneMap has not been checked yet.",
-          },
-        },
-        distanceCategory: { value: "within-1km", basis: "indicative" },
-        note: "TRM's PIVOT e-book also says within 1 km, about an 11-minute walk.",
+        distance: onemap([[1, 510], [3, 520], [5, 510], [7, 510], [9, 490], [11, 480]]),
+        distanceCategory: { value: "within-1km", basis: "onemap" },
+        note: "Measured to the school boundary on the map, it is about 400–480 m. TRM's PIVOT e-book also says within 1 km, about an 11-minute walk.",
       },
       {
         ...school("Catholic High School", ["primary", "secondary"]),
-        distance: published(1600),
-        distanceCategory: { value: "1-2km", basis: "indicative" },
-        note: "Property websites give 1.59–1.62 km from Thomson Reserve.",
+        distance: onemap([[1, 1530], [3, 1570], [5, 1740], [7, 1770], [9, 1570], [11, 1530]]),
+        distanceCategory: { value: "1-2km", basis: "onemap" },
       },
       {
-        ...school("Marymount Convent School", ["primary"]),
-        distance: published(1880),
-        distanceCategory: { value: "1-2km", basis: "indicative" },
-        note: "Property websites give about 1.88 km; one says about 1 km. Check OneMap for your block.",
+        ...school("Ang Mo Kio Primary School", ["primary"]),
+        distance: onemap([[1, 1720], [3, 1740], [5, 1720], [7, 1710], [9, 1700], [11, 1690]]),
+        distanceCategory: { value: "1-2km", basis: "onemap" },
       },
       {
         ...school("CHIJ St. Nicholas Girls' School", ["primary", "secondary"]),
-        distance: published(1950),
-        distanceCategory: { value: "1-2km", basis: "indicative" },
-        note: "Property websites give 1.92–1.95 km (one wrongly lists it within 1 km): close to the 2 km line, so check OneMap for your block. TRM's PIVOT e-book: about a 6-minute drive.",
+        distance: onemap([[1, 1940], [3, 1940], [5, 1840], [7, 1820], [9, 1900], [11, 1900]]),
+        distanceCategory: { value: "1-2km", basis: "onemap" },
+        note: "Close to the 2 km line. TRM's PIVOT e-book: about a 6-minute drive.",
+      },
+      {
+        ...school("Marymount Convent School", ["primary"]),
+        distance: onemap([[1, 2020], [3, 2050], [5, 2240], [7, 2280], [9, 2070], [11, 2050]]),
+        distanceCategory: { value: "outside-2km", basis: "onemap" },
+        note: "Just over 2 km between address points (2.02–2.07 km from Blocks 1, 3, 9 and 11). MOE measures to the school boundary, which is nearer, so it may fall within 2 km: check MOE's school finder for your block.",
       },
       school("Peirce Secondary School", ["secondary"]),
       school("Mayflower Secondary School", ["secondary"]),

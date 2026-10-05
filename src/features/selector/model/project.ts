@@ -126,7 +126,7 @@ export interface School {
    * distance check (SLA OneMap); "indicative" when worked out from map data,
    * which may differ near 1 km or 2 km.
    */
-  distanceCategory: { value: "within-1km" | "1-2km" | "outside-2km"; basis: "official" | "indicative" } | null;
+  distanceCategory: { value: "within-1km" | "1-2km" | "outside-2km"; basis: "official" | "onemap" | "indicative" } | null;
   /** Past Primary 1 registration results, as published. */
   p1History: { year: number; phase: string; applicants: number | null; vacancies: number | null; balloted: boolean | null; provenance: Provenance }[];
   provenance: Provenance;

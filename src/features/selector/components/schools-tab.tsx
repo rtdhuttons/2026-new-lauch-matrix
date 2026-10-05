@@ -27,9 +27,11 @@ function distanceText(s: School): string | null {
   return lo === hi ? `about ${lo.toLocaleString("en-SG")} m` : `about ${lo.toLocaleString("en-SG")}–${hi.toLocaleString("en-SG")} m`;
 }
 
-function BasisTag({ basis }: { basis: "official" | "indicative" }) {
+function BasisTag({ basis }: { basis: "official" | "onemap" | "indicative" }) {
   return basis === "official" ? (
     <span className="inline-flex items-center gap-1 rounded-full bg-canopy px-2 py-0.5 font-display-normal text-xs font-semibold text-mist">✓ Official</span>
+  ) : basis === "onemap" ? (
+    <span className="inline-flex items-center gap-1 rounded-full bg-reservoir px-2 py-0.5 font-display-normal text-xs font-semibold text-white">◎ OneMap</span>
   ) : (
     <span className="inline-flex items-center gap-1 rounded-full border border-[#c9a45a] bg-[#fbf3df] px-2 py-0.5 font-display-normal text-xs font-semibold text-[#7a5410]">≈ Indicative</span>
   );
@@ -37,6 +39,8 @@ function BasisTag({ basis }: { basis: "official" | "indicative" }) {
 
 function SchoolCard({ s }: { s: School }) {
   const d = distanceText(s);
+  // Mark the priority line nearest these distances: 1 km, or 2 km beyond it.
+  const line = s.distance && Math.max(...s.distance.byAddress.map((a) => a.metres)) > 1000 ? 2000 : 1000;
   return (
     <li className={`${card} p-4`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -52,14 +56,14 @@ function SchoolCard({ s }: { s: School }) {
       </p>
       {s.note && <p className="mt-1 text-xs text-stone">{s.note}</p>}
       {s.distance && s.distance.byAddress.length > 1 && (
-        <details className="mt-2" open>
+        <details className="mt-2" open={!!s.highlighted}>
           <summary className="cursor-pointer font-display-normal text-sm font-semibold text-reservoir">Distance from each block</summary>
           <div className="mt-2">
             <BarChart
               ariaLabel={`Distance from each block to ${s.name}`}
               format={(n) => `${Math.round(n).toLocaleString("en-SG")} m`}
-              max={Math.max(1100, ...s.distance.byAddress.map((a) => a.metres)) * 1.05}
-              marker={{ value: 1000, label: "1 km" }}
+              max={Math.max(line * 1.1, ...s.distance.byAddress.map((a) => a.metres)) * 1.05}
+              marker={{ value: line, label: line === 1000 ? "1 km" : "2 km" }}
               bars={s.distance.byAddress.map((a) => ({ id: a.address, label: a.address, value: a.metres, color: "#0b7f9e" }))}
             />
           </div>
@@ -81,6 +85,7 @@ export function SchoolsTab({ schools, projectName, map }: { schools: SchoolsInfo
   const others = schools.schools.filter((s) => !s.levels.includes("primary"));
   const groupOf = (s: School) => s.distanceCategory?.value ?? "unmeasured";
   const anyIndicative = primary.some((s) => s.distanceCategory?.basis === "indicative");
+  const anyOnemap = primary.some((s) => s.distanceCategory?.basis === "onemap");
 
   return (
     <div className="grid grid-cols-1 gap-8 [&>*]:min-w-0">
@@ -126,6 +131,12 @@ export function SchoolsTab({ schools, projectName, map }: { schools: SchoolsInfo
             );
           })}
         </div>
+        {anyOnemap && (
+          <p className="mt-4 text-sm text-stone">
+            ◎ OneMap: measured with SLA OneMap from each block&apos;s address point to the school&apos;s address point. MOE&apos;s official distance is measured to the
+            school boundary, so it can be a little shorter; near 1 km or 2 km, check MOE&apos;s school finder for your exact address.
+          </p>
+        )}
         {anyIndicative && (
           <p className="mt-4 text-sm text-stone">
             ≈ Indicative: worked out from map data, not the official OneMap check. It can differ, especially near 1 km or 2 km.
@@ -150,16 +161,12 @@ export function SchoolsTab({ schools, projectName, map }: { schools: SchoolsInfo
       </p>
 
       <NotSupplied
-        title="Official distances and past Primary 1 results have not been added yet."
+        title="Past Primary 1 results have not been added yet."
         needed={[
-          "The official home–school distance (SLA OneMap) for each block's address, for every primary school within 2 km.",
-          "Distances for schools beyond the neighbourhood map data.",
           "Past Primary 1 registration results by phase (MOE): places, applicants and whether balloting took place.",
-          "The registration year to apply, and any schools you want highlighted.",
+          "The registration year to apply, and any other schools you want highlighted.",
         ]}
-      >
-        OneMap can&apos;t be reached from the build environment yet; once it can, every primary school within 2 km can be measured from each block.
-      </NotSupplied>
+      />
     </div>
   );
 }

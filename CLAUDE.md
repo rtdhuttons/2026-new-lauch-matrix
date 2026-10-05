@@ -149,6 +149,8 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   `docs/sample-project/` — how to add the next development.
 - `public/thomson-reserve/` — site plan, its mask (`site-plan-mask.png`,
   white where the plan shows the site), floor plans, images.
+- `scripts/onemap/school-distances.py` — primary schools within about 2.5 km
+  of each block, from OneMap address points (needs www.onemap.gov.sg allowed).
 - `scripts/build-artifact.mjs` and `scripts/artifact/` — the single-page build.
 
 ## 4. Rules for this project
