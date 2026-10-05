@@ -11,7 +11,19 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0d. Latest: progressive payments (3 Oct, late)
+## 0e. Latest (5 Oct)
+
+- **Budget** dropdown from $1.5M to $6M in $0.5M steps.
+- **Payment estimate** uses LTV (75%), interest (2%) and loan period (25
+  years), all changeable, and shows the loan amount; cash and CPF inputs and
+  the suggested units section were removed.
+- **Schools**: Catholic High, Marymount Convent and CHIJ St. Nicholas Girls'
+  added in the 1–2 km group from published distances (OneMap still blocked
+  from this environment).
+- **Exit outcomes**: choose bedroom type, model, floor or your own price, and
+  your own yearly growth rate.
+
+## 0d. Progressive payments (3 Oct, late)
 
 - **Payment estimate** now has its own unit picker: bedroom type → model
   (e.g. three 3-bedroom models) → floor level → estimated price. It shows the
@@ -204,7 +216,7 @@ questions for every home:
 
 ## 7. Checks
 
-- 91 automated tests pass (prices, view clearance, sun, JadeScape figures,
+- 92 automated tests pass (prices, view clearance, sun, JadeScape figures,
   rents, PIVOT workings, payment estimates, project checks, no leaks into
   the sample project); typecheck and lint are clean.
 - The shared page was tested on desktop and phone widths, under the same

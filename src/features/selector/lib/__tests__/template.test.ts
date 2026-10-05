@@ -8,7 +8,7 @@ import { differenceSentence } from "../../components/compare-cards";
 import { createEngine } from "../engine";
 import { applyPriceEstimate } from "../estimate";
 import * as estimate from "../estimate";
-import { estimatePayments, EMPTY_PAYMENT_INPUTS, loanSchedule, monthlyInstalment } from "../payments";
+import { DEFAULT_PAYMENT_INPUTS, estimatePayments, loanSchedule, monthlyInstalment } from "../payments";
 import { niceTicks, waterfallColumns } from "../../components/charts";
 import { annualisedSpread, averageScore, entryPsfSteps, EXIT_YEARS, exitProjection, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE } from "../selling";
@@ -164,31 +164,31 @@ describe("payment estimate", () => {
     expect(monthlyInstalment(120_000, 0, 10)).toBe(1000);
   });
 
-  it("asks for what's missing, as a problem and a fix", () => {
-    const r = estimatePayments(2_000_000, EMPTY_PAYMENT_INPUTS);
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.problems).toContain("Enter a loan period to calculate your payment.");
-    const noPrice = estimatePayments(null, { ...EMPTY_PAYMENT_INPUTS, loanAmount: 1, interestRatePct: 1, loanYears: 1 });
-    expect(noPrice.ok).toBe(false);
+  it("starts at 75% LTV, 2% a year over 25 years", () => {
+    expect(DEFAULT_PAYMENT_INPUTS).toEqual({ ltvPct: 75, interestRatePct: 2, loanYears: 25 });
   });
 
-  it("splits the down payment between CPF and cash and reconciles", () => {
-    const r = estimatePayments(2_000_000, { cashAvailable: 400_000, cpfAvailable: 150_000, loanAmount: 1_500_000, interestRatePct: 3, loanYears: 30, cpfMonthly: 2_000 });
+  it("works out the loan from the LTV, and the down payment from the rest", () => {
+    const r = estimatePayments(2_000_000, DEFAULT_PAYMENT_INPUTS);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     const v = r.value;
+    expect(v.loanAmount).toBe(1_500_000);
     expect(v.downPayment).toBe(500_000);
-    expect(v.cpfForDownPayment + v.cashUpfront).toBe(v.downPayment);
-    expect(v.cashUpfront).toBe(350_000);
-    expect(v.cashLeft).toBe(50_000);
-    expect(v.loanAmount + v.downPayment).toBe(v.price);
-    expect(v.cashMonthlyAfterCpf).toBeCloseTo(v.monthlyInstalment - 2_000, 6);
-    expect(v.totalInterest).toBeCloseTo(v.monthlyInstalment * 360 - 1_500_000, 6);
+    expect(v.minCash).toBe(100_000);
+    expect(v.monthlyInstalment).toBeCloseTo(monthlyInstalment(1_500_000, 2, 25), 6);
+    expect(v.totalInterest).toBeCloseTo(v.monthlyInstalment * 300 - 1_500_000, 6);
   });
 
-  it("refuses a loan above the price", () => {
-    const r = estimatePayments(1_000_000, { ...EMPTY_PAYMENT_INPUTS, loanAmount: 1_200_000, interestRatePct: 3, loanYears: 25 });
+  it("asks for what's missing, as a problem and a fix", () => {
+    const r = estimatePayments(2_000_000, { ...DEFAULT_PAYMENT_INPUTS, loanYears: null });
     expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.problems).toContain("Enter a loan period to calculate your payment.");
+    expect(estimatePayments(null, DEFAULT_PAYMENT_INPUTS).ok).toBe(false);
+  });
+
+  it("keeps the 5% booking fee in cash", () => {
+    expect(estimatePayments(1_000_000, { ...DEFAULT_PAYMENT_INPUTS, ltvPct: 96 }).ok).toBe(false);
   });
 });
 
@@ -354,24 +354,24 @@ describe("progressive payments", () => {
     expect(STANDARD_SCHEDULE.map((s) => s.percent)).toEqual([5, 15, 10, 10, 5, 5, 5, 5, 25, 15]);
   });
 
-  it("pays the first stages from own money, then draws the loan", () => {
-    const r = progressivePayments(1_000_000, { loanAmount: 750_000, cpfAvailable: 100_000, interestRatePct: 3, loanYears: 30 });
+  it("pays the first stages from the down payment, then draws the loan", () => {
+    const r = progressivePayments(1_000_000, { loanAmount: 750_000, interestRatePct: 3, loanYears: 30 });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     const [booking, sp, foundation, frame] = r.stages;
-    expect([booking.cash, booking.cpf, booking.loan]).toEqual([50_000, 0, 0]);
-    expect([sp.cash, sp.cpf, sp.loan]).toEqual([50_000, 100_000, 0]);
+    expect([booking.own, booking.loan, booking.cashOnly]).toEqual([50_000, 0, true]);
+    expect([sp.own, sp.loan]).toEqual([150_000, 0]);
     // The 25% down payment covers half of the foundation stage; the loan pays the rest.
-    expect([foundation.cash, foundation.loan]).toEqual([50_000, 50_000]);
+    expect([foundation.own, foundation.loan]).toEqual([50_000, 50_000]);
     expect(frame.loan).toBe(100_000);
-    expect(r.totals).toEqual({ cash: 150_000, cpf: 100_000, loan: 750_000 });
+    expect(r.totals).toEqual({ own: 250_000, loan: 750_000 });
     expect(r.stages.at(-1)!.loanDrawn).toBe(750_000);
     expect(r.stages.at(-1)!.monthly).toBeCloseTo(monthlyInstalment(750_000, 3, 30), 6);
     expect(foundation.monthly).toBeLessThan(r.stages.at(-1)!.monthly);
   });
 
   it("keeps the booking fee in cash", () => {
-    const r = progressivePayments(1_000_000, { loanAmount: 980_000, cpfAvailable: 0, interestRatePct: 3, loanYears: 30 });
+    const r = progressivePayments(1_000_000, { loanAmount: 980_000, interestRatePct: 3, loanYears: 30 });
     expect(r.ok).toBe(false);
   });
 

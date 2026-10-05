@@ -215,12 +215,11 @@ export function UnitSummary({
           {unit.priceIsEstimate && <p className="mt-2 text-xs text-stone">All prices here are estimates.</p>}
         </Disclosure>
 
-        <Disclosure title="Payment breakdown" hint={payment ? "From your figures" : "Not calculated yet"}>
+        <Disclosure title="Payment breakdown" hint={payment ? "From the LTV, rate and loan period in step 4" : "Not calculated yet"}>
           {payment ? (
             <dl className="grid gap-1.5 font-display-normal text-sm tabular-nums">
-              <div className="flex justify-between gap-4"><dt className="text-canopy/70">Down payment</dt><dd className="font-semibold">{money(payment.downPayment)}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-canopy/70">From CPF</dt><dd className="font-semibold">{money(payment.cpfForDownPayment)}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-canopy/70">Cash needed upfront</dt><dd className="font-semibold">{money(payment.cashUpfront)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-canopy/70">Loan ({payment.ltvPct}% LTV)</dt><dd className="font-semibold">{money(payment.loanAmount)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-canopy/70">Down payment (cash or CPF)</dt><dd className="font-semibold">{money(payment.downPayment)}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-canopy/70">Monthly loan payment after full loan disbursement</dt><dd className="font-semibold">{money(Math.round(payment.monthlyInstalment))}</dd></div>
             </dl>
           ) : (

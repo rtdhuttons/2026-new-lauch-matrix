@@ -8,6 +8,7 @@
 import { useState } from "react";
 import type { PivotInfo } from "../model/project";
 import { floorBand, FLOOR_BANDS } from "../lib/comparable";
+import type { UnitModel } from "../lib/alternatives";
 import { annualisedSpread, averageScore, entryPsfSteps, exitPsfSteps, exitProjection, PIVOT_CATEGORIES } from "../lib/pivot";
 import { BarChart, ChartCard, LineChart, SERIES, Waterfall } from "./charts";
 import { NotSupplied } from "./tabs";
@@ -59,7 +60,13 @@ export function PivotTab({
   evidence,
   completionDate,
   photo,
+  models,
+  start,
 }: {
+  /** Unit models with floors and prices, for the exit projection. */
+  models: UnitModel[];
+  /** The selected unit's model and floor, to start the exit projection from. */
+  start: { key: string; level: number } | null;
   /** A photo between the unit assessment and the PIVOT scores. */
   photo?: React.ReactNode;
   pivot: PivotInfo;
@@ -111,7 +118,7 @@ export function PivotTab({
         </ChartCard>
       )}
 
-      {unit && unit.price !== null && evidence && <ExitOutcomes unit={unit} evidence={evidence} completionDate={completionDate} />}
+      {evidence && models.length > 0 && <ExitOutcomes models={models} start={start} evidence={evidence} completionDate={completionDate} />}
 
       {photo}
 
@@ -264,54 +271,154 @@ const pctText = (r: number) => `${(r * 100).toFixed(2)}%`;
 const dollars = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 
 /** The unit's price grown at the comparison project's yearly returns, by year of sale. */
-function ExitOutcomes({ unit, evidence, completionDate }: { unit: PivotUnit; evidence: ExitEvidence; completionDate: string | null }) {
+function ExitOutcomes({
+  models,
+  start,
+  evidence,
+  completionDate,
+}: {
+  models: UnitModel[];
+  start: { key: string; level: number } | null;
+  evidence: ExitEvidence;
+  completionDate: string | null;
+}) {
+  const fallback = models.find((m) => m.bedrooms === 3) ?? models[0];
+  const startModel = (start && models.find((m) => m.key === start.key)) || fallback;
+  const [key, setKey] = useState(startModel?.key ?? "");
+  const [level, setLevel] = useState(start && startModel?.key === start.key ? start.level : (startModel?.levels[0]?.level ?? 0));
+  const [priceInput, setPriceInput] = useState<number | null>(null);
+  const [rateInput, setRateInput] = useState<number | null>(null);
   const [basis, setBasis] = useState<"all" | "band">("all");
   // Read the clock once, so the year around completion stays stable between renders.
   const [now] = useState(() => Date.now());
-  const band = floorBand(unit.level);
+  const model = models.find((m) => m.key === key) ?? fallback;
+  if (!model) return null;
+  const floor = model.levels.find((l) => l.level === level) ?? model.levels[0];
+  const band = floorBand(floor.level);
   const bandInfo = FLOOR_BANDS.find((b) => b.id === band)!;
   const pool = basis === "all" ? evidence.resales : evidence.resales.filter((r) => floorBand(r.floor) === band);
   const spread = annualisedSpread(pool.map((r) => r.annualised));
-  if (!spread || unit.price === null) return null;
-  const price = unit.price;
+  if (!spread) return null;
+  const price = priceInput ?? floor.price;
+  const rate = rateInput !== null ? rateInput / 100 : spread.median;
+  // The lower and higher case keep the spread of past results around the chosen rate.
+  const lowRate = rate - (spread.median - spread.q1);
+  const highRate = rate + (spread.q3 - spread.median);
   const yearsToCompletion = completionDate ? (new Date(`${completionDate}T00:00:00Z`).getTime() - now) / (365.25 * 24 * 3600 * 1000) : null;
   const completionYear = yearsToCompletion !== null ? Math.max(1, Math.round(yearsToCompletion)) : null;
-  const mid = exitProjection(price, spread.median);
-  const low = exitProjection(price, spread.q1);
-  const high = exitProjection(price, spread.q3);
+  const mid = exitProjection(price, rate);
+  const low = exitProjection(price, lowRate);
+  const high = exitProjection(price, highRate);
   const label = (y: number) => `+${y} years${completionYear === y ? " (around completion)" : ""}`;
+  const bedrooms = [...new Set(models.map((m) => m.bedrooms))];
+  const pick = (m: UnitModel, lv: number) => {
+    setKey(m.key);
+    setLevel(m.levels.some((l) => l.level === lv) ? lv : m.levels[0].level);
+    setPriceInput(null);
+  };
+  const input = "w-full min-w-0 rounded-lg border border-canopy/25 bg-paper px-3 py-2 font-display-normal tabular-nums";
 
   return (
     <section aria-labelledby="exit-outcomes" className={`${card} p-5 sm:p-6`}>
       <h3 id="exit-outcomes" className="font-display text-lg font-extrabold">Exit outcomes by year of sale</h3>
       <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
-        {unit.name}&apos;s price of {dollars(price)}
-        {unit.isEstimate ? " (an estimate)" : ""}, grown each year at the median yearly return owners made when they resold at {evidence.project}:{" "}
-        <strong>{pctText(spread.median)} a year</strong> ({spread.n} resales).
+        Choose a unit type and price, and a yearly growth rate. The default rate is the median yearly return owners made when they resold at {evidence.project}.
       </p>
-      <div role="group" aria-label="Which resales to use" className="mt-3 inline-flex flex-wrap rounded-full border border-canopy/15 bg-paper p-1">
-        {([
-          ["all", `All ${evidence.project} resales`],
-          ["band", `${bandInfo.label} floors only, like this unit`],
-        ] as const).map(([id, text]) => (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={basis === id}
-            onClick={() => setBasis(id)}
-            className={`rounded-full px-4 py-1.5 font-display-normal text-sm font-semibold ${basis === id ? "bg-canopy text-mist" : "text-canopy/75"}`}
-          >
-            {text}
-          </button>
-        ))}
+
+      <div className="mt-4 grid gap-4 rounded-xl bg-mist p-4">
+        <div role="group" aria-label="Bedroom type" className="flex flex-wrap gap-2">
+          {bedrooms.map((b) => (
+            <button
+              key={b}
+              type="button"
+              aria-pressed={model.bedrooms === b}
+              onClick={() => pick(models.find((m) => m.bedrooms === b)!, floor.level)}
+              className={`rounded-full px-4 py-1.5 font-display-normal text-sm font-semibold ${model.bedrooms === b ? "bg-canopy text-mist" : "border border-canopy/20 bg-paper text-canopy/80"}`}
+            >
+              {b} bedrooms
+            </button>
+          ))}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 [&>*]:min-w-0">
+          <label className="grid gap-1 font-display-normal text-sm">
+            <span className="text-canopy/70">Model</span>
+            <select value={model.key} onChange={(e) => pick(models.find((m) => m.key === e.target.value)!, floor.level)} className={input}>
+              {models
+                .filter((m) => m.bedrooms === model.bedrooms)
+                .map((m) => (
+                  <option key={m.key} value={m.key}>
+                    {m.type} · {m.sizeSqft.toLocaleString("en-SG")} sq ft
+                  </option>
+                ))}
+            </select>
+          </label>
+          <label className="grid gap-1 font-display-normal text-sm">
+            <span className="text-canopy/70">Floor level</span>
+            <select
+              value={floor.level}
+              onChange={(e) => {
+                setLevel(Number(e.target.value));
+                setPriceInput(null);
+              }}
+              className={input}
+            >
+              {model.levels.map((l) => (
+                <option key={l.level} value={l.level}>
+                  Level {l.level}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 font-display-normal text-sm">
+            <span className="text-canopy/70">Purchase price (S$)</span>
+            <input type="number" inputMode="decimal" min={0} step={10000} value={Math.round(price)} onChange={(e) => setPriceInput(e.target.value === "" ? null : Number(e.target.value))} className={input} />
+            <span className="text-xs text-canopy/60">{priceInput === null ? (floor.isEstimate ? "Estimated price; type your own to change it" : "Price list") : "Your price"}</span>
+          </label>
+          <label className="grid gap-1 font-display-normal text-sm">
+            <span className="text-canopy/70">Yearly growth (%)</span>
+            <input type="number" inputMode="decimal" step={0.1} value={Math.round(rate * 10000) / 100} onChange={(e) => setRateInput(e.target.value === "" ? null : Number(e.target.value))} className={input} />
+            <span className="text-xs text-canopy/60">
+              {rateInput === null ? `${evidence.project} median, ${spread.n} resales` : "Your rate"}
+              {rateInput !== null && (
+                <>
+                  {" · "}
+                  <button type="button" onClick={() => setRateInput(null)} className="font-semibold text-reservoir underline">
+                    use median ({pctText(spread.median)})
+                  </button>
+                </>
+              )}
+            </span>
+          </label>
+        </div>
+        <div role="group" aria-label="Which resales the default rate uses" className="inline-flex w-fit flex-wrap rounded-full border border-canopy/15 bg-paper p-1">
+          {([
+            ["all", `All ${evidence.project} resales`],
+            ["band", `${bandInfo.label} floors only, like level ${floor.level}`],
+          ] as const).map(([id, text]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={basis === id}
+              onClick={() => setBasis(id)}
+              className={`rounded-full px-4 py-1.5 font-display-normal text-sm font-semibold ${basis === id ? "bg-canopy text-mist" : "text-canopy/75"}`}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
       </div>
+
+      <p className="mt-4 max-w-[72ch] text-[0.9375rem] text-canopy/80">
+        {model.type}, level {floor.level}: {dollars(price)}
+        {priceInput === null && floor.isEstimate ? " (an estimate)" : ""}, grown at <strong>{pctText(rate)} a year</strong>.
+      </p>
 
       <div className="mt-4">
         <ChartCard
           title="Projected selling price by year of sale"
           legend={[
-            { label: `Middle (${pctText(spread.median)} a year)`, color: SERIES[0] },
-            { label: `Lower to higher case (${pctText(spread.q1)}–${pctText(spread.q3)})`, color: SERIES[0], shape: "band" },
+            { label: `Middle (${pctText(rate)} a year)`, color: SERIES[0] },
+            { label: `Lower to higher case (${pctText(lowRate)}–${pctText(highRate)})`, color: SERIES[0], shape: "band" },
             { label: "Purchase price", color: "#6f7a71", shape: "dashed" },
           ]}
         >
@@ -353,16 +460,16 @@ function ExitOutcomes({ unit, evidence, completionDate }: { unit: PivotUnit; evi
       </div>
 
       <div className="mt-4">
-        <Disclosure title="Show a lower and a higher case" hint={`Middle half of ${evidence.project}'s yearly returns: ${pctText(spread.q1)} to ${pctText(spread.q3)} a year`}>
+        <Disclosure title="Show a lower and a higher case" hint={`${pctText(lowRate)} to ${pctText(highRate)} a year, the spread of ${evidence.project}'s middle half of resales`}>
           <div className="relative overflow-x-auto">
             <table className="w-full border-collapse font-display-normal text-sm tabular-nums">
               <caption className="sr-only">Lower, middle and higher case projected selling prices</caption>
               <thead>
                 <tr className="text-left text-xs text-canopy/65">
                   <th scope="col" className="py-1.5 pr-3 font-semibold">Sell after</th>
-                  <th scope="col" className="py-1.5 pr-3 text-right font-semibold">Lower ({pctText(spread.q1)})</th>
-                  <th scope="col" className="py-1.5 pr-3 text-right font-semibold">Middle ({pctText(spread.median)})</th>
-                  <th scope="col" className="py-1.5 text-right font-semibold">Higher ({pctText(spread.q3)})</th>
+                  <th scope="col" className="py-1.5 pr-3 text-right font-semibold">Lower ({pctText(lowRate)})</th>
+                  <th scope="col" className="py-1.5 pr-3 text-right font-semibold">Middle ({pctText(rate)})</th>
+                  <th scope="col" className="py-1.5 text-right font-semibold">Higher ({pctText(highRate)})</th>
                 </tr>
               </thead>
               <tbody>
@@ -377,7 +484,7 @@ function ExitOutcomes({ unit, evidence, completionDate }: { unit: PivotUnit; evi
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-xs text-stone">A quarter of {evidence.project}&apos;s resales did worse than the lower case, and a quarter did better than the higher case.</p>
+          <p className="mt-2 text-xs text-stone">At the median rate, a quarter of {evidence.project}&apos;s resales did worse than the lower case, and a quarter did better than the higher case.</p>
         </Disclosure>
       </div>
 

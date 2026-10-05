@@ -4,8 +4,8 @@
 // Rules; a project's own schedule (from its sale and purchase agreement)
 // replaces them when supplied.
 //
-// Own money (the down payment: price minus loan) pays the stages first, in
-// order; the 5% booking fee is always cash. Once the down payment is used up,
+// Own money (the down payment: price minus loan, in cash or CPF) pays the
+// stages first, in order; the 5% booking fee is always cash. Once the down payment is used up,
 // the bank loan pays each stage, so the monthly loan payment rises as more of
 // the loan is drawn.
 
@@ -31,8 +31,10 @@ export interface StagePayment {
   stage: string;
   percent: number;
   amount: number;
-  cash: number;
-  cpf: number;
+  /** Paid from your own money: cash or CPF. */
+  own: number;
+  /** True for the booking fee, which must be cash. */
+  cashOnly: boolean;
   loan: number;
   /** Loan drawn after this stage. */
   loanDrawn: number;
@@ -42,11 +44,11 @@ export interface StagePayment {
   estimatedDate: boolean;
 }
 
-export type ProgressiveResult = { ok: true; stages: StagePayment[]; totals: { cash: number; cpf: number; loan: number } } | { ok: false; problems: string[] };
+export type ProgressiveResult = { ok: true; stages: StagePayment[]; totals: { own: number; loan: number } } | { ok: false; problems: string[] };
 
 export function progressivePayments(
   price: number,
-  i: { loanAmount: number; cpfAvailable: number | null; interestRatePct: number; loanYears: number },
+  i: { loanAmount: number; interestRatePct: number; loanYears: number },
   schedule: PaymentScheduleStage[] = STANDARD_SCHEDULE,
 ): ProgressiveResult {
   const problems: string[] = [];
@@ -58,29 +60,20 @@ export function progressivePayments(
   if (problems.length) return { ok: false, problems };
 
   let ownLeft = price - i.loanAmount;
-  let cpfLeft = Math.max(0, i.cpfAvailable ?? 0);
   let drawn = 0;
   const stages = schedule.map((s, idx) => {
     const amount = (price * s.percent) / 100;
-    let cash = 0;
-    let cpf = 0;
-    if (idx === 0) {
-      cash = amount;
-    } else {
-      const own = Math.min(amount, Math.max(0, ownLeft));
-      cpf = Math.min(own, cpfLeft);
-      cash = own - cpf;
-      cpfLeft -= cpf;
-    }
-    ownLeft -= cash + cpf;
-    const loan = amount - cash - cpf;
+    // The booking fee is always paid by the buyer; after that, own money first.
+    const own = idx === 0 ? amount : Math.min(amount, Math.max(0, ownLeft));
+    ownLeft -= own;
+    const loan = amount - own;
     drawn += loan;
     return {
       stage: s.stage,
       percent: s.percent,
       amount,
-      cash,
-      cpf,
+      own,
+      cashOnly: idx === 0,
       loan,
       loanDrawn: drawn,
       monthly: drawn > 0 ? monthlyInstalment(drawn, i.interestRatePct, i.loanYears) : 0,
@@ -88,6 +81,6 @@ export function progressivePayments(
       estimatedDate: s.estimatedDate,
     };
   });
-  const sum = (k: "cash" | "cpf" | "loan") => stages.reduce((a, s) => a + s[k], 0);
-  return { ok: true, stages, totals: { cash: sum("cash"), cpf: sum("cpf"), loan: sum("loan") } };
+  const sum = (k: "own" | "loan") => stages.reduce((a, s) => a + s[k], 0);
+  return { ok: true, stages, totals: { own: sum("own"), loan: sum("loan") } };
 }

@@ -10,6 +10,18 @@ import { jadescapeRentals } from "../comparables/jadescape-rentals";
 import { alternatives } from "./alternatives";
 import { gallery, heroImage, locationMap } from "./gallery";
 
+/** A distance published by property websites, until the official OneMap check is done. */
+const published = (metres: number) => ({
+  byAddress: [{ address: "Thomson Reserve", metres }],
+  method: "as published by property websites (straight line from the project)",
+  provenance: {
+    source: "Property websites listing school distances from Thomson Reserve (econdo.sg, thomsonreservescondo.sg and project review sites)",
+    updated: "2026-10-05",
+    status: "estimated" as const,
+    note: "Not checked on OneMap; sources differ. The official home-school distance is measured from your block's address.",
+  },
+});
+
 /** A gallery image by file name, for the tab photos. */
 const pick = (file: string) => gallery.find((g) => g.src.endsWith(`/${file}`));
 import { thomsonReserveDataset, thomsonReserveGaps, thomsonReserveMrtExit } from "./index";
@@ -193,10 +205,23 @@ export const thomsonReserve: ProjectBundle = {
         note: "TRM's PIVOT e-book also says within 1 km, about an 11-minute walk.",
       },
       {
-        ...school("CHIJ St. Nicholas Girls' School", ["primary", "secondary"]),
-        note: "TRM's PIVOT e-book: about a 6-minute drive.",
+        ...school("Catholic High School", ["primary", "secondary"]),
+        distance: published(1600),
+        distanceCategory: { value: "1-2km", basis: "indicative" },
+        note: "Property websites give 1.59–1.62 km from Thomson Reserve.",
       },
-      school("Catholic High School", ["primary", "secondary"]),
+      {
+        ...school("Marymount Convent School", ["primary"]),
+        distance: published(1880),
+        distanceCategory: { value: "1-2km", basis: "indicative" },
+        note: "Property websites give about 1.88 km; one says about 1 km. Check OneMap for your block.",
+      },
+      {
+        ...school("CHIJ St. Nicholas Girls' School", ["primary", "secondary"]),
+        distance: published(1950),
+        distanceCategory: { value: "1-2km", basis: "indicative" },
+        note: "Property websites give 1.92–1.95 km (one wrongly lists it within 1 km): close to the 2 km line, so check OneMap for your block. TRM's PIVOT e-book: about a 6-minute drive.",
+      },
       school("Peirce Secondary School", ["secondary"]),
       school("Mayflower Secondary School", ["secondary"]),
       school("Whitley Secondary School", ["secondary"]),

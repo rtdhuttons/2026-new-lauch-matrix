@@ -53,7 +53,8 @@ export function UnitFilters({
   unitSearch: React.ReactNode;
   onClear: () => void;
 }) {
-  const budgets = [2_000_000, 2_500_000, 3_000_000, 4_000_000].filter((b) => b < budgetMax);
+  // $1.5M to $6M in half-million steps.
+  const budgets = Array.from({ length: 10 }, (_, i) => 1_500_000 + i * 500_000);
   const anyBudget = prefs.budget >= budgetMax;
   const base = PURPOSE_WEIGHTS[prefs.purpose];
   const extra = (filters.floorBand !== "any" ? 1 : 0) + (filters.blockId !== "any" ? 1 : 0);
@@ -81,7 +82,7 @@ export function UnitFilters({
             <label className="grid gap-1 font-display-normal text-sm">
               <span className="font-semibold">Budget (optional)</span>
               <select
-                value={anyBudget ? "any" : String(prefs.budget)}
+                value={budgets.includes(prefs.budget) && !(anyBudget && prefs.budget === budgetMax) ? String(prefs.budget) : "any"}
                 onChange={(e) => onPrefs({ ...prefs, budget: e.target.value === "any" ? budgetMax : Number(e.target.value) })}
                 className="rounded-lg border border-canopy/25 bg-paper px-3 py-2"
               >

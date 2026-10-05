@@ -135,9 +135,9 @@ export function CompareCards({
     },
     {
       key: "upfront",
-      label: "Cash needed upfront",
-      values: est.map((e) => (e.ok ? money(e.value.cashUpfront) : "Add loan details in step 4")),
-      raw: est.map((e) => (e.ok ? e.value.cashUpfront : null)),
+      label: "Down payment (cash or CPF)",
+      values: est.map((e) => (e.ok ? money(e.value.downPayment) : "Add loan details in step 4")),
+      raw: est.map((e) => (e.ok ? e.value.downPayment : null)),
     },
     {
       key: "monthly",

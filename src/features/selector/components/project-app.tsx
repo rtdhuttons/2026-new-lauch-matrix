@@ -16,10 +16,10 @@ import { createEngine } from "../lib/engine";
 import type { PriceEstimate } from "../lib/estimate";
 import { applyPriceEstimate, canEstimate, describeEstimate, lowestHomeLevel } from "../lib/estimate";
 import type { PaymentInputs } from "../lib/payments";
-import { EMPTY_PAYMENT_INPUTS, estimatePayments } from "../lib/payments";
+import { DEFAULT_PAYMENT_INPUTS, estimatePayments } from "../lib/payments";
 import { compactMoney } from "../lib/format";
 import type { Preferences } from "../lib/recommend";
-import { DEFAULT_PREFERENCES, rankUnits, recommend } from "../lib/recommend";
+import { DEFAULT_PREFERENCES, rankUnits } from "../lib/recommend";
 import type { SellingInputs } from "../lib/selling";
 import { EMPTY_SELLING_INPUTS } from "../lib/selling";
 import { AlternativesTab } from "./alternatives-tab";
@@ -35,10 +35,8 @@ import type { CalcPick } from "./payment-calculator";
 import { PaymentCalculator } from "./payment-calculator";
 import { PhotoBand } from "./photo-band";
 import { PivotTab } from "./pivot-tab";
-import { PreferencesPanel } from "./preferences-panel";
 import { PriceEstimateSection } from "./price-estimate";
 import { Gallery, ProjectHero } from "./project-hero";
-import { Recommendations } from "./recommendations";
 import { RentalPotential } from "./rental-evidence";
 import { SchoolsTab } from "./schools-tab";
 import { comparisonFeedback, ComparisonBar, MAX_SHORTLIST, ShortlistButton, ShortlistDialog, useShortlistDialog } from "./shortlist";
@@ -132,7 +130,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   });
   const [filters, setFilters] = useState<UnitFilterState>(NO_FILTERS);
   const [browse, setBrowse] = useState<"site" | "list">("site");
-  const [payments, setPayments] = useState<PaymentInputs>(EMPTY_PAYMENT_INPUTS);
+  const [payments, setPayments] = useState<PaymentInputs>(DEFAULT_PAYMENT_INPUTS);
   const [calcPick, setCalcPick] = useState<CalcPick | null>(null);
   const [selling, setSelling] = useState<SellingInputs>(EMPTY_SELLING_INPUTS);
   const [sellingCalculated, setSellingCalculated] = useState<SellingInputs | null>(null);
@@ -200,8 +198,6 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   };
 
   const ranked = useMemo(() => rankUnits(engine, prefs), [engine, prefs]);
-  const recs = useMemo(() => recommend(ranked), [ranked]);
-  const eligibleCount = ranked.filter((r) => r.eligible).length;
 
   const unit = ix.unitsInStack(stackId).find((u) => u.level === level) ?? null;
   const reference = referenceId ? ix.unit(referenceId) ?? null : null;
@@ -644,14 +640,6 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
                 />
               </Disclosure>
             )}
-            <Disclosure id="recommendations" title="Suggested units for your priorities" hint={`Three picks, each with its reasons and trade-offs (${eligibleCount.toLocaleString("en-SG")} units meet your needs)`}>
-              <Recommendations engine={engine} recs={recs} shortlist={shortlist} onOpen={viewDetails} onToggleShortlist={toggleShortlist} />
-              <div className="mt-4">
-                <Disclosure title="Change what matters to you" hint="Budget, bedrooms and how much each factor counts">
-                  <PreferencesPanel prefs={prefs} onChange={setPrefs} eligibleCount={eligibleCount} budgetRange={budgetRange} />
-                </Disclosure>
-              </div>
-            </Disclosure>
           </div>
         </div>
       )}
@@ -736,6 +724,8 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
           <TabIntro tab="pivot" />
           <PivotTab
             photo={<PhotoBand image={project.media.tabPhotos?.pivot} />}
+            models={calcModels}
+            start={unit && unitLayout ? { key: ownTypeKey(unitLayout), level: unit.level } : null}
             pivot={project.pivot}
             projectName={project.profile.name}
             unit={unit && unitLayout ? { name: `Unit ${unitNumber(unit)}`, price: unit.price, areaSqft: unitLayout.areaSqft, isEstimate: !!unit.priceIsEstimate, level: unit.level } : null}

@@ -8,7 +8,7 @@
 
 import type { PaymentsInfo, ProjectProfile } from "../model/project";
 import type { PaymentInputs } from "../lib/payments";
-import { EMPTY_PAYMENT_INPUTS, estimatePayments, loanSchedule, PAYMENT_NOT_INCLUDED } from "../lib/payments";
+import { DEFAULT_PAYMENT_INPUTS, estimatePayments, loanFor, loanSchedule, PAYMENT_NOT_INCLUDED } from "../lib/payments";
 import type { UnitModel } from "../lib/alternatives";
 import type { ProgressiveResult } from "../lib/progressive";
 import { progressivePayments, STANDARD_SCHEDULE, STANDARD_SCHEDULE_SOURCE } from "../lib/progressive";
@@ -118,7 +118,7 @@ export function PaymentCalculator({
 
   const set = (k: keyof PaymentInputs) => (v: number | null) => onInputs({ ...inputs, [k]: v });
   const r = estimatePayments(price, inputs);
-  const prog = r.ok ? progressivePayments(price, { loanAmount: r.value.loanAmount, cpfAvailable: inputs.cpfAvailable, interestRatePct: inputs.interestRatePct!, loanYears: inputs.loanYears! }, payments.schedule ?? STANDARD_SCHEDULE) : null;
+  const prog = r.ok ? progressivePayments(price, { loanAmount: r.value.loanAmount, interestRatePct: inputs.interestRatePct!, loanYears: inputs.loanYears! }, payments.schedule ?? STANDARD_SCHEDULE) : null;
 
   return (
     <div className={`${card} p-0`}>
@@ -132,8 +132,8 @@ export function PaymentCalculator({
                 Use selected unit {selected.label}
               </button>
             )}
-            <button type="button" onClick={() => onInputs(EMPTY_PAYMENT_INPUTS)} className={btnSecondary}>
-              Reset figures
+            <button type="button" onClick={() => onInputs(DEFAULT_PAYMENT_INPUTS)} className={btnSecondary}>
+              Reset to 75% · 2% · 25 years
             </button>
           </div>
         </div>
@@ -200,52 +200,42 @@ export function PaymentCalculator({
 
       <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div className="grid content-start gap-4">
-          <Field id="pay-cash" label="Cash available" help="Savings you could put towards this purchase." value={inputs.cashAvailable} onChange={set("cashAvailable")} prefix="S$" />
-          <Field id="pay-cpf" label="CPF available for this purchase" help="CPF Ordinary Account savings you plan to use for the down payment." value={inputs.cpfAvailable} onChange={set("cpfAvailable")} prefix="S$" />
-          <div>
-            <Field id="pay-loan" label="Loan amount" help="What you plan to borrow from a bank. A first housing loan can usually cover up to 75% of the price; your bank confirms what you can borrow." value={inputs.loanAmount} onChange={set("loanAmount")} prefix="S$" />
-            <button type="button" onClick={() => set("loanAmount")(Math.floor((price * 0.75) / 1000) * 1000)} className={`${btnText} mt-1`}>
-              Use 75% of the price ({money(Math.floor((price * 0.75) / 1000) * 1000)})
-            </button>
+          <Field
+            id="pay-ltv"
+            label="Loan-to-value (LTV)"
+            help="The share of the price borrowed from the bank. 75% is usual for a first housing loan; your bank confirms what you qualify for."
+            value={inputs.ltvPct}
+            onChange={set("ltvPct")}
+            suffix="% of the price"
+            step={5}
+          />
+          <div className="rounded-xl bg-mist px-4 py-3">
+            <p className="font-display-normal text-sm text-canopy/70">Loan amount</p>
+            <p className="font-display text-2xl font-extrabold tabular-nums">{inputs.ltvPct !== null && inputs.ltvPct >= 0 ? money(loanFor(price, inputs.ltvPct)) : "—"}</p>
+            <p className="font-display-normal text-xs text-canopy/65">
+              {inputs.ltvPct ?? "—"}% of {money(price)}. Down payment: {inputs.ltvPct !== null ? money(price - loanFor(price, inputs.ltvPct)) : "—"} in cash or CPF.
+            </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field id="pay-rate" label="Interest rate" help="Yearly rate offered by the bank." value={inputs.interestRatePct} onChange={set("interestRatePct")} suffix="% a year" step={0.05} />
             <Field id="pay-years" label="Loan period" help="How many years to repay." value={inputs.loanYears} onChange={set("loanYears")} suffix="years" step={1} />
           </div>
-          <Disclosure title="Adjust assumptions" hint="CPF towards the monthly payment">
-            <Field
-              id="pay-cpf-monthly"
-              label="CPF used each month"
-              help="CPF you expect to put towards the monthly loan payment. The rest is paid in cash."
-              value={inputs.cpfMonthly}
-              onChange={set("cpfMonthly")}
-              prefix="S$"
-              step={100}
-            />
-          </Disclosure>
         </div>
 
         <div aria-live="polite">
           {r.ok ? (
             <>
               <dl className="grid gap-3 sm:grid-cols-2">
-                <Result label="Cash needed upfront" value={money(r.value.cashUpfront)} note={`Down payment ${money(r.value.downPayment)} (price minus loan), less ${money(r.value.cpfForDownPayment)} from CPF.`} />
-                <Result label="Monthly loan payment once the full loan is drawn" value={`${money(Math.round(r.value.monthlyInstalment))} a month`} note={`${r.value.months} monthly payments; ${money(Math.round(r.value.totalInterest))} interest in total.`} />
-                <Result label="Monthly cash payment after CPF" value={`${money(Math.round(r.value.cashMonthlyAfterCpf))} a month`} note={inputs.cpfMonthly ? `After ${money(inputs.cpfMonthly)} a month from CPF.` : "No monthly CPF entered (see Adjust assumptions)."} />
+                <Result label="Monthly loan payment once the full loan is drawn" value={`${money(Math.round(r.value.monthlyInstalment))} a month`} note={`${r.value.months} monthly payments at ${inputs.interestRatePct}% a year.`} />
+                <Result label="Down payment" value={money(r.value.downPayment)} note={`Cash or CPF; at least ${money(r.value.minCash)} (the 5% booking fee) must be cash.`} />
+                <Result label="Total interest over the loan" value={money(Math.round(r.value.totalInterest))} note={`On a ${money(r.value.loanAmount)} loan over ${inputs.loanYears} years.`} />
                 <Result
                   label="Estimated ongoing expenses"
                   value={payments.maintenance ? "See below" : "Not available"}
                   note={payments.maintenance ? undefined : "Maintenance fees and property tax have not been added for this project."}
                 />
               </dl>
-              {r.value.cashLeft !== null && (
-                <p className={`mt-3 rounded-lg px-4 py-2.5 font-display-normal text-sm ${r.value.cashLeft < 0 ? "bg-[#fbe9e6] text-[#7a231b]" : "bg-mist-deep/70"}`}>
-                  {r.value.cashLeft < 0
-                    ? `You'd be ${money(-r.value.cashLeft)} short of the cash needed upfront. Add cash or CPF, or raise the loan amount.`
-                    : `Cash left after the upfront payment: ${money(r.value.cashLeft)}.`}
-                </p>
-              )}
-              <PaymentCharts price={r.value.price} cpf={r.value.cpfForDownPayment} cash={r.value.cashUpfront} loan={r.value.loanAmount} rate={inputs.interestRatePct!} years={inputs.loanYears!} />
+              <PaymentCharts price={r.value.price} down={r.value.downPayment} loan={r.value.loanAmount} rate={inputs.interestRatePct!} years={inputs.loanYears!} />
               <p className="mt-3 text-xs text-stone">
                 The monthly loan payment is what the bank collects; your total household costs also include the ongoing expenses above. {floor.isEstimate ? "The price is an estimate, so every figure here is too." : ""}
               </p>
@@ -287,12 +277,12 @@ function ProgressiveSection({ prog, payments, profile }: { prog: ProgressiveResu
     <section aria-labelledby="progressive-title" className="border-t border-canopy/10 p-5">
       <h4 id="progressive-title" className="font-display text-lg font-extrabold">Progressive payments as the building goes up</h4>
       <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
-        A new launch is paid in stages. Your own money pays the first stages (the 5% booking fee is always cash); after that, the bank loan pays each stage,
+        A new launch is paid in stages. Your down payment (cash or CPF) pays the first stages, and the 5% booking fee is always cash; after that, the bank loan pays each stage,
         so your monthly loan payment rises as more of the loan is drawn.
         {keysDate ? ` Keys are expected at the Temporary Occupation Permit, around ${keysDate}.` : ""}
       </p>
       {!prog ? (
-        <p className="mt-3 rounded-lg border border-dashed border-canopy/25 px-4 py-3 text-sm text-canopy/75">Enter a loan amount, interest rate and loan period above to see the payment at each stage.</p>
+        <p className="mt-3 rounded-lg border border-dashed border-canopy/25 px-4 py-3 text-sm text-canopy/75">Enter an LTV, interest rate and loan period above to see the payment at each stage.</p>
       ) : !prog.ok ? (
         <ul className="mt-3 grid list-disc gap-1 rounded-lg border border-[#c9a45a] bg-[#fbf3df] px-4 py-3 pl-8 text-sm text-[#5c3f0c]">
           {prog.problems.map((p) => (
@@ -316,15 +306,14 @@ function ProgressiveSection({ prog, payments, profile }: { prog: ProgressiveResu
             />
           </ChartCard>
           <div className="relative overflow-x-auto rounded-xl border border-canopy/10">
-            <table className="w-full min-w-[560px] border-collapse bg-paper font-display-normal text-sm tabular-nums">
+            <table className="w-full min-w-[480px] border-collapse bg-paper font-display-normal text-sm tabular-nums">
               <caption className="sr-only">Payment at each stage, and how it is paid</caption>
               <thead>
                 <tr className="bg-canopy text-left text-xs uppercase tracking-[0.06em] text-mist">
                   <th scope="col" className="px-3 py-2.5 font-semibold">Stage</th>
                   <th scope="col" className="px-3 py-2.5 text-right font-semibold">Amount</th>
-                  <th scope="col" className="px-3 py-2.5 text-right font-semibold">Cash</th>
-                  <th scope="col" className="px-3 py-2.5 text-right font-semibold">CPF</th>
-                  <th scope="col" className="px-3 py-2.5 text-right font-semibold">Loan</th>
+                  <th scope="col" className="px-3 py-2.5 text-right font-semibold">Cash or CPF</th>
+                  <th scope="col" className="px-3 py-2.5 text-right font-semibold">Bank loan</th>
                 </tr>
               </thead>
               <tbody>
@@ -334,16 +323,17 @@ function ProgressiveSection({ prog, payments, profile }: { prog: ProgressiveResu
                       <span className="font-semibold">{s.percent}%</span> {s.stage}
                     </th>
                     <td className="px-3 py-2 text-right font-semibold">{fmtMoney(s.amount)}</td>
-                    <td className="px-3 py-2 text-right">{s.cash ? fmtMoney(s.cash) : "—"}</td>
-                    <td className="px-3 py-2 text-right">{s.cpf ? fmtMoney(s.cpf) : "—"}</td>
+                    <td className="px-3 py-2 text-right">
+                      {s.own ? fmtMoney(s.own) : "—"}
+                      {s.cashOnly && <span className="block text-xs text-canopy/60">cash only</span>}
+                    </td>
                     <td className="px-3 py-2 text-right">{s.loan ? fmtMoney(s.loan) : "—"}</td>
                   </tr>
                 ))}
                 <tr className="border-t-2 border-canopy/25 font-semibold">
                   <th scope="row" className="px-3 py-2 text-left">Total</th>
-                  <td className="px-3 py-2 text-right">{fmtMoney(prog.totals.cash + prog.totals.cpf + prog.totals.loan)}</td>
-                  <td className="px-3 py-2 text-right">{fmtMoney(prog.totals.cash)}</td>
-                  <td className="px-3 py-2 text-right">{fmtMoney(prog.totals.cpf)}</td>
+                  <td className="px-3 py-2 text-right">{fmtMoney(prog.totals.own + prog.totals.loan)}</td>
+                  <td className="px-3 py-2 text-right">{fmtMoney(prog.totals.own)}</td>
                   <td className="px-3 py-2 text-right">{fmtMoney(prog.totals.loan)}</td>
                 </tr>
               </tbody>
@@ -353,25 +343,24 @@ function ProgressiveSection({ prog, payments, profile }: { prog: ProgressiveResu
       )}
       <p className="mt-3 text-xs text-stone">
         Stages: {source}.{payments.schedule ? "" : " Confirm against the project's sale and purchase agreement."} Stage dates depend on construction progress and
-        aren&apos;t known yet. CPF is used here only for the down payment; it can also pay later stages and monthly payments.
+        aren&apos;t known yet. CPF can also go towards monthly loan payments.
       </p>
     </section>
   );
 }
 
 /** How the price is paid, and how the loan comes down over the years. */
-function PaymentCharts({ price, cpf, cash, loan, rate, years }: { price: number; cpf: number; cash: number; loan: number; rate: number; years: number }) {
+function PaymentCharts({ price, down, loan, rate, years }: { price: number; down: number; loan: number; rate: number; years: number }) {
   const sched = loan > 0 ? loanSchedule(loan, rate, years) : [];
   const halfway = sched.find((p) => p.principalPaid >= loan / 2);
   return (
     <div className="mt-4 grid gap-4">
       <ChartCard title="How the price is paid" subtitle={`${money(price)} in total`}>
         <SplitBar
-          ariaLabel="How the price is paid: CPF, cash and bank loan"
+          ariaLabel="How the price is paid: down payment and bank loan"
           format={fmtMoney}
           segments={[
-            { label: "CPF", value: cpf, color: SERIES[2] },
-            { label: "Cash", value: cash, color: SERIES[1] },
+            { label: "Down payment (cash or CPF)", value: down, color: SERIES[1] },
             { label: "Bank loan", value: loan, color: SERIES[0] },
           ]}
         />

@@ -47,16 +47,16 @@ across the top; on a phone, tap the **Section** button to see them all.
    factors** adds sun, noise, MRT and resale.
 4. **Payment estimate**: choose a bedroom type, then the model (for example
    3-Bedroom, 3-Bedroom Premium or 3-Bedroom Premium + Study), then the floor
-   level to see its estimated price; or use the unit you selected above. Enter
-   cash available, CPF for this purchase, loan amount (or "Use 75% of the
-   price"), interest rate and loan period. You'll see the cash needed upfront,
-   the monthly loan payment once the whole loan is drawn, and **progressive
+   level to see its estimated price; or use the unit you selected above. The
+   loan is set by **LTV** (75% to start), with a 2% interest rate over 25
+   years; change any of them. You'll see the loan amount, the down payment
+   (cash or CPF), the monthly loan payment once the whole loan is drawn, and **progressive
    payments**: what's due at each construction stage (booking fee, sale and
    purchase agreement, foundation … keys at TOP, and the final payment at
-   completion), whether it comes from cash, CPF or the loan, and how the
+   completion), whether it comes from your down payment or the loan, and how the
    monthly loan payment rises as the building goes up. Your figures stay
-   while you move around the site and aren't saved or sent. **Reset figures**
-   clears them.
+   while you move around the site and aren't saved or sent. **Reset** returns
+   them to 75%, 2% and 25 years.
 
 Further down: **Price by floor for every unit type** (and the assumption
 behind the estimated prices), and **Suggested units for your priorities**.
@@ -65,8 +65,9 @@ behind the estimated prices), and **Suggested units for your priorities**.
 
 *Explore nearby primary schools and understand the registration considerations.*
 
-Primary schools grouped by distance from the project: within 1 km, between
-1 and 2 km, and not measured yet. Each distance says whether it is official
+Primary schools grouped by distance from the project: within 1 km (Ai Tong
+School) and between 1 and 2 km (Catholic High, Marymount Convent and CHIJ St.
+Nicholas Girls'), and not measured yet. Each distance says whether it is official
 (OneMap) or indicative (worked out from map data). Living nearby doesn't
 guarantee a place.
 
@@ -104,8 +105,9 @@ date shown; availability changes daily.
 Your selected unit's price per sq ft against TRM's entry estimate from the
 land bid, and what it would be worth at the exit benchmark.
 
-**Exit outcomes by year of sale** grows your unit's price at the median
-yearly return JadeScape owners made when they resold, for selling after 4
+**Exit outcomes by year of sale**: choose a bedroom type, model and floor
+(or type your own purchase price) and a yearly growth rate. The rate starts at
+the median yearly return JadeScape owners made when they resold, for selling after 4
 years (around completion) up to 10 years. Switch between all JadeScape
 resales and only those on the same floor band as your unit, and open "Show a
 lower and a higher case" for the range. Gains are before stamp duty, fees,

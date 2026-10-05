@@ -245,7 +245,10 @@ export function LineChart({
   const sx = (x: number) => m.l + (xMax === xMin ? pw / 2 : ((x - xMin) / (xMax - xMin)) * pw);
   const sy = (y: number) => m.t + ph - ((y - yMin) / (yMax - yMin || 1)) * ph;
   const path = (pts: LinePoint[]) => pts.map((p, i) => `${i ? "L" : "M"}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join("");
-  const ticksX = xTicks ?? (xs.length <= 8 ? xs : niceTicks(xMin, xMax, Math.max(3, Math.floor(pw / 80))).filter((t) => t >= xMin && t <= xMax));
+  // Every x value when there's room; otherwise every second or third, always keeping the last.
+  const step = Math.ceil(46 / Math.max(1, pw / Math.max(1, xs.length)));
+  const thinned = xs.filter((_, i) => i % step === 0 || i === xs.length - 1).filter((x, i, arr) => i === arr.length - 1 || xs.indexOf(arr[arr.length - 1]) - xs.indexOf(x) >= step);
+  const ticksX = xTicks ?? (xs.length <= 8 ? thinned : niceTicks(xMin, xMax, Math.max(3, Math.floor(pw / 80))).filter((t) => t >= xMin && t <= xMax));
   const nearest = (px: number) => xs.reduce((best, x) => (Math.abs(sx(x) - px) < Math.abs(sx(best) - px) ? x : best), xs[0]);
 
   const tipX = hoverX ?? null;
@@ -732,7 +735,7 @@ export function SplitBar({ segments, format, ariaLabel }: { segments: Segment[];
       </div>
       <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 font-display-normal text-sm">
         {segments.map((s) => (
-          <li key={s.label} className="flex items-center gap-1.5 whitespace-nowrap">
+          <li key={s.label} className="flex min-w-0 flex-wrap items-center gap-x-1.5">
             <span aria-hidden="true" className="inline-block size-3 shrink-0 rounded-sm" style={{ background: s.color }} />
             <span className="text-canopy/75">{s.label}</span>
             <strong className="tabular-nums">{format(s.value)}</strong>
