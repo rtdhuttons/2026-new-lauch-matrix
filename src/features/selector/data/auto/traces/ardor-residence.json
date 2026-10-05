@@ -1,0 +1,16 @@
+{
+ "image": "https://img.singmap.com/upload/broke/6f49cb825a99471b89c7982903ad033f/a03af76f6a3649c0b3ca682177b03622/siteplanImg/20240220/Site Plan.png",
+ "widthPx": 2340,
+ "heightPx": 1550,
+ "pxPerM": 11.61,
+ "scaleFrom": "site area",
+ "northDeg": 0,
+ "crop": [150, 300, 1000, 1000],
+ "siteBoundary": [[305, 465], [370, 396], [937, 396], [937, 933], [305, 933]],
+ "blocks": [
+  {"block": "Ardor Residence", "core": [678, 583], "stacks": {"01": [462, 553], "02": [596, 563], "03": [741, 551], "04": [845, 559], "05": [845, 715], "06": [741, 715], "07": [625, 715], "08": [474, 715]}}
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "1st storey plan. Its two 1:500 scale bars disagree: the one under this plan gives 8.3 px/m (10 m = 84 px) and the one under the upper roof plan 12.25 px/m. Scale from the published site area (2,500 m²) over the plot outline (outer edge of the boundary planting, chamfered at the Haig Road / Seraya Lane corner, 337,049 px²): 11.61 px/m. This rules out the 8.3 px/m bar and is 5% below the 12.25 px/m bar; car park lots (about 28 px wide, 58 px long, i.e. 2.4 x 4.8 m at about 11.7-12 px/m) agree with the site-area scale. North point on this plan points straight up; the small key plan on the elevation chart draws north about 21° clockwise of up, so north is uncertain by about that much. Stack positions are transferred from the elevation chart's key plan (01-04 on the Seraya Lane side, 08-05 on the car park side) by matching its plot outline, so they are arranged, not labelled. Core at the grey lift core between the 1st-storey units 02 and 03."
+}

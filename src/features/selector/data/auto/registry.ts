@@ -65,7 +65,7 @@ export const autoListings: AutoListing[] = [
     "area": "East Coast / Marine Parade",
     "summary": "35 units · Freehold · D15",
     "image": "https://img.singmap.com/upload/broke/6f49cb825a99471b89c7982903ad033f/a03af76f6a3649c0b3ca682177b03622/imgs/20240108/245715f386264a61bf85d6bf77367e3c.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "arina-east-residences",
@@ -155,7 +155,7 @@ export const autoListings: AutoListing[] = [
     "area": "City Hall / Clarke Quay",
     "summary": "696 units · 99 Years · D06",
     "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/227b5a5863fa4631875adcfb07b38cae/imgs/280898b9a6324cafb927c7317ba81e44.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "cape-royale",
@@ -254,7 +254,7 @@ export const autoListings: AutoListing[] = [
     "area": "Macpherson / Potong Pasir",
     "summary": "66 units · Freehold · D13",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/f7aadbfa0e1f4b74a3c19816da50f3e0/imgs/20260304/297ab86f030a40268c193b313ab9a5a9.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "dairy-farm-walk-gls",
@@ -677,7 +677,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "56 units · Freehold · D09",
     "image": "https://img.singmap.com/upload/broke/ab4ad26debec4daaba2fee51c73c0abc/2944874e9285475194bd3209b67643be/imgs/86d6c38f9c5f47fdbebd8147573cd69e.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "residences-at-emerald-hill",
@@ -1264,14 +1264,17 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "21-anderson": () => import("./traces/21-anderson.json"),
   "8-bt": () => import("./traces/8-bt.json"),
   "amberwood-at-holland": () => import("./traces/amberwood-at-holland.json"),
+  "ardor-residence": () => import("./traces/ardor-residence.json"),
   "arina-east-residences": () => import("./traces/arina-east-residences.json"),
   "atlassia": () => import("./traces/atlassia.json"),
   "aurea": () => import("./traces/aurea.json"),
   "bagnall-haus": () => import("./traces/bagnall-haus.json"),
   "bloomsbury-residences": () => import("./traces/bloomsbury-residences.json"),
   "canberra-crescent-residences": () => import("./traces/canberra-crescent-residences.json"),
+  "canninghill-piers": () => import("./traces/canninghill-piers.json"),
   "chuan-park": () => import("./traces/chuan-park.json"),
   "coastal-cabana": () => import("./traces/coastal-cabana.json"),
+  "ct-gold-macpherson": () => import("./traces/ct-gold-macpherson.json"),
   "duet-emily": () => import("./traces/duet-emily.json"),
   "dunearn-house": () => import("./traces/dunearn-house.json"),
   "elta": () => import("./traces/elta.json"),
@@ -1303,6 +1306,7 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "penrith": () => import("./traces/penrith.json"),
   "pinery-residences": () => import("./traces/pinery-residences.json"),
   "promenade-peak": () => import("./traces/promenade-peak.json"),
+  "reignwood-hamilton-scotts": () => import("./traces/reignwood-hamilton-scotts.json"),
   "river-green": () => import("./traces/river-green.json"),
   "river-modern": () => import("./traces/river-modern.json"),
   "skies-miltonia": () => import("./traces/skies-miltonia.json"),

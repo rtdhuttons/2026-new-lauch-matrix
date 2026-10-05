@@ -1,0 +1,56 @@
+{
+ "image": "https://img.singmap.com/upload/broke/ab4ad26debec4daaba2fee51c73c0abc/2944874e9285475194bd3209b67643be/siteplanImg/897bfb7b3f094b34908012dd1543da50.jpg",
+ "widthPx": 1600,
+ "heightPx": 1134,
+ "pxPerM": 14.56,
+ "scaleFrom": "site area",
+ "northDeg": null,
+ "crop": [
+  130,
+  195,
+  1165,
+  1045
+ ],
+ "siteBoundary": [
+  [
+   143,
+   293
+  ],
+  [
+   500,
+   293
+  ],
+  [
+   1105,
+   212
+  ],
+  [
+   1135,
+   540
+  ],
+  [
+   1150,
+   690
+  ],
+  [
+   1130,
+   1035
+  ],
+  [
+   143,
+   925
+  ]
+ ],
+ "blocks": [
+  {
+   "block": "Hamilton Scotts",
+   "core": [
+    636,
+    652
+   ]
+  }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "Site & layout plan; no scale bar and no north point. Scale from the site area: the plot outline (marked 'Boundary Line' on the left, top and right; the bottom taken at the drawing's edge along the road) traced as siteBoundary (706,642 px²) against the published 3,333 m² gives 14.56 px/m (the trace tool cannot read the API's '3,333 square metres', so this was worked by hand with the same formula). Sanity check only: the car drawn in the left car park lane is about 70 px, 4.8 m at this scale. Core at the lift lobby (legend K). Unit numbers are not printed on the plan, so stacks 01 and 02 are arranged round the core."
+}

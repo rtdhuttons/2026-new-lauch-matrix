@@ -1,0 +1,17 @@
+{
+ "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/227b5a5863fa4631875adcfb07b38cae/siteplanImg/Site Plan.jpg",
+ "widthPx": 1600,
+ "heightPx": 2299,
+ "pxPerM": 3.67,
+ "scaleFrom": "site area",
+ "northDeg": 36,
+ "crop": [190, 890, 700, 1380],
+ "siteBoundary": [[231.3, 927.1], [287.7, 926.4], [626.9, 941.3], [659.2, 979.2], [658.5, 1336.9], [635.1, 1356.2], [469.7, 1333.9], [263.6, 1332.1], [240.2, 1310.5], [212.3, 947.6]],
+ "blocks": [
+  {"block": "BLK 1", "core": [324, 1250], "stacks": {"01": [305, 1298], "02": [276, 1276], "03": [276, 1251], "04": [276, 1234], "05": [276, 1211], "06": [293, 1202], "07": [348, 1202], "08": [374, 1222], "09": [374, 1241], "10": [374, 1259], "11": [362, 1298]}},
+  {"block": "BLK 5", "core": [549, 1022], "stacks": {"15": [538, 1068], "16": [519, 1068], "17": [500, 1047], "18": [500, 1029], "19": [500, 1011], "20": [500, 981], "21": [529, 976], "22": [561, 975], "23": [596, 982], "24": [596, 1019], "25": [596, 1042], "26": [589, 1068], "27": [556, 1068]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the '8th - 23rd storey' panel of the developer's residential storey key plans (the only panel showing every stack, 01-11 and 15-27). The sheet says the key plans are not drawn to scale, so positions are only as good as the diagram. No scale bar: scale from the published site area (12,925.4 m²) over the plot outline drawn round all four blocks (174,085 px²) gives 3.67 px/m; the 4th-7th storey panel gives the same (3.668). North point (bottom left of the sheet) about 36° anticlockwise from plan up. Stack numbers are printed on the panel; cores at the centre of each tower's unit ring. Blocks 3 and 7 (not residential) are not traced."
+}

@@ -1,0 +1,86 @@
+{
+ "image": "https://img.singmap.com/upload/broke/981db80362ae42b8b52b1295ac96f1ab/f7aadbfa0e1f4b74a3c19816da50f3e0/siteplanImg/20260403/Site_Plan.png",
+ "widthPx": 3160,
+ "heightPx": 1170,
+ "pxPerM": 11.28,
+ "scaleFrom": "site area",
+ "northDeg": 43,
+ "crop": [
+  40,
+  220,
+  1650,
+  830
+ ],
+ "siteBoundary": [
+  [
+   457,
+   267
+  ],
+  [
+   1585,
+   249
+  ],
+  [
+   1197,
+   784
+  ],
+  [
+   90,
+   782
+  ]
+ ],
+ "blocks": [
+  {
+   "block": "CT GOLD @ MACPHERSON",
+   "core": [
+    767,
+    571
+   ],
+   "stacks": {
+    "01": [
+     1084,
+     564
+    ],
+    "02": [
+     980,
+     564
+    ],
+    "03": [
+     869,
+     564
+    ],
+    "04": [
+     650,
+     564
+    ],
+    "05": [
+     544,
+     564
+    ],
+    "06": [
+     435,
+     564
+    ],
+    "07": [
+     547,
+     377
+    ],
+    "08": [
+     683,
+     377
+    ],
+    "09": [
+     840,
+     377
+    ],
+    "10": [
+     975,
+     377
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "1st storey site plan (left panel); no scale bar. Scale from the site area: the red dashed site boundary traced as siteBoundary (583,668 px²) against the published 49,409.98 sq ft (4,590 m²) gives 11.28 px/m. No tennis court or stated pool length to cross-check. North point (bottom left) about 43° anticlockwise from plan up. Core at the passenger lift lobby (legend 04). Stacks 02-06 at the unit numbers #01-02 to #01-06 printed on the 1st storey. The 5th storey panel on the same sheet is drawn at the same scale and orientation: its #05-02 to #05-06 labels and lift lobby line up with the 1st storey's after a shift of -1,646 px across and +6 px down (within 5 px), so stacks 07-10 (levels 3/5 up) and stack 01 (whose level-1 unit is a differently shaped canteen, #01-01 at 1200,603) are placed at their 5th storey labels shifted by that amount."
+}
