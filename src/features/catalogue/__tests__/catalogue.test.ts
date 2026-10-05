@@ -119,3 +119,31 @@ describe("map look", () => {
     expect(c.map((g) => g.items.length).sort()).toEqual([1, 2]);
   });
 });
+
+import { placeLabels } from "../lib";
+import { projectRegion, regionAt } from "../geo";
+
+describe("regions and labels", () => {
+  it("knows URA's market regions", () => {
+    expect(regionAt(1.3048, 103.8318)).toBe("CCR"); // Orchard (D09)
+    expect(regionAt(1.2839, 103.8515)).toBe("CCR"); // Raffles Place, Downtown Core
+    expect(regionAt(1.2494, 103.8303)).toBe("CCR"); // Sentosa
+    expect(regionAt(1.3343, 103.8474)).toBe("RCR"); // Toa Payoh
+    expect(regionAt(1.3521, 103.9447)).toBe("OCR"); // Tampines
+    expect(projectRegion(catalogue.projects.find((p) => p.name === "Lentoria")!)).toBe("OCR");
+  });
+
+  it("drops labels that would overlap, keeping the higher priority", () => {
+    const keep = placeLabels(
+      [
+        { key: "a", text: "D09", sx: 100, sy: 100, fontPx: 13, priority: 2 },
+        { key: "b", text: "Orchard", sx: 105, sy: 102, fontPx: 13, priority: 1 },
+        { key: "c", text: "D20", sx: 300, sy: 100, fontPx: 13, priority: 2 },
+        { key: "d", text: "Edge", sx: 2, sy: 2, fontPx: 13, priority: 0 },
+      ],
+      400,
+      300,
+    );
+    expect([...keep].sort()).toEqual(["b", "c"]);
+  });
+});

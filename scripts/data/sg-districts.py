@@ -1,6 +1,6 @@
 """Singapore's 28 postal districts (D01–D28) as outlines for the projects map.
 
-Usage: python3 scripts/data/sg-districts.py [subzones.geojson]
+Usage: python3 scripts/data/sg-districts.py [subzones.geojson] [--refresh]
 
 There is no official map of postal districts, so they are built from
 official pieces: URA's Master Plan 2019 subzones (data.gov.sg) are each
@@ -8,7 +8,9 @@ assigned to the postal district of the addresses inside them (OneMap's
 public search, by the first two digits of each postcode, using URA's
 postal district list), then merged. A subzone without addresses takes the
 district its neighbours share most border with. The result is approximate
-at the edges. Writes src/features/catalogue/data/sg-districts.ts.
+at the edges. Writes src/features/catalogue/data/sg-districts.ts, and keeps
+each subzone's district in scripts/data/subzone-districts.json so later runs
+(and scripts/data/sg-map-layers.py) reuse it; --refresh asks OneMap again.
 Needs Shapely (pip install shapely) and www.onemap.gov.sg.
 """
 
@@ -31,6 +33,7 @@ basemap = import_module("sg-basemap")  # project(), download(), simplify setting
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "src/features/catalogue/data/sg-districts.ts"
+CACHE = ROOT / "scripts/data/subzone-districts.json"
 SUBZONES = "d_8594ae9ff96d0c708bc2af633048edfb"  # Master Plan 2019 Subzone Boundary (No Sea)
 
 # URA's list of postal districts: first two digits of the postcode -> district.
@@ -65,14 +68,18 @@ def onemap(q):
     return []
 
 
-def main(src=None):
+def main(src=None, refresh=False):
     data = json.loads(Path(src).read_text()) if src else basemap.download(SUBZONES)
     zones = []
     for f in data["features"]:
         p = f["properties"]
-        zones.append({"name": p["SUBZONE_N"], "area": p["PLN_AREA_N"], "geom": shape(f["geometry"]).buffer(0)})
+        zones.append({"code": p["SUBZONE_C"], "name": p["SUBZONE_N"], "area": p["PLN_AREA_N"], "geom": shape(f["geometry"]).buffer(0)})
+    cached = json.loads(CACHE.read_text()) if CACHE.exists() and not refresh else {}
     # Postcodes found inside each subzone, from searches by the subzone's and its planning area's names.
     for i, z in enumerate(zones):
+        if z["code"] in cached:
+            z["district"] = cached[z["code"]]
+            continue
         votes = Counter()
         for q in (z["name"], f"{z['name']} {z['area']}"):
             for h in onemap(q):
@@ -102,6 +109,7 @@ def main(src=None):
                 changed = True
         if not changed:
             break
+    CACHE.write_text(json.dumps({z["code"]: z["district"] for z in zones}, indent=0, sort_keys=True))
     districts = []
     for d in sorted(SECTORS):
         parts = [z["geom"] for z in zones if z["district"] == d]
@@ -129,4 +137,5 @@ export const sgDistricts: {{ id: string; name: string; d: string; label: [number
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else None)
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    main(args[0] if args else None, "--refresh" in sys.argv)

@@ -40,6 +40,8 @@ export interface CatalogueProject {
   totalUnits: number | null;
   unitsLeft: number | null;
   unitTypes: CatalogueUnitType[];
+  /** The project's main image from the API, where given (a web address). */
+  image?: string | null;
 }
 
 export interface Catalogue {

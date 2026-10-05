@@ -25,8 +25,8 @@ export const ARTIFACT_PROJECTS = {
     entry: "src/features/catalogue/artifact-entry.tsx",
     out: "huttons-map.html",
     title: "TRM · New launches map",
-    defines: {},
-    embed: [],
+    defines: { NEXT_PUBLIC_TR_IMAGE_BASE: "images" },
+    embed: [["public/thomson-reserve/images", "images", 720, 70, "map-cards"]],
   },
   "sample-wrenfield": {
     entry: "src/features/selector/data/demo/entry.tsx",

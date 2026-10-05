@@ -273,3 +273,43 @@ export function insideRings(x: number, y: number, rings: [number, number][][]): 
   }
   return c;
 }
+
+export type Region = "CCR" | "RCR" | "OCR";
+
+export interface LabelCandidate {
+  key: string;
+  text: string;
+  /** Position on screen, pixels (the label's centre). */
+  sx: number;
+  sy: number;
+  fontPx: number;
+  /** Lower goes first. */
+  priority: number;
+}
+
+/**
+ * Chooses labels that don't overlap each other or the screen edge, highest
+ * priority first (a greedy pass, as map renderers do). Text width is
+ * estimated from the font size.
+ */
+export function placeLabels(
+  candidates: LabelCandidate[],
+  width: number,
+  height: number,
+  pad = 4,
+  /** Areas labels must avoid (markers, floating panels), in screen pixels. */
+  obstacles: { x0: number; y0: number; x1: number; y1: number }[] = [],
+): Set<string> {
+  const placed = [...obstacles];
+  const keep = new Set<string>();
+  for (const c of [...candidates].sort((a, b) => a.priority - b.priority)) {
+    const w = c.text.length * c.fontPx * 0.58 + pad * 2;
+    const h = c.fontPx * 1.25 + pad;
+    const box = { x0: c.sx - w / 2, y0: c.sy - h / 2, x1: c.sx + w / 2, y1: c.sy + h / 2 };
+    if (box.x0 < 0 || box.y0 < 0 || box.x1 > width || box.y1 > height) continue;
+    if (placed.some((p) => box.x0 < p.x1 && box.x1 > p.x0 && box.y0 < p.y1 && box.y1 > p.y0)) continue;
+    placed.push(box);
+    keep.add(c.key);
+  }
+  return keep;
+}

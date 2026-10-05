@@ -11,7 +11,19 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0l. Latest: map restyled like the property maps (5 Oct)
+## 0m. Latest: map redesign and daily update (5 Oct)
+
+- URA market regions in three colours (CCR lavender, RCR peach, OCR teal),
+  built at subzone level so districts that straddle a boundary are split;
+  quiet base map with parks, nature areas, reservoirs and major roads.
+- Floating region filter (All, CCR, RCR, OCR) that also fits the map; tidy
+  zoom and reset panel; labels that never overlap; navy markers for New
+  launch, Upcoming and Resale; district card on hover or tap; compact
+  project card with photo; a Price heatmap view once average psf is loaded.
+- A daily update runs each morning (Singapore time) once the API keys are in
+  the environment: syncs, checks, rebuilds and republishes both pages.
+
+## 0l. Map restyled like the property maps (5 Oct)
 
 - Postal districts D01–D28 shaded by average price per sq ft (seven bands,
   yellow to red), with district labels.

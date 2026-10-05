@@ -2,6 +2,8 @@
 
 import { PROJECTION } from "./data/sg-basemap";
 import { sgDistricts } from "./data/sg-districts";
+import { sgRegions } from "./data/sg-layers";
+import type { Region } from "./lib";
 import { insideRings, pathRings } from "./lib";
 import type { CatalogueProject } from "./model";
 
@@ -25,4 +27,18 @@ export function districtAt(lat: number, lon: number): string | null {
 export function projectDistrict(p: CatalogueProject): string | null {
   if (p.district) return p.district;
   return p.lat !== null && p.lon !== null ? districtAt(p.lat, p.lon) : null;
+}
+
+const regionRings = sgRegions.map((r) => ({ id: r.id, rings: pathRings(r.d) }));
+
+/** URA market region (CCR, RCR or OCR) at a point. */
+export function regionAt(lat: number, lon: number): Region | null {
+  const { x, y } = toXY(lat, lon);
+  return regionRings.find((r) => insideRings(x, y, r.rings))?.id ?? null;
+}
+
+/** The project's region from the API, else from its position on the map. */
+export function projectRegion(p: CatalogueProject): Region | null {
+  if (p.segment) return p.segment;
+  return p.lat !== null && p.lon !== null ? regionAt(p.lat, p.lon) : null;
 }

@@ -25,6 +25,8 @@ ROOT = Path(__file__).resolve().parents[2]
 FILTERS = {
     "all": lambda n: True,
     "skip-small-variants": lambda n: not n.endswith("-960.jpg") and not n.endswith("-1200.jpg") and not n.startswith("hero-"),
+    # The projects map's cards: the alternatives' photos and Thomson Reserve's small hero.
+    "map-cards": lambda n: n.startswith("alt-") or n == "hero-960.jpg",
 }
 
 

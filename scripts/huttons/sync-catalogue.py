@@ -91,6 +91,7 @@ def project_row(p):
         "totalUnits": int(num(p.get("unitsNum")) or 0) or (len(units) or None),
         "unitsLeft": sum(1 for u in units if (u.get("purchaseStatus") or "").upper() == "AVAILABLE") if units else None,
         "unitTypes": types,
+        "image": p.get("mainImage") or detail.get("mainImage") or None,
     }
 
 
