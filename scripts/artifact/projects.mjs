@@ -36,8 +36,11 @@ export const ARTIFACT_PROJECTS = {
     entry: "src/features/catalogue/artifact-entry.tsx",
     out: "huttons-map.html",
     title: "TRM · New launches map",
-    defines: { NEXT_PUBLIC_TR_IMAGE_BASE: "images" },
-    embed: [["public/thomson-reserve/images", "images", 720, 70, "map-cards"]],
+    defines: { NEXT_PUBLIC_TR_IMAGE_BASE: "images", NEXT_PUBLIC_CATALOGUE_IMAGE_BASE: "catalogue" },
+    embed: [
+      ["public/thomson-reserve/images", "images", 720, 70, "map-cards"],
+      ["public/catalogue", "catalogue", 480, 62, "all"],
+    ],
   },
   "sample-wrenfield": {
     entry: "src/features/selector/data/demo/entry.tsx",

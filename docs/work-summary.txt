@@ -11,14 +11,38 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0m. Latest: map redesign and daily update (5 Oct)
+## 0n. Latest: The Serra Residences, and the full new launches map (5 Oct)
+
+- The Serra Residences (7 Bassein Road, Novena; Far East Organization;
+  freehold; 133 units in one 28-storey tower; launch 17 Oct 2026): its own
+  guide with all eight tabs, at https://claude.ai/artifact/4Ym1GFYpmJDWMDQkwmnSyf
+  and /projects/the-serra-residences.
+  - From the Huttons New Launch API: every unit and its availability, 13
+    floor plans, the site plan and the elevation chart.
+  - The tower in 3D, traced from the developer's plans: seven units a
+    floor on levels 4–16, the Sky Terrace on level 17, four larger units
+    a floor on levels 18–27 (private lift for the 4- and 5-bedroom
+    premium types), and two penthouses on level 28.
+  - Plans tab with the developer's colours. Prices are illustrative at
+    $2,800 psf on level 4 plus $15 a floor, until the price list is out.
+  - Primary schools measured on OneMap: SJI Junior 640 m, Hong Wen 1.1 km,
+    and seven more within 2 km.
+  - Still to add: views (no survey yet), payment schedule, comparable
+    resale and rental evidence, alternatives, and the PIVOT assessment.
+- The new launches map now holds every Huttons project in Singapore (303).
+  It shows the 126 still selling or upcoming; the 177 sold-out projects
+  are hidden, and resale is not shown. Each card has a photo.
+- The daily update also refreshes The Serra Residences and republishes its
+  page.
+
+## 0m. Map redesign and daily update (5 Oct)
 
 - URA market regions in three colours (CCR lavender, RCR peach, OCR teal),
   built at subzone level so districts that straddle a boundary are split;
   quiet base map with parks, nature areas, reservoirs and major roads.
 - Floating region filter (All, CCR, RCR, OCR) that also fits the map; tidy
   zoom and reset panel; labels that never overlap; navy markers for New
-  launch, Upcoming and Resale; district card on hover or tap; compact
+  launch and Upcoming; district card on hover or tap; compact
   project card with photo; a Price heatmap view once average psf is loaded.
 - A daily update runs each morning (Singapore time) once the API keys are in
   the environment: syncs, checks, rebuilds and republishes both pages.
@@ -99,7 +123,6 @@ first complete project and the template for future developments. Work done
 - **Alternative projects**: prices and units left from the Huttons New
   Launch API; the comparison is now in bullet points.
 - Photos removed from Schools and Alternative Projects (not relevant there).
-
 
 ## 0f. Huttons New Launch API (5 Oct)
 

@@ -31,9 +31,8 @@ describe("recommendations", () => {
       expect(r.sharedBedrooms.length).toBeGreaterThan(0);
       expect(r.reason).toMatch(/away/);
     }
-    // Lentoria (about 2.9 km) is nearer than Springleaf Residence (about 4.8 km).
-    const names = recs.map((r) => r.item.name);
-    expect(names.indexOf("Lentoria")).toBeLessThan(names.indexOf("Springleaf Residence"));
+    // Nearest first.
+    for (let i = 1; i < recs.length; i++) expect(recs[i].km).toBeGreaterThanOrEqual(recs[i - 1].km);
   });
 
   it("knows a project launching later is upcoming", () => {

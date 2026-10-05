@@ -146,9 +146,14 @@ export function latestPsf(m: MarketProject): MarketYear | null {
 export const money = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 export const pct = (r: number) => `${(r * 100).toFixed(2)}%`;
 
-/** On the map: launching later (upcoming) or already launched (new launch). */
+/**
+ * On the map: launching later, or no units released yet (upcoming), or
+ * launched with units still for sale (new launch). Sold-out projects are not shown.
+ */
 export type MapKind = "new" | "upcoming";
-export const mapKind = (p: CatalogueProject, today: string): MapKind => (p.launchDate && p.launchDate > today ? "upcoming" : "new");
+export const mapKind = (p: CatalogueProject, today: string): MapKind =>
+  (p.launchDate && p.launchDate > today) || p.unitsLeft === null ? "upcoming" : "new";
+export const onMap = (p: CatalogueProject, today: string) => projectStatus(p, today) !== "sold-out";
 
 export interface PriceRow {
   bedrooms: number;

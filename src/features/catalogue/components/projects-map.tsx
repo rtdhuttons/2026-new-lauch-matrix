@@ -29,6 +29,7 @@ import {
   latestPsf,
   located,
   mapKind,
+  onMap,
   money,
   pct,
   placeLabels,
@@ -160,11 +161,12 @@ export function ProjectsMap({
       const f = fromPrice(p, bedrooms);
       if (f === null || f > budget) return false;
     }
-    if (!kinds[mapKind(p, today)]) return false;
+    if (!onMap(p, today) || !kinds[mapKind(p, today)]) return false;
     if (region !== "all" && projectRegion(p) !== region) return false;
     return true;
   };
   const shown = projects.filter(matchesFilters);
+  const listed = projects.filter((p) => onMap(p, today)).length;
   const items: Item[] = [
     ...shown.filter(located).map((p) => ({ kind: mapKind(p, today), key: p.id, ...toXY(p.lat!, p.lon!), project: p, region: projectRegion(p) }) as Item),
   ];
@@ -289,6 +291,7 @@ export function ProjectsMap({
       <p className="mt-2 font-display-normal text-sm text-stone">
         Projects and prices: {catalogue.source}, {catalogue.fetched}.
         {catalogue.seed && " Showing the projects already loaded for Thomson Reserve; the full list loads with the daily update."}
+        {projects.length > listed && ` ${projects.length - listed} sold-out projects are not shown.`}
       </p>
 
       {/* Search filters */}
@@ -338,7 +341,7 @@ export function ProjectsMap({
         </div>
       </div>
       <p className="mt-2 font-display-normal text-sm text-canopy/75" aria-live="polite">
-        {shown.length} of {projects.length} projects shown
+        {shown.length} of {listed} projects shown
         {region !== "all" ? ` in ${REGION[region].name} (${region})` : ""}.
       </p>
 
@@ -913,7 +916,7 @@ function ProjectPanel({
   onSelect: (p: CatalogueProject) => void;
 }) {
   const region = projectRegion(p);
-  const s = { label: KIND[mapKind(p, today)].label, colour: region ? REGION[region].accent : NAVY };
+  const s = { label: onMap(p, today) ? KIND[mapKind(p, today)].label : "Sold out", colour: region ? REGION[region].accent : NAVY };
   const withCagr = nearbyMarket.map((n) => ({ ...n, cagr: projectCagr(n.item), latest: latestPsf(n.item) }));
   const facts = [
     ["Address", p.address],
@@ -945,7 +948,7 @@ function ProjectPanel({
         </dl>
         {link && (
           <a href={link} target="_blank" rel="noopener" className="mt-4 inline-block rounded-full bg-canopy px-5 py-2.5 font-display-normal text-sm font-semibold text-mist">
-            Open the {p.name} guide
+            Open the {p.name.replace(/^the /i, "")} guide
           </a>
         )}
       </section>
