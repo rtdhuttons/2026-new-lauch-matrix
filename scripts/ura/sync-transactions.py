@@ -120,6 +120,8 @@ def main(radius):
     if not os.environ.get("URA_FIXTURES"):
         call.token = call("insertNewToken/v1")["Result"]
     near = {}
+    year_ago = f"{date.today().year - 1}-{date.today().month:02d}"
+    by_district = {}
 
     def place(p):
         try:
@@ -137,6 +139,10 @@ def main(radius):
     for batch in (1, 2, 3, 4):
         for p in call("invokeUraDS/v1", service="PMI_Resi_Transaction", batch=batch).get("Result") or []:
             tx = [t for t in p.get("transaction") or [] if t.get("propertyType") in HOMES]
+            # Island-wide district averages over the last 12 months, for the map's shading.
+            for t in tx:
+                if month(t["contractDate"]) > year_ago and str(t.get("district") or "").isdigit():
+                    by_district.setdefault(f"D{int(t['district']):02d}", []).append(float(t["price"]) / (float(t["area"]) * SQFT_PER_SQM))
             if not tx or not (row := place(p)):
                 continue
             for t in tx:
@@ -181,6 +187,8 @@ def main(radius):
                           for b, v in sorted(by_beds.items(), key=lambda kv: (kv[0] is None, kv[0] or 0))]
         projects.append(row)
     projects.sort(key=lambda r: r["name"])
+    districts = [{"district": d, "sales": len(v), "avgPsf": round(sum(v) / len(v)), "medianPsf": round(statistics.median(v))}
+                 for d, v in sorted(by_district.items())]
     today = date.today().isoformat()
     body = "".join("    " + json.dumps(r, ensure_ascii=False) + ",\n" for r in projects).rstrip("\n")
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -198,6 +206,8 @@ export const uraMarket: MarketData = {{
   projects: [
 {body}
   ],
+  districtPeriod: "12 months to {today}",
+  districts: {json.dumps(districts)},
 }};
 """)
     print(f"{len(projects)} developments within {radius} km of {len(points)} projects written to {OUT.relative_to(ROOT)}")

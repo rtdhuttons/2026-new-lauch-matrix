@@ -145,3 +145,131 @@ export function latestPsf(m: MarketProject): MarketYear | null {
 
 export const money = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 export const pct = (r: number) => `${(r * 100).toFixed(2)}%`;
+
+/** On the map: launching later (upcoming) or already launched (new launch). */
+export type MapKind = "new" | "upcoming";
+export const mapKind = (p: CatalogueProject, today: string): MapKind => (p.launchDate && p.launchDate > today ? "upcoming" : "new");
+
+export interface PriceRow {
+  bedrooms: number;
+  loPsf: number | null;
+  hiPsf: number | null;
+  loPrice: number | null;
+  hiPrice: number | null;
+  unitsLeft: number | null;
+}
+
+/** Lowest and highest price and price per sq ft of the available units, by number of bedrooms. */
+export function priceByBedroom(p: CatalogueProject): PriceRow[] {
+  const rows = new Map<number, PriceRow>();
+  const lo = (a: number | null, b: number | null | undefined) => (b == null ? a : a == null ? b : Math.min(a, b));
+  const hi = (a: number | null, b: number | null | undefined) => (b == null ? a : a == null ? b : Math.max(a, b));
+  for (const t of p.unitTypes) {
+    if (t.unitsLeft === 0) continue;
+    const r = rows.get(t.bedrooms) ?? { bedrooms: t.bedrooms, loPsf: null, hiPsf: null, loPrice: null, hiPrice: null, unitsLeft: null };
+    r.loPrice = lo(r.loPrice, t.fromPrice);
+    r.hiPrice = hi(r.hiPrice, t.toPrice);
+    r.loPsf = lo(r.loPsf, t.psfRange?.min ?? t.fromPsf);
+    r.hiPsf = hi(r.hiPsf, t.psfRange?.max ?? t.fromPsf);
+    r.unitsLeft = t.unitsLeft === null ? r.unitsLeft : (r.unitsLeft ?? 0) + t.unitsLeft;
+    rows.set(t.bedrooms, r);
+  }
+  return [...rows.values()].sort((a, b) => a.bedrooms - b.bedrooms);
+}
+
+export interface DistrictValue {
+  avgPsf: number;
+  /** Sales (URA) or available units (new launches) behind the average. */
+  count: number;
+}
+
+/**
+ * Average price per sq ft by postal district: URA's sales over the last 12
+ * months when loaded, otherwise the available units at the new launches on
+ * the map (weighted by units).
+ */
+export function districtPsf(
+  projects: CatalogueProject[],
+  market: { districts?: { district: string; sales: number; avgPsf: number }[] },
+  districtOf: (p: CatalogueProject) => string | null,
+): { basis: "ura" | "new-launch" | null; values: Map<string, DistrictValue> } {
+  if (market.districts?.length) {
+    return { basis: "ura", values: new Map(market.districts.map((d) => [d.district, { avgPsf: d.avgPsf, count: d.sales }])) };
+  }
+  const sums = new Map<string, { total: number; units: number }>();
+  for (const p of projects) {
+    const d = districtOf(p);
+    if (!d) continue;
+    for (const t of p.unitTypes) {
+      if (!t.psfRange) continue;
+      const s = sums.get(d) ?? { total: 0, units: 0 };
+      s.total += t.psfRange.avg * t.psfRange.units;
+      s.units += t.psfRange.units;
+      sums.set(d, s);
+    }
+  }
+  const values = new Map([...sums].filter(([, s]) => s.units > 0).map(([d, s]) => [d, { avgPsf: Math.round(s.total / s.units), count: s.units }]));
+  return { basis: values.size ? "new-launch" : null, values };
+}
+
+/** Light yellow to deep red, as on property maps; checked for contrast against the district labels. */
+export const PSF_COLOURS = ["#fdf3c6", "#fbe39b", "#f8c97b", "#f4a96a", "#ee8360", "#e05650", "#c13a4a"];
+
+/** Equal-width price bands between the lowest and highest district average. */
+export function psfBands(values: number[], colours = PSF_COLOURS): { from: number; to: number; colour: string }[] {
+  if (!values.length) return [];
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  if (min === max) return [{ from: min, to: max, colour: colours[Math.floor(colours.length / 2)] }];
+  const step = (max - min) / colours.length;
+  return colours.map((colour, i) => ({ from: Math.round(min + step * i) + (i ? 1 : 0), to: Math.round(min + step * (i + 1)), colour }));
+}
+
+export function bandColour(v: number, bands: { from: number; to: number; colour: string }[]): string | null {
+  return bands.find((b) => v <= b.to)?.colour ?? bands[bands.length - 1]?.colour ?? null;
+}
+
+export interface Cluster<T> {
+  items: T[];
+  x: number;
+  y: number;
+}
+
+/** Groups points on a square grid (in the same units as x and y), so nearby markers show as one bubble with a count. */
+export function cluster<T extends { x: number; y: number }>(points: T[], cell: number): Cluster<T>[] {
+  const cells = new Map<string, T[]>();
+  for (const p of points) {
+    const k = `${Math.floor(p.x / cell)},${Math.floor(p.y / cell)}`;
+    cells.set(k, [...(cells.get(k) ?? []), p]);
+  }
+  return [...cells.values()].map((items) => ({
+    items,
+    x: items.reduce((a, p) => a + p.x, 0) / items.length,
+    y: items.reduce((a, p) => a + p.y, 0) / items.length,
+  }));
+}
+
+/** Parses the map's SVG paths ("M x yL x y…Z…") into rings. */
+export function pathRings(d: string): [number, number][][] {
+  return d
+    .split("M")
+    .filter(Boolean)
+    .map((ring) =>
+      ring
+        .replace(/Z/g, "")
+        .split("L")
+        .map((pt) => pt.trim().split(/\s+/).map(Number) as [number, number]),
+    );
+}
+
+export function insideRings(x: number, y: number, rings: [number, number][][]): boolean {
+  let c = false;
+  for (const ring of rings) {
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [x1, y1] = ring[i];
+      const [x2, y2] = ring[j];
+      if (y1 > y !== y2 > y && x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) c = !c;
+    }
+  }
+  return c;
+}

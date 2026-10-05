@@ -13,6 +13,10 @@ export interface CatalogueUnitType {
   fromPrice: number | null;
   /** Price per sq ft of that lowest-priced unit. */
   fromPsf: number | null;
+  /** Highest price among the units still available. */
+  toPrice?: number | null;
+  /** Price per sq ft across the available, priced units of this type. */
+  psfRange?: { min: number; max: number; avg: number; units: number } | null;
 }
 
 export interface CatalogueProject {
@@ -84,10 +88,22 @@ export interface MarketProject {
   source?: string;
 }
 
+/** Average price per sq ft of private home sales in a postal district over the last 12 months. */
+export interface DistrictPsf {
+  /** "D20". */
+  district: string;
+  sales: number;
+  avgPsf: number;
+  medianPsf: number;
+}
+
 export interface MarketData {
   source: string;
   fetched: string;
   radiusKm: number;
   rentalPeriod: string;
   projects: MarketProject[];
+  /** Island-wide, by postal district, over the 12 months to `districtPeriod`. */
+  districts?: DistrictPsf[];
+  districtPeriod?: string;
 }

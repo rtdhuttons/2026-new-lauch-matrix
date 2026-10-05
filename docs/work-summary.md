@@ -11,7 +11,19 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0k. Latest: Thomson Reserve in Google's 3D city (5 Oct)
+## 0l. Latest: map restyled like the property maps (5 Oct)
+
+- Postal districts D01–D28 shaded by average price per sq ft (seven bands,
+  yellow to red), with district labels.
+- Only "New launch" and "Upcoming" pins (no resale), gathering into numbered
+  bubbles when zoomed out; tap a bubble to zoom in.
+- Tapping a project opens "Price by type (available)": low and high psf and
+  price for each bedroom count.
+- Shading uses URA's last 12 months of sales once the URA key is set
+  (otherwise the new launches' own prices); district outlines are
+  approximate, built from URA subzones and OneMap postcodes.
+
+## 0k. Thomson Reserve in Google's 3D city (5 Oct)
 
 - New page /city-3d: the towers (from the selector's own model, coloured by
   unit type) placed on the site in CesiumJS with Google's Photorealistic 3D

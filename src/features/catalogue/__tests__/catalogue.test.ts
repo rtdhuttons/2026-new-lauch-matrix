@@ -69,3 +69,53 @@ describe("CAGR", () => {
     expect(j.rentals.some((r) => r.bedrooms === 3 && r.count > 0)).toBe(true);
   });
 });
+
+import { cluster, districtPsf, mapKind, priceByBedroom, psfBands } from "../lib";
+import { districtAt, projectDistrict } from "../geo";
+
+describe("map look", () => {
+  it("places projects in the right postal districts", () => {
+    expect(projectDistrict(tr)).toBe("D20");
+    expect(districtAt(1.2839, 103.8515)).toBe("D01"); // Raffles Place
+    expect(districtAt(1.3048, 103.8318)).toBe("D09"); // Orchard
+    expect(projectDistrict(catalogue.projects.find((p) => p.name === "Lentoria")!)).toBe("D26");
+  });
+
+  it("shows only new launches and upcoming projects", () => {
+    expect(mapKind(tr, "2026-10-05")).toBe("upcoming");
+    expect(mapKind(tr, "2026-11-01")).toBe("new");
+  });
+
+  it("tabulates low and high price and psf by bedrooms from available units", () => {
+    const rows = priceByBedroom({
+      ...tr,
+      unitTypes: [
+        { bedrooms: 2, type: "A", sizeSqft: null, total: 10, unitsLeft: 4, fromPrice: 1_500_000, fromPsf: 2100, toPrice: 1_700_000, psfRange: { min: 2080, max: 2300, avg: 2200, units: 4 } },
+        { bedrooms: 2, type: "B", sizeSqft: null, total: 5, unitsLeft: 2, fromPrice: 1_600_000, fromPsf: 2050, toPrice: 1_900_000, psfRange: { min: 2050, max: 2400, avg: 2250, units: 2 } },
+        { bedrooms: 3, type: "C", sizeSqft: null, total: 5, unitsLeft: 0, fromPrice: null, fromPsf: null },
+      ],
+    });
+    expect(rows).toEqual([{ bedrooms: 2, loPsf: 2050, hiPsf: 2400, loPrice: 1_500_000, hiPrice: 1_900_000, unitsLeft: 6 }]);
+  });
+
+  it("averages district psf from URA when loaded, else from new launches", () => {
+    const ura = districtPsf([], { districts: [{ district: "D20", sales: 40, avgPsf: 2300 }] }, () => null);
+    expect(ura.basis).toBe("ura");
+    expect(ura.values.get("D20")?.avgPsf).toBe(2300);
+    const launches = districtPsf(
+      [{ ...tr, unitTypes: [{ bedrooms: 2, type: "A", sizeSqft: null, total: 1, unitsLeft: 3, fromPrice: 1, fromPsf: 1, psfRange: { min: 1, max: 3, avg: 2000, units: 3 } }, { bedrooms: 3, type: "B", sizeSqft: null, total: 1, unitsLeft: 1, fromPrice: 1, fromPsf: 1, psfRange: { min: 1, max: 3, avg: 2400, units: 1 } }] }],
+      {},
+      () => "D20",
+    );
+    expect(launches.values.get("D20")?.avgPsf).toBe(2100);
+  });
+
+  it("splits district averages into seven bands and clusters nearby markers", () => {
+    const b = psfBands([1454, 3258, 2000]);
+    expect(b).toHaveLength(7);
+    expect(b[0].from).toBe(1454);
+    expect(b[6].to).toBe(3258);
+    const c = cluster([{ x: 1, y: 1 }, { x: 5, y: 5 }, { x: 500, y: 500 }], 100);
+    expect(c.map((g) => g.items.length).sort()).toEqual([1, 2]);
+  });
+});

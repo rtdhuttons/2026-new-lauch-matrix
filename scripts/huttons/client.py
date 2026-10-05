@@ -134,6 +134,7 @@ def summarise_units(units):
         av_prices = [(unit_price(u), float(u.get("area") or 0)) for u in av]
         av_prices = [(p, a) for p, a in av_prices if p]
         cheapest = min(av_prices, default=None)
+        psfs = [p / a for p, a in av_prices if a]
         try:
             bedrooms = int(float(us[0]["bedrooms"]))
         except (TypeError, ValueError):
@@ -146,6 +147,8 @@ def summarise_units(units):
             "unitsLeft": len(av),
             "fromPrice": cheapest[0] if cheapest else None,
             "fromPsf": round(cheapest[0] / cheapest[1]) if cheapest and cheapest[1] else None,
+            "toPrice": max(p for p, _ in av_prices) if av_prices else None,
+            "psfRange": {"min": round(min(psfs)), "max": round(max(psfs)), "avg": round(sum(psfs) / len(psfs)), "units": len(psfs)} if psfs else None,
         })
     types.sort(key=lambda r: (r["bedrooms"], r["fromPrice"] or 9e12, r["type"]))
     return types
