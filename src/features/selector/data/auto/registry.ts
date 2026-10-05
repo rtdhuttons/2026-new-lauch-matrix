@@ -1100,7 +1100,7 @@ export const autoListings: AutoListing[] = [
     "area": "Boat Quay / Raffles Place",
     "summary": "683 units · 99 Years · D01",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/5172e27253f14c63b687f97a1ae26c15/imgs/20250604/131b80aa0ee8476da0e9d3c3cb4f0045.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "west-connect-building",
@@ -1324,5 +1324,6 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "upperhouse-at-orchard-boulevard": () => import("./traces/upperhouse-at-orchard-boulevard.json"),
   "vela-bay": () => import("./traces/vela-bay.json"),
   "verde-joo-chiat": () => import("./traces/verde-joo-chiat.json"),
+  "w-residences-marina-view-singapore": () => import("./traces/w-residences-marina-view-singapore.json"),
   "zyon-grand": () => import("./traces/zyon-grand.json"),
 };

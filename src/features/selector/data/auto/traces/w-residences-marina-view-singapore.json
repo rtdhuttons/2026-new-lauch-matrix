@@ -1,0 +1,142 @@
+{
+ "image": "https://img.singmap.com/upload/broke/7b809cfe234f48df97c961d92798d1ca/5172e27253f14c63b687f97a1ae26c15/siteplanImg/20251013/Site_Plan_1.png",
+ "widthPx": 3456,
+ "heightPx": 4053,
+ "pxPerM": 8.18,
+ "scaleFrom": "site area",
+ "northDeg": 302,
+ "siteBoundary": [
+  [
+   549,
+   507
+  ],
+  [
+   1111,
+   503
+  ],
+  [
+   1111,
+   1365
+  ],
+  [
+   550,
+   1365
+  ],
+  [
+   527,
+   1355
+  ],
+  [
+   510,
+   1338
+  ],
+  [
+   500,
+   1317
+  ],
+  [
+   500,
+   561
+  ]
+ ],
+ "crop": [
+  80,
+  400,
+  1300,
+  1470
+ ],
+ "blocks": [
+  {
+   "block": "W Residences Marina View",
+   "core": [
+    808,
+    838
+   ],
+   "stacks": {
+    "01": [
+     903,
+     1273
+    ],
+    "02": [
+     748,
+     1307
+    ],
+    "03": [
+     591,
+     1271
+    ],
+    "04": [
+     681,
+     1006
+    ],
+    "05": [
+     682,
+     1058
+    ],
+    "06": [
+     559,
+     1132
+    ],
+    "07": [
+     554,
+     1043
+    ],
+    "08": [
+     547,
+     980
+    ],
+    "09": [
+     550,
+     908
+    ],
+    "10": [
+     553,
+     799
+    ],
+    "11": [
+     644,
+     791
+    ],
+    "12": [
+     702,
+     791
+    ],
+    "13": [
+     772,
+     791
+    ],
+    "14": [
+     842,
+     791
+    ],
+    "15": [
+     901,
+     791
+    ],
+    "16": [
+     955,
+     791
+    ],
+    "17": [
+     940,
+     926
+    ],
+    "18": [
+     856,
+     926
+    ],
+    "19": [
+     800,
+     926
+    ],
+    "20": [
+     754,
+     926
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Top-left 'Site Plan' panel. Scale from the published site area (7,817.6 m\u00b2) over the plot traced at the edge of the site's paved perimeter against the surrounding roads and walkway (no boundary line is drawn), 8.18 px/m. The panel's printed 25 m bar (311 px) is shared with the level 15/34/51 plans and does not fit this drawing: at that scale a 2,809 sq ft unit would cover about 1,700 sq ft. North point 58\u00b0 clockwise from plan up. Stack numbers are printed on the plan; core at the main lift bank north of stacks 19-20."
+}
