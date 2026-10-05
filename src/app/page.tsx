@@ -17,6 +17,10 @@ export default function Home() {
           Tools that help buyers choose the right new-launch home: which stack, which floor, and whether the premium for a better view is worth paying.
         </p>
 
+        <Link href="/map" className="mt-8 inline-block rounded-full bg-canopy px-6 py-3 font-display-normal text-[0.9375rem] font-semibold text-mist hover:bg-canopy/90">
+          See every new launch on the map
+        </Link>
+
         {liveProjects.map((p, i) => (
           <Link
             key={p.id}

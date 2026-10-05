@@ -8,6 +8,22 @@ sample project that proves nothing from Thomson Reserve leaks into another.
 
 Start with `docs/project-intake-checklist.md` to gather the material.
 
+## 0. Pull what the Huttons API has
+
+```
+python3 scripts/huttons/pull-project.py "Project Name" project-slug
+```
+
+This writes `src/features/selector/data/<slug>/huttons-project.ts` (address,
+map position, district, tenure, developer, dates, units, the developer's
+description and facilities), `huttons-units.ts` (every unit, its
+availability and prices, in the format `lib/listing.ts` reads) and
+`huttons-media.ts`, and downloads into `public/<slug>/` the floor plans,
+site plans and the images marked open to the public. Internal-only media
+and agent contacts are never fetched. Needs `HUTTONS_API_KEY` and
+`HUTTONS_API_SECRET` in the environment. Then build the bundle from these
+files as below; the site plan tracing and view rules still need TRM.
+
 ## 1. Files to create
 
 ```

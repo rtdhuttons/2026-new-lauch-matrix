@@ -11,7 +11,19 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0i. Latest: exit appeal, price boxes, disclaimer (5 Oct)
+## 0j. Latest: new launches map and data pipeline (5 Oct)
+
+- New launches map (/map, and its own shareable page): every Huttons project
+  on a map of Singapore with MRT stations; filter by bedrooms, budget and
+  status; each project's unit types, prices and units left; nearby projects
+  to compare (within 3 km, still selling, a bedroom type in common); and the
+  sales, rents and CAGR of homes within 1.5 km.
+- Scripts to pull every project from the Huttons API daily, a new project's
+  floor plans, site plans and public images, and URA's sales and rents
+  around each project. They need the API keys set in the environment; until
+  then the map shows the five projects already loaded and JadeScape's report.
+
+## 0i. Exit appeal, price boxes, disclaimer (5 Oct)
 
 - Exit appeal no longer counts distinctive features: less competition (up
   to 50) plus floor band record (up to 30), out of 80, rescaled to 100, with

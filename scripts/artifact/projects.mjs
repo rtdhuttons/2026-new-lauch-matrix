@@ -21,6 +21,13 @@ export const ARTIFACT_PROJECTS = {
       ["public/thomson-reserve/plans", "plans", 1100, 62, "all"],
     ],
   },
+  "huttons-map": {
+    entry: "src/features/catalogue/artifact-entry.tsx",
+    out: "huttons-map.html",
+    title: "TRM · New launches map",
+    defines: {},
+    embed: [],
+  },
   "sample-wrenfield": {
     entry: "src/features/selector/data/demo/entry.tsx",
     out: "sample-wrenfield.html",
