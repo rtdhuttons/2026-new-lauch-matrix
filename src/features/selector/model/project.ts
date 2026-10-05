@@ -237,6 +237,16 @@ export interface PricingInfo {
   estimateProvenance: Provenance | null;
   /** The developer's dated price list, once loaded into the units. */
   priceList: { date: string; provenance: Provenance } | null;
+  /**
+   * Indicative starting prices by unit type, as published before the price
+   * list (e.g. a launch flyer). Shown as published; never applied to units.
+   */
+  startingPrices?: {
+    /** e.g. "From $3,120 psf". */
+    headline: string | null;
+    groups: { name: string; rows: { type: string; sizeSqft: { min: number; max: number }; from: number | null; note?: string }[] }[];
+    provenance: Provenance;
+  } | null;
 }
 
 /** TRM's PIVOT categories: Product mix, Investment entry, Value-add, Opportunity zone, Timing of exit. */

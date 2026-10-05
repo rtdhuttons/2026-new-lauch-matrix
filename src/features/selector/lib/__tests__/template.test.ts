@@ -50,7 +50,13 @@ describe("The Serra Residences", () => {
     // Estimated prices use the unit's own size, not the stack's lower-floor type.
     const priced = applyPriceEstimate(ds, serraResidences.pricing.estimate!);
     const ph = priced.units.find((u) => u.id === "05-28")!;
-    expect(ph.price).toBe(Math.round(((2800 + 15 * 24) * 2669) / 1000) * 1000);
+    expect(ph.price).toBe(Math.round(((3120 + 30 * 24) * 2669) / 1000) * 1000);
+    // The estimate stays within 3% of every published starting price (Huttons flyer, 2 Oct 2026).
+    const lowest = (type: string) =>
+      Math.min(...priced.units.filter((u) => u.typeCode === type).map((u) => u.price!));
+    for (const [type, from] of [["B1", 2_220_000], ["C2", 2_830_000], ["D1", 3_080_000], ["D2", 4_310_000], ["D3", 4_660_000], ["D4", 5_440_000], ["E", 6_250_000]] as const) {
+      expect(Math.abs(lowest(type) - from) / from, type).toBeLessThanOrEqual(0.031);
+    }
   });
 
   it("leaves views unassessed and borrows nothing from Thomson Reserve", () => {

@@ -39,6 +39,7 @@ import { PivotTab } from "./pivot-tab";
 import { PlansTab } from "./plans-tab";
 import { PriceEstimateSection } from "./price-estimate";
 import { Gallery, ProjectHero } from "./project-hero";
+import { StartingPrices } from "./starting-prices";
 import { RentalPotential } from "./rental-evidence";
 import { SchoolsTab } from "./schools-tab";
 import { comparisonFeedback, ComparisonBar, MAX_SHORTLIST, ShortlistButton, ShortlistDialog, useShortlistDialog } from "./shortlist";
@@ -656,6 +657,11 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
           </Step>
 
           <div className="mt-12 grid gap-3">
+            {project.pricing.startingPrices && (
+              <Disclosure id="starting-prices" title="Indicative starting prices" hint={project.pricing.startingPrices.headline ?? undefined}>
+                <StartingPrices prices={project.pricing.startingPrices} />
+              </Disclosure>
+            )}
             {estimatable && estimate && defaults && (
               <Disclosure id="prices" title="Price by floor for every unit type" hint={priceNote ?? undefined}>
                 <PriceEstimateSection

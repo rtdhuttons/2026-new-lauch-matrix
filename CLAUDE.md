@@ -149,7 +149,9 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   a floor on stacks 01/03/05/07 for levels 18–27, penthouses on 28; floor
   heights assumed; views not assessed), `bundle.ts` (the API names the two
   sections as blocks "(L4-L16)" and "(L18-28)"; the bundle maps both to the
-  tower "7"; illustrative $2,800 psf at level 4 + $15 a floor; OneMap school
+  tower "7"; indicative starting prices from the Huttons flyer of 2 Oct 2026
+  in `pricing.startingPrices`, shown as published; illustrative $3,120 psf at
+  level 4 + $30 a floor, fitted to within 3% of them; OneMap school
   distances), `entry.tsx`. Images and plans in `public/the-serra-residences/`.
 - `src/features/selector/data/auto/` — the automatic mini sites:
   `specs/<slug>.json` (one per project, from `scripts/huttons/build-sites.py`:

@@ -60,7 +60,12 @@ def main(name, out):
         page += 1
     status = {"AVAILABLE": "available", "SOLD": "sold", "RESERVED": "reserved", "BOOKED": "reserved"}
     rows = []
-    for u in sorted(units, key=lambda u: (int(u["buildName"].split()[-1]), u["stack"], int(u["floor"]))):
+    # Blocks are usually numbers ("Blk 5"), but some projects name tower sections, e.g. "(L4-L16)".
+    def block_key(u):
+        b = u["buildName"].split()[-1]
+        return (0, int(b), "") if b.isdigit() else (1, 0, b)
+
+    for u in sorted(units, key=lambda u: (block_key(u), u["stack"], int(u["floor"]))):
         price = lambda k: int(u[k]) if u.get(k) and float(u[k]) > 0 else None
         rows.append([u["buildName"].split()[-1], u["stack"], int(u["floor"]), u["floorPlanName"], round(u["area"] or 0),
                      status.get((u["purchaseStatus"] or "").upper(), "pending"), price("price1"), price("price2")])

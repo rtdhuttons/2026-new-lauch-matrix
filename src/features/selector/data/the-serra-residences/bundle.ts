@@ -68,7 +68,8 @@ const sources: SourceRecord[] = [
   { item: "Walking distance to Novena MRT (741 m)", kind: "third-party", source: "Huttons New Launch API, nearby facilities", checked: "2026-10-05", status: "estimated", note: "The developer's material says about 8 minutes' walk." },
   { item: "Primary school distances", kind: "official", source: "SLA OneMap address search", checked: "2026-10-05", status: "verified", note: "Address point to address point." },
   { item: "Sun positions and afternoon sun", kind: "calculated", source: "NOAA solar formulas on the traced facings", checked: "2026-10-05", status: "estimated" },
-  { item: "Illustrative prices: $2,800 psf at level 4 plus $15 psf a floor", kind: "illustrative", source: "TRM assumption, set from market commentary of S$2,800–3,000 psf (The Listing Colony, 6 Aug 2026) until the developer's price list is released", checked: "2026-10-05", status: "assumed" },
+  { item: "Indicative starting prices by unit type, from $3,120 psf", kind: "third-party", source: "Huttons launch flyer for The Serra Residences, information as at 2 Oct 2026", checked: "2026-10-05", status: "estimated", note: "Published while seeking indication of interest; subject to change without notice. Not the developer's price list." },
+  { item: "Illustrative prices: $3,120 psf at level 4 plus $30 psf a floor", kind: "calculated", source: "TRM estimate fitted to the indicative starting prices (Huttons flyer, 2 Oct 2026)", checked: "2026-10-05", status: "estimated", note: "Each unit type's estimate at its lowest floor is within about 3% of its published starting price." },
   { item: "Land: bought for S$122 million in 2010 (former Pastoral View and 11 Bassein Road), about S$847 psf ppr", kind: "third-party", source: "The Listing Colony, 6 Aug 2026", checked: "2026-10-05", status: "estimated", note: "Not checked against an official record." },
   { item: "Render", kind: "developer", source: "Developer's marketing image (Huttons New Launch API project image); artist's impression", checked: "2026-10-05", status: "verified" },
 ];
@@ -158,14 +159,43 @@ export const serraResidences: ProjectBundle = {
     provenance: { ...DEVELOPER, note: "Walking and driving times as the developer gives them; not measured." },
   },
   pricing: {
-    estimate: { basePsf: 2800, stepPsf: 15 },
+    estimate: { basePsf: 3120, stepPsf: 30 },
     estimateProvenance: {
-      source: "TRM illustrative assumption",
+      source: "TRM estimate from the indicative starting prices (Huttons flyer, 2 Oct 2026)",
       updated: "2026-10-05",
-      status: "assumed",
-      note: "$2,800 psf at level 4 plus $15 psf for each floor above, set from market commentary of S$2,800–3,000 psf for freehold launches nearby, until the developer's price list is released.",
+      status: "estimated",
+      note: "$3,120 psf at level 4 (the published \"from $3,120 psf\") plus $30 psf for each floor above, fitted so each unit type's lowest-floor estimate is within about 3% of its published starting price. Not the developer's price list.",
     },
     priceList: listing.priced > 0 ? { date: huttonsSync.fetched, provenance: { ...HUTTONS, note: `${listing.priced} units priced` } } : null,
+    startingPrices: {
+      headline: "From $3,120 psf",
+      groups: [
+        {
+          name: "The Serra Residences (levels 4–16)",
+          rows: [
+            { type: "2-Bedroom + Study, 3-Bedroom Compact", sizeSqft: { min: 710, max: 764 }, from: 2_220_000 },
+            { type: "3-Bedroom", sizeSqft: { min: 893, max: 904 }, from: 2_830_000 },
+            { type: "4-Bedroom", sizeSqft: { min: 958, max: 958 }, from: 3_080_000 },
+          ],
+        },
+        {
+          name: "The Summit Collection (levels 18–28)",
+          rows: [
+            { type: "4-Bedroom", sizeSqft: { min: 1216, max: 1216 }, from: 4_310_000 },
+            { type: "4-Bedroom + Study", sizeSqft: { min: 1335, max: 1335 }, from: 4_660_000 },
+            { type: "4-Bedroom Premium with private lift", sizeSqft: { min: 1528, max: 1528 }, from: 5_440_000 },
+            { type: "5-Bedroom Premium with private lift", sizeSqft: { min: 1755, max: 1755 }, from: 6_250_000 },
+            { type: "Penthouse", sizeSqft: { min: 2648, max: 2669 }, from: null, note: "Price on application" },
+          ],
+        },
+      ],
+      provenance: {
+        source: "Huttons launch flyer",
+        updated: "2026-10-02",
+        status: "estimated",
+        note: "Indicative prices while seeking indication of interest; subject to change without notice. The developer's price list, once released, replaces them.",
+      },
+    },
   },
   payments: { schedule: null, scheduleProvenance: null, maintenance: null },
   schools: {
