@@ -1,0 +1,52 @@
+{
+ "image": "https://img.singmap.com/upload/broke/9630042326f643958aac4861dff8609b/aa70f67a979540b591df8451d924b6f3/siteplanImg/72ab25bc4284469d8740b4b979f8d4a3.jpg",
+ "widthPx": 1920,
+ "heightPx": 1300,
+ "pxPerM": 22.08,
+ "scaleFrom": "site area",
+ "northDeg": 42,
+ "crop": [
+  380,
+  320,
+  1660,
+  930
+ ],
+ "blocks": [
+  {
+   "block": "TRIO",
+   "core": [
+    1467,
+    776
+   ]
+  }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "1st storey plan; no scale bar. Scale from the site area: the plot outline marked 'Boundary / Road Reserve Line' traced as siteBoundary (559,678 px²) against the published 1,148.5 m² gives 22.08 px/m. North point about 42° anticlockwise from plan up. Core at the lift lobby (legend 2). Unit numbers are not printed on the plan, so stacks are arranged round the core.",
+ "siteBoundary": [
+  [
+   440,
+   371
+  ],
+  [
+   1502,
+   447
+  ],
+  [
+   1582,
+   519
+  ],
+  [
+   1619,
+   827
+  ],
+  [
+   1558,
+   892
+  ],
+  [
+   414,
+   894
+  ]
+ ]
+}

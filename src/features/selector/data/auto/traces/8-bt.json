@@ -2,14 +2,102 @@
  "image": "https://img.singmap.com/upload/broke/005bac08e476460192181b69b0d900ca/00a420908c8249778e11c7d2259afb18/siteplanImg/20240907/Site Plan.png",
  "widthPx": 1600,
  "heightPx": 1053,
- "pxPerM": 8.48,
+ "pxPerM": 8.83,
  "northDeg": 339,
- "crop": [0, 120, 1072, 1053],
+ "scaleFrom": "site area",
+ "crop": [
+  0,
+  120,
+  1072,
+  1053
+ ],
  "blocks": [
-  { "block": "6 Bukit Timah Link", "core": [405, 481], "stacks": { "01": [467, 517], "02": [345, 528], "03": [324, 428], "04": [472, 429] } },
-  { "block": "8 Bukit Timah Link", "core": [650, 461], "stacks": { "05": [592, 428], "06": [698, 426], "07": [696, 496], "08": [591, 500] } }
+  {
+   "block": "6 Bukit Timah Link",
+   "core": [
+    405,
+    481
+   ],
+   "stacks": {
+    "01": [
+     467,
+     517
+    ],
+    "02": [
+     345,
+     528
+    ],
+    "03": [
+     324,
+     428
+    ],
+    "04": [
+     472,
+     429
+    ]
+   }
+  },
+  {
+   "block": "8 Bukit Timah Link",
+   "core": [
+    650,
+    461
+   ],
+   "stacks": {
+    "05": [
+     592,
+     428
+    ],
+    "06": [
+     698,
+     426
+    ],
+    "07": [
+     696,
+     496
+    ],
+    "08": [
+     591,
+     500
+    ]
+   }
+  }
  ],
  "stackPositions": "labelled",
  "checked": "2026-10-05",
- "notes": "No scale bar (the printed 1:150 does not apply to the image). Scale from the Quarry Pool, named '25m' in the plan's legend (item 4): from its west tip to the line dividing it from the Slide Pool is about 212 px, so 8.48 px/m (approximate). North point about 21° clockwise from plan up. BLK 6 and BLK 8 and stack numbers are printed on the plan."
+ "notes": "No scale bar (the printed 1:150 does not apply to the image). Scale from the site area (4,611.1 sqm) over the traced plot boundary: 8.83 px/m. Cross-check: the Quarry Pool, named '25m' in the legend, measures about 212 px (8.48 px/m). North point about 21° clockwise from plan up. BLK 6 and BLK 8 and stack numbers are printed on the plan.",
+ "siteBoundary": [
+  [
+   150,
+   300
+  ],
+  [
+   825,
+   300
+  ],
+  [
+   917,
+   342
+  ],
+  [
+   1016,
+   410
+  ],
+  [
+   764,
+   594
+  ],
+  [
+   535,
+   735
+  ],
+  [
+   229,
+   905
+  ],
+  [
+   71,
+   998
+  ]
+ ]
 }

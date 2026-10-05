@@ -20,7 +20,7 @@ export const autoListings: AutoListing[] = [
     "area": "Tanglin / Holland",
     "summary": "18 units · Freehold · D10",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/b87e1770aeeb4edaa5927143b6cebe0c/imgs/20250304/c32631e3594b49ee8f9689cdc0808101.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "26-newton",
@@ -470,7 +470,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "76 units · Freehold · D09",
     "image": "https://img.singmap.com/upload/broke/c16b84966acc46c6ba69dc2a6291d711/7c16f58f4e8f4474b1e37f70bb57b236/imgs/7c16f58f4e8f4474b1e37f70bb57b236.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "lucerne-grand",
@@ -524,7 +524,7 @@ export const autoListings: AutoListing[] = [
     "area": "Beach Road / Bugis / Rochor",
     "summary": "219 units · 99 Years · D07",
     "image": "https://img.singmap.com/upload/broke/4a789c5dccda41b099ee2b217508d541/0988f8aa42bf469c83868349e1b637b7/imgs/2010e12088ae4b8691521cfc5d4c7e69.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "miltonia-close",
@@ -695,7 +695,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "524 units · 99 years · D09",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/26c7f1c04dfa4e7eba1a830c9cd0b3ab/imgs/20250709/961c3a08f2754dcf9acec00dd7451edc.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "river-modern",
@@ -839,7 +839,7 @@ export const autoListings: AutoListing[] = [
     "area": "Balestier / Toa Payoh",
     "summary": "172 units · Freehold · D12",
     "image": "https://img.singmap.com/upload/broke/022d402e8a4443db8958b3f946be3a0b/81f063c801ef487f8a695b825e20c30c/imgs/20231118/7525867400504a1da6091c839060493a.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-collective-at-one-sophia",
@@ -893,7 +893,7 @@ export const autoListings: AutoListing[] = [
     "area": "East Coast / Marine Parade",
     "summary": "130 units · Freehold · D15",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/607755ee5f6d4ffebbb1d9d1fbcc252d/imgs/607755ee5f6d4ffebbb1d9d1fbcc252d.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-lumos",
@@ -1010,7 +1010,7 @@ export const autoListings: AutoListing[] = [
     "area": "Chinatown / Tanjong Pagar",
     "summary": "324 units · 99 Years · D02",
     "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/54aec0cc3a7a4a058e10fe7e21a44c17/imgs/20230705/88bea06d50e34dcbbf77d135d09a0ddf.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "trio",
@@ -1019,7 +1019,7 @@ export const autoListings: AutoListing[] = [
     "area": "Farrer Park / Serangoon Road",
     "summary": "15 units · Freehold · D08",
     "image": "https://img.singmap.com/upload/broke/9630042326f643958aac4861dff8609b/aa70f67a979540b591df8451d924b6f3/imgs/cc239db3422f44ba97242df39532e748.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "turquoise",
@@ -1037,7 +1037,7 @@ export const autoListings: AutoListing[] = [
     "area": "Boat Quay / Raffles Place",
     "summary": "366 units · 99 Years · D01",
     "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/8799614909f948d280ad127a9f14360a/imgs/20241014/0098a5d9cb834b35a51e8817b9070811.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "upperhouse-at-orchard-boulevard",
@@ -1261,6 +1261,7 @@ export const autoSpecLoaders: Record<string, () => Promise<{ default: unknown }>
 
 /** Loads TRM's tracing of the project's site plan, where there is one. */
 export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }>> = {
+  "21-anderson": () => import("./traces/21-anderson.json"),
   "8-bt": () => import("./traces/8-bt.json"),
   "amberwood-at-holland": () => import("./traces/amberwood-at-holland.json"),
   "arina-east-residences": () => import("./traces/arina-east-residences.json"),
@@ -1284,8 +1285,10 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "kovan-jewel": () => import("./traces/kovan-jewel.json"),
   "lentor-gardens-residences": () => import("./traces/lentor-gardens-residences.json"),
   "lentoria": () => import("./traces/lentoria.json"),
+  "lloyd-sixtyfive": () => import("./traces/lloyd-sixtyfive.json"),
   "lucerne-grand": () => import("./traces/lucerne-grand.json"),
   "meyer-blue": () => import("./traces/meyer-blue.json"),
+  "midtown-bay": () => import("./traces/midtown-bay.json"),
   "narra-residences": () => import("./traces/narra-residences.json"),
   "nava-grove": () => import("./traces/nava-grove.json"),
   "newport-residences": () => import("./traces/newport-residences.json"),
@@ -1298,6 +1301,7 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "penrith": () => import("./traces/penrith.json"),
   "pinery-residences": () => import("./traces/pinery-residences.json"),
   "promenade-peak": () => import("./traces/promenade-peak.json"),
+  "river-green": () => import("./traces/river-green.json"),
   "river-modern": () => import("./traces/river-modern.json"),
   "skies-miltonia": () => import("./traces/skies-miltonia.json"),
   "sophia-meadow": () => import("./traces/sophia-meadow.json"),
@@ -1305,12 +1309,17 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "sora": () => import("./traces/sora.json"),
   "springleaf-residence": () => import("./traces/springleaf-residence.json"),
   "terra-hill": () => import("./traces/terra-hill.json"),
+  "the-arcady-at-boon-keng": () => import("./traces/the-arcady-at-boon-keng.json"),
   "the-collective-at-one-sophia": () => import("./traces/the-collective-at-one-sophia.json"),
   "the-hillshore": () => import("./traces/the-hillshore.json"),
+  "the-line-tanjong-rhu": () => import("./traces/the-line-tanjong-rhu.json"),
   "the-myst": () => import("./traces/the-myst.json"),
   "the-orie": () => import("./traces/the-orie.json"),
   "the-robertson-opus": () => import("./traces/the-robertson-opus.json"),
   "the-sen": () => import("./traces/the-sen.json"),
+  "tmw-maxwell": () => import("./traces/tmw-maxwell.json"),
+  "trio": () => import("./traces/trio.json"),
+  "union-square-residences": () => import("./traces/union-square-residences.json"),
   "vela-bay": () => import("./traces/vela-bay.json"),
   "verde-joo-chiat": () => import("./traces/verde-joo-chiat.json"),
   "zyon-grand": () => import("./traces/zyon-grand.json"),

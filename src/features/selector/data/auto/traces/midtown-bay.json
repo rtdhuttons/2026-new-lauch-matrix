@@ -1,0 +1,15 @@
+{
+ "image": "https://img.singmap.com/upload/broke/4a789c5dccda41b099ee2b217508d541/0988f8aa42bf469c83868349e1b637b7/siteplanImg/d703effc8fff4395ac9f809d09427727.jpg",
+ "widthPx": 1675,
+ "heightPx": 1246,
+ "pxPerM": 5.29,
+ "northDeg": 315,
+ "scaleFrom": "scale bar",
+ "crop": [61, 76, 1210, 932],
+ "blocks": [
+  { "block": "Midtown Bay", "core": [342, 568], "stacks": { "01": [328, 492], "02": [343, 523], "03": [356, 550], "04": [367, 576], "05": [379, 611], "06": [329, 634], "07": [304, 606], "08": [293, 582], "09": [288, 555], "10": [274, 522] } }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Main site plan (not the Level 25 inset on the right, which has its own scale). Scale bar 30 m = 159 px (0 at x 937, 30 m at x 1096); north point 45° clockwise from plan up. Stack numbers 01-10 are printed on the residential tower (Level 7 plan); the core is placed at its lifts."
+}

@@ -1,0 +1,15 @@
+{
+ "image": "https://img.singmap.com/upload/broke/022d402e8a4443db8958b3f946be3a0b/81f063c801ef487f8a695b825e20c30c/siteplanImg/20231122/Site Plan.jpg",
+ "widthPx": 1600,
+ "heightPx": 1290,
+ "pxPerM": 6.66,
+ "northDeg": 35,
+ "scaleFrom": "scale bar",
+ "crop": [52, 595, 772, 1232],
+ "blocks": [
+  { "block": "The Arcady", "core": [373, 893], "stacks": { "01": [363, 838], "02": [424, 777], "03": [498, 838], "04": [458, 886], "05": [419, 914], "06": [384, 953], "07": [350, 987], "08": [284, 918], "09": [322, 878] } }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Main site plan (bottom left panel; the other panels are the sky terrace and landscape deck plans). Scale bar 20 m = 133 px (0 at x 74, 20 m at x 208); north point about 35° anticlockwise from plan up. Stack numbers 01-09 are printed on the plan; the core is the central lift core."
+}

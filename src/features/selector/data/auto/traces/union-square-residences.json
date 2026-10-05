@@ -1,0 +1,15 @@
+{
+ "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/8799614909f948d280ad127a9f14360a/siteplanImg/20241024/Site_Plan_3.jpeg",
+ "widthPx": 1600,
+ "heightPx": 3065,
+ "pxPerM": 10.9,
+ "northDeg": 30,
+ "scaleFrom": "scale bar",
+ "crop": [400, 1460, 1480, 2060],
+ "blocks": [
+  { "block": "Block 28", "core": [1240, 1740], "stacks": { "01": [1138, 1884], "02": [1055, 1895], "05": [1046, 1737], "06": [1182, 1686], "07": [1224, 1628], "08": [1267, 1545], "09": [1375, 1639], "10": [1324, 1739], "11": [1281, 1811] } }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the Level 3 (Social Vista) panel, the middle of the three plans. Its scale bar 20 m = 218 px (0 at x 1273, 20 m at x 1491); north point about 30° anticlockwise from plan up. Stack numbers 01, 02 and 05-11 are printed on the plan; stacks 03 and 04 (which start at levels 5 and 4, above the Level 3 facilities) are not shown, so they are left out. Core placed at the central lift lobby."
+}

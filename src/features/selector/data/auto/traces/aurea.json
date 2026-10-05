@@ -4,9 +4,21 @@
  "heightPx": 2675,
  "pxPerM": 14.76,
  "northDeg": 139,
- "crop": [790, 150, 1495, 865],
+ "scaleFrom": "scale bar",
+ "crop": [
+  790,
+  150,
+  1495,
+  865
+ ],
  "blocks": [
-  { "block": "Aurea", "core": [1150, 590] }
+  {
+   "block": "Aurea",
+   "core": [
+    1150,
+    590
+   ]
+  }
  ],
  "stackPositions": "arranged",
  "checked": "2026-10-05",

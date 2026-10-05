@@ -1,0 +1,88 @@
+{
+ "image": "https://img.singmap.com/upload/broke/0fac91b0ca8d4aa9aaf81fb6b0fc57c3/26c7f1c04dfa4e7eba1a830c9cd0b3ab/siteplanImg/20250717/Site_Plan_1.png",
+ "widthPx": 1600,
+ "heightPx": 2230,
+ "pxPerM": 5.9,
+ "scaleFrom": "scale bar",
+ "northDeg": 270,
+ "crop": [
+  30,
+  20,
+  1600,
+  700
+ ],
+ "blocks": [
+  {
+   "block": "River Green",
+   "core": [
+    1090,
+    244
+   ],
+   "stacks": {
+    "01": [
+     1237,
+     266
+    ],
+    "02": [
+     1232,
+     306
+    ],
+    "03": [
+     1177,
+     278
+    ],
+    "04": [
+     1141,
+     278
+    ],
+    "05": [
+     1109,
+     278
+    ],
+    "06": [
+     1069,
+     278
+    ],
+    "07": [
+     1023,
+     278
+    ],
+    "08": [
+     955,
+     299
+    ],
+    "09": [
+     943,
+     245
+    ],
+    "10": [
+     954,
+     196
+    ],
+    "11": [
+     1021,
+     204
+    ],
+    "12": [
+     1069,
+     204
+    ],
+    "13": [
+     1127,
+     204
+    ],
+    "14": [
+     1178,
+     204
+    ],
+    "15": [
+     1230,
+     216
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Top panel 'Site Plan - Main'. Scale bar 40 m = 236 px (0 tick x 21, 40 m tick x 257); north point points to the right of the plan (90\u00b0 clockwise from plan up). Stack numbers are printed on the plan; core taken at the middle of the tower's central corridor."
+}

@@ -1,0 +1,17 @@
+{
+ "image": "https://img.singmap.com/upload/broke/90800fcf94e3445ba99eb38b7d726efd/7c16f58f4e8f4474b1e37f70bb57b236/siteplanImg/beb6da64002841bfa774bfbd9a5afc46.jpg",
+ "widthPx": 1005,
+ "heightPx": 1441,
+ "pxPerM": 14.78,
+ "scaleFrom": "scale bar",
+ "northDeg": 208,
+ "crop": [60, 60, 1000, 1300],
+ "blocks": [
+  {"block": "Lloyd SixtyFive", "core": [672, 740], "stacks": {
+   "01": [665, 338], "02": [665, 497], "03": [734, 610], "04": [734, 690], "05": [734, 790], "06": [696, 946],
+   "07": [523, 822], "08": [400, 822], "09": [282, 822], "10": [280, 707], "11": [398, 707], "12": [526, 707]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 20 m = 295.5 px (0 at x 152.5, 20 m at x 448). North point (thick half of the cross, marked N) points 152° clockwise from plan up, so the plan is drawn roughly south-up. Stack numbers are not printed on the site plan; stacks are placed from the floor plans' key plans (01, 02, 03-05 on the east side and 06 in the east wing; 10-12 and 09-07 in two rows in the west wing), fitted to the building outline on the site plan. Core is the lift lobby at the junction of the two wings shown on the key plans."
+}

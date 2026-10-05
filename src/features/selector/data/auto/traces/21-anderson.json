@@ -1,0 +1,36 @@
+{
+ "image": "https://img.singmap.com/upload/broke/ccebe384b5234eec8b78e66325fa7c43/b87e1770aeeb4edaa5927143b6cebe0c/siteplanImg/20250312/Site_Plan.png",
+ "widthPx": 1600,
+ "heightPx": 896,
+ "pxPerM": 12.11,
+ "scaleFrom": "scale bar",
+ "northDeg": 15,
+ "crop": [
+  120,
+  60,
+  1300,
+  840
+ ],
+ "blocks": [
+  {
+   "block": "21 Anderson",
+   "core": [
+    802,
+    352
+   ],
+   "stacks": {
+    "01": [
+     627,
+     378
+    ],
+    "02": [
+     976,
+     378
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 15 m = 182 px (0 tick x 1353, 15 m tick x 1535); north point about 15\u00b0 anticlockwise from plan up (small symbol). Stacks at the printed 'Residential Unit 1' and 'Residential Unit 2'; core taken as the centre of the building on the line dividing the two units (lift core not marked)."
+}

@@ -1,0 +1,17 @@
+{
+ "image": "https://img.singmap.com/upload/broke/96bac44a033f448db4c02ef2f62a36d6/607755ee5f6d4ffebbb1d9d1fbcc252d/siteplanImg/da3672639a10406ab8fd77582385e862.jpg",
+ "widthPx": 1600,
+ "heightPx": 1042,
+ "pxPerM": 10.22,
+ "scaleFrom": "site area",
+ "northDeg": null,
+ "crop": [0, 0, 1600, 1042],
+ "siteBoundary": [[212, 176], [681, 174], [681, 532], [1417, 530], [1417, 745], [1325, 834], [250, 837], [212, 800]],
+ "blocks": [
+  {"block": "Tower 1", "core": [1042, 708], "stacks": {"01": [992, 735], "02": [935, 689], "03": [1177, 684], "04": [1129, 735]}},
+  {"block": "Tower 2", "core": [500, 727], "stacks": {"05": [420, 726], "06": [388, 670], "07": [619, 689], "08": [564, 734]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "No scale bar and no north point on the plan. Scale from the published site area (54,500 sq ft = 5,063 m²) over the plot boundary: the thin boundary line is drawn along the top, the right and the Tanjong Rhu Road side (plan orientation); the left side is taken at the kerb line. If the street footpath were inside the plot the scale would be about 5% larger. Tower and stack numbers are printed on the plan."
+}
