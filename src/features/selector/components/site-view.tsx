@@ -330,6 +330,7 @@ export function SiteView({
               mrt={ds.project.display?.mrtLabel ? { name: ds.project.display.mrtLabel.text, position: ds.project.display.mrtLabel.at } : null}
               distances={showDistances ? distances : null}
             />
+            {ds.stacks.some((s) => s.facingKnown !== false) && (
             <button
               type="button"
               onClick={() => setResetSignal((n) => n + 1)}
@@ -345,6 +346,7 @@ export function SiteView({
                 <text x="-24" y="3" textAnchor="middle" fontSize="9" fill="#10291c">W</text>
               </svg>
             </button>
+            )}
             {ds.project.display?.mapContext && showSurroundings && (
               <p className="pointer-events-none absolute bottom-2 left-3 rounded bg-paper/85 px-1.5 py-0.5 font-display-normal text-[11px] text-canopy/75">
                 {ds.project.display.mapContext.credit}

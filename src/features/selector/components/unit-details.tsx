@@ -108,7 +108,12 @@ export function UnitDetails({
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="mt-5">
         {tab === "price" && <PricePanel engine={engine} unit={unit} reference={reference} />}
 
-        {tab === "sun" && (
+        {tab === "sun" && stack.facingKnown === false && (
+          <p className="text-canopy/80">
+            The sun estimate needs the direction this unit faces, which isn&apos;t known yet: the developer&apos;s site plan hasn&apos;t been traced for this project.
+          </p>
+        )}
+        {tab === "sun" && stack.facingKnown !== false && (
           <div className="grid gap-6">
             <div className="flex flex-wrap items-center gap-2">
               <StatusChip status={a.sun.status} />

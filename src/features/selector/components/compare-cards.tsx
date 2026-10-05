@@ -8,7 +8,7 @@ import { useState } from "react";
 import type { Unit } from "../model/types";
 import { levelView, VIEW_CATEGORY_LABEL } from "../lib/clearance";
 import type { Engine } from "../lib/engine";
-import { money } from "../lib/format";
+import { facingText, money } from "../lib/format";
 import { compassWords16 } from "../lib/geometry";
 import type { PaymentInputs } from "../lib/payments";
 import { estimatePayments } from "../lib/payments";
@@ -40,9 +40,11 @@ export function differenceSentence(engine: Engine, a: Unit, base: Unit): string 
   const sa = ix.unitLayout(a).areaSqft;
   const sb = ix.unitLayout(base).areaSqft;
   if (sa !== null && sb !== null && sa !== sb) parts.push(`is ${Math.abs(sa - sb).toLocaleString("en-SG")} sq ft ${sa > sb ? "larger" : "smaller"}`);
-  const fa = compassWords16(ix.stack(a.stackId).livingBearingDeg);
-  const fb = compassWords16(ix.stack(base.stackId).livingBearingDeg);
-  if (fa !== fb) parts.push(`faces ${fa} instead of ${fb}`);
+  const sa_ = ix.stack(a.stackId);
+  const sb_ = ix.stack(base.stackId);
+  const fa = compassWords16(sa_.livingBearingDeg);
+  const fb = compassWords16(sb_.livingBearingDeg);
+  if (sa_.facingKnown !== false && sb_.facingKnown !== false && fa !== fb) parts.push(`faces ${fa} instead of ${fb}`);
   if (parts.length === 0) return `Same price, size, floor and facing as ${unitNumber(base)}.`;
   const last = parts.pop()!;
   const text = parts.length ? `${parts.join(", ")} and ${last}` : last;
@@ -112,8 +114,8 @@ export function CompareCards({
     {
       key: "facing",
       label: "Living room faces",
-      values: units.map((u) => compassWords16(ix.stack(u.stackId).livingBearingDeg).replace(/^./, (c) => c.toUpperCase())),
-      raw: units.map((u) => compassWords16(ix.stack(u.stackId).livingBearingDeg)),
+      values: units.map((u) => facingText(ix.stack(u.stackId), true)),
+      raw: units.map((u) => facingText(ix.stack(u.stackId))),
     },
     {
       key: "view",

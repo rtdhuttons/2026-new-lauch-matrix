@@ -59,6 +59,8 @@ export interface ProjectDisplay {
     credit: string;
     /** Greyscale mask: white where the plan shows the site, black where the map beneath should show through. */
     maskSrc?: string;
+    /** The part of the image that is the plan, as fractions of its width and height (top-left origin); the rest is not drawn. */
+    crop?: { x: number; y: number; w: number; h: number };
   };
   /** Surrounding buildings, roads, parks and water from a map, in plan metres. */
   mapContext?: MapContext;
@@ -176,6 +178,8 @@ export interface Stack {
   livingBearingDeg: number;
   masterBearingDeg: number;
   mainView: ViewSpec;
+  /** False when the stack's facing is not known yet (e.g. a schematic layout); sun and facing are then not shown. */
+  facingKnown?: boolean;
   /** Plan footprint of one home on this stack, centred on `position`. */
   footprint?: { w: number; d: number; rotationDeg: number };
   /** Facts about this stack worth showing buyers, with their source. */

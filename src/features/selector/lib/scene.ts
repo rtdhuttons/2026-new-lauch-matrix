@@ -206,8 +206,9 @@ export function buildScene(ds: Dataset): SceneData {
   const trees: Tree[] = [];
   const rand = seeded(20260930);
   // A real site plan image already shows the landscape, so only the
-  // illustrative demo gets generated planting, houses and trees.
-  const decorate = !ds.project.display?.planImage;
+  // illustrative demo gets generated planting, houses and trees (a real
+  // project without a traced plan gets none rather than made-up scenery).
+  const decorate = ds.project.isDemo && !ds.project.display?.planImage;
 
   for (const o of ds.obstructions) {
     if (o.kind === "own-block" || o.fromMap) continue;

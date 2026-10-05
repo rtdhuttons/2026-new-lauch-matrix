@@ -3,13 +3,17 @@
 // (see docs/adding-a-project.md). Only light details live here, so a page
 // loads just the one project it shows.
 
-import type { ComponentType } from "react";
+import { createElement, type ComponentType } from "react";
+import type { AutoSpec, AutoTrace } from "./auto/build";
+import { autoListings, autoSpecLoaders, autoTraceLoaders } from "./auto/registry";
 
 export interface ProjectListing {
   id: string;
   name: string;
   /** "live" projects are listed and published; "sample" ones never are. */
   status: "live" | "sample";
+  /** Shown on the home page and in the header; the rest are reached from the map. */
+  featured?: boolean;
   card: {
     eyebrow: string;
     summary: string;
@@ -25,6 +29,7 @@ export const projects: ProjectListing[] = [
     id: "thomson-reserve",
     name: "Thomson Reserve",
     status: "live",
+    featured: true,
     card: {
       eyebrow: "Now previewing · Bright Hill Drive",
       summary:
@@ -39,6 +44,7 @@ export const projects: ProjectListing[] = [
     id: "the-serra-residences",
     name: "The Serra Residences",
     status: "live",
+    featured: true,
     card: {
       eyebrow: "Launching 17 Oct · Bassein Road, Novena",
       summary:
@@ -59,5 +65,31 @@ export const projects: ProjectListing[] = [
   },
 ];
 
+// Every other project on the new launches map, built automatically from the
+// Huttons New Launch API (scripts/huttons/build-sites.py, data/auto/).
+for (const a of autoListings) {
+  projects.push({
+    id: a.id,
+    name: a.name,
+    status: "live",
+    card: {
+      eyebrow: [a.area, a.district].filter(Boolean).join(" · "),
+      summary: a.summary,
+      image: a.image ? { src: a.image, alt: `${a.name}. Artist's impression.` } : null,
+    },
+    load: async () => {
+      const [{ AutoProjectEntry }, spec, trace] = await Promise.all([
+        import("./auto/entry"),
+        autoSpecLoaders[a.id](),
+        autoTraceLoaders[a.id]?.() ?? Promise.resolve(null),
+      ]);
+      const props = { spec: spec.default as AutoSpec, trace: (trace?.default ?? null) as AutoTrace | null };
+      return { default: () => createElement(AutoProjectEntry, props) };
+    },
+    description: `Explore ${a.name} unit by unit: every stack and floor, floor plans, prices, schools, nearby projects and the payment estimate.`,
+  });
+}
+
 export const liveProjects = projects.filter((p) => p.status === "live");
+export const featuredProjects = liveProjects.filter((p) => p.featured);
 export const findProject = (id: string) => projects.find((p) => p.id === id);

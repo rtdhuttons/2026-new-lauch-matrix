@@ -5,7 +5,7 @@
 import { Edges, Html, Line, OrbitControls } from "@react-three/drei";
 import type { ThreeEvent } from "@react-three/fiber";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
+import { Component, Suspense, useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Dataset, Point, SiteDistance, Unit } from "../model/types";
@@ -162,16 +162,31 @@ function Trees({ trees }: { trees: Tree[] }) {
   );
 }
 
+/** Draws nothing if the site plan image can't be loaded, so the rest of the model still shows. */
+class PlanImageBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 /** The developer's site plan laid flat on the ground at its true scale. */
-function PlanImage({ src, maskSrc, widthM, heightM }: { src: string; maskSrc?: string; widthM: number; heightM: number }) {
+function PlanImage({ src, maskSrc, widthM, heightM, crop }: { src: string; maskSrc?: string; widthM: number; heightM: number; crop?: { x: number; y: number; w: number; h: number } }) {
   const loaded = useLoader(THREE.TextureLoader, maskSrc ? [src, maskSrc] : [src]);
   const [texture, mask] = useMemo(() => {
     const t = loaded[0].clone();
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 8;
+    if (crop) {
+      t.repeat.set(crop.w, crop.h);
+      t.offset.set(crop.x, 1 - crop.y - crop.h);
+    }
     t.needsUpdate = true;
     return [t, loaded[1] ?? null];
-  }, [loaded]);
+  }, [loaded, crop]);
   // With a mask, only the site itself is drawn and the map shows around it.
   return (
     <mesh position={[widthM / 2, 0.1, heightM / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow raycast={() => null} renderOrder={4}>
@@ -390,9 +405,11 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
 
       {/* The site */}
       {planImage ? (
+        <PlanImageBoundary>
         <Suspense fallback={null}>
-          <PlanImage src={planImage.src} maskSrc={showSurroundings ? planImage.maskSrc : undefined} widthM={planImage.widthM} heightM={planImage.heightM} />
+          <PlanImage src={planImage.src} maskSrc={showSurroundings ? planImage.maskSrc : undefined} widthM={planImage.widthM} heightM={planImage.heightM} crop={planImage.crop} />
         </Suspense>
+        </PlanImageBoundary>
       ) : (
         <>
           <mesh position={[centre.x, 2, centre.z]} receiveShadow>

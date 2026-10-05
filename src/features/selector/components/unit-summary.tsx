@@ -7,8 +7,7 @@
 import type { Unit } from "../model/types";
 import { describeClearFrom, levelView, VIEW_CATEGORY_LABEL } from "../lib/clearance";
 import type { Engine } from "../lib/engine";
-import { isPesType, money } from "../lib/format";
-import { compassWords16 } from "../lib/geometry";
+import { facingText, isPesType, money } from "../lib/format";
 import type { PaymentEstimate } from "../lib/payments";
 import { psf } from "../lib/pricing";
 import { FloorPlan } from "./floor-plan";
@@ -152,11 +151,11 @@ export function UnitSummary({
       </div>
 
       <div className="grid gap-2 border-t border-canopy/10 bg-mist/50 p-3">
-        <Disclosure title="Facing & view" hint={`${compassWords16(stack.livingBearingDeg).replace(/^./, (c) => c.toUpperCase())}-facing · ${lv && lv.category !== "unknown" ? VIEW_CATEGORY_LABEL[lv.category] : "view not assessed"}`}>
+        <Disclosure title="Facing & view" hint={`${stack.facingKnown === false ? "Facing not known yet" : `${facingText(stack, true)}-facing`} · ${lv && lv.category !== "unknown" ? VIEW_CATEGORY_LABEL[lv.category] : "view not assessed"}`}>
           <dl className="grid gap-2 font-display-normal text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-canopy/70">Living room faces</dt>
-              <dd className="text-right font-semibold">{compassWords16(stack.livingBearingDeg).replace(/^./, (c) => c.toUpperCase())}</dd>
+              <dd className="text-right font-semibold">{facingText(stack, true)}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-canopy/70">View at this floor</dt>
@@ -168,7 +167,7 @@ export function UnitSummary({
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-canopy/70">Afternoon sun in the living room</dt>
-              <dd className="text-right font-semibold">{a.sun.living.annualAverageMin !== null ? `About ${Math.round(a.sun.living.annualAverageMin)} min a day` : "Not estimated"}</dd>
+              <dd className="text-right font-semibold">{stack.facingKnown !== false && a.sun.living.annualAverageMin !== null ? `About ${Math.round(a.sun.living.annualAverageMin)} min a day` : "Not estimated"}</dd>
             </div>
             {a.mrt.best && (
               <div className="flex justify-between gap-4">

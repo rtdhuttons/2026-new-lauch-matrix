@@ -1,4 +1,5 @@
 import type { Project } from "../model/types";
+import { compassWords16 } from "./geometry";
 
 export function money(n: number): string {
   return `$${Math.round(n).toLocaleString("en-SG")}`;
@@ -62,6 +63,12 @@ export function heightText(project: Project, rl: number, maxRl = rl): string {
   const f = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
   const v = maxRl !== rl ? `${f(rl)}–${f(maxRl)}` : f(rl);
   return project.heightDatum ? `${v} m above ${project.heightDatum}` : `RL ${v} m`;
+}
+
+/** "north-east", or "not known yet" when the stack's facing hasn't been traced. */
+export function facingText(stack: { livingBearingDeg: number; facingKnown?: boolean }, capital = false): string {
+  const t = stack.facingKnown === false ? "not known yet" : compassWords16(stack.livingBearingDeg);
+  return capital ? t.charAt(0).toUpperCase() + t.slice(1) : t;
 }
 
 /** Plain-words sun character of a facing in Singapore, from its compass bearing. */

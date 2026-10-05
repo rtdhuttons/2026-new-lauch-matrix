@@ -393,6 +393,11 @@ export function StackExplorer({
                     {isPesType(unit.typeCode) ? ". Lowest unit in the stack, with a private enclosed space (PES)" : ""}
                   </p>
                 )}
+                {stack.facingKnown === false ? (
+                  <p className="mt-3 rounded-lg border-l-4 border-[#c88a12] bg-[#fbf5e8] px-3 py-2 font-display-normal text-sm">
+                    <span className="font-semibold">Facing not known yet.</span> The developer&apos;s site plan hasn&apos;t been traced for this project, so the direction and the sun aren&apos;t shown.
+                  </p>
+                ) : (
                 <div className="mt-3 rounded-lg border-l-4 border-[#c88a12] bg-[#fbf5e8] px-3 py-2">
                   <p className="font-display-normal text-sm">
                     <span className="font-semibold">
@@ -411,6 +416,7 @@ export function StackExplorer({
                     </button>
                   )}
                 </div>
+                )}
                 {stack.notes?.map((n) => (
                   <p key={n} className="mt-1 text-sm text-canopy/80">
                     {n}

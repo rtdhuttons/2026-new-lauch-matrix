@@ -2,12 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { liveProjects } from "@/features/selector/data/projects";
+import { featuredProjects } from "@/features/selector/data/projects";
 
 export default function Home() {
   return (
     <>
-      <SiteHeader nav={liveProjects.map((p) => ({ href: `/projects/${p.id}`, label: p.name }))} cta={null} />
+      <SiteHeader nav={featuredProjects.map((p) => ({ href: `/projects/${p.id}`, label: p.name }))} cta={null} />
       <main id="top" className="mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-8">
         <h1 className="font-display text-[2.75rem] font-extrabold leading-none tracking-tight sm:text-[5rem]">
           TRM
@@ -21,7 +21,7 @@ export default function Home() {
           See every new launch on the map
         </Link>
 
-        {liveProjects.map((p, i) => (
+        {featuredProjects.map((p, i) => (
           <Link
             key={p.id}
             href={`/projects/${p.id}`}
