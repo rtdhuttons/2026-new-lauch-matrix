@@ -15,6 +15,9 @@ import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE } 
 import { checkValuationRequest } from "../valuation";
 import { closestBySize, ownUnitTypes, sizePriceSentence, unitModels } from "../alternatives";
 import { progressivePayments, STANDARD_SCHEDULE } from "../progressive";
+import { applyListing } from "../listing";
+import { huttonsSync } from "../../data/thomson-reserve/huttons-units";
+import { thomsonReserveDataset } from "../../data/thomson-reserve/index";
 import { indexDataset } from "../dataset-index";
 import { jadescape } from "../../data/comparables/jadescape";
 import { floorBand } from "../comparable";
@@ -383,5 +386,41 @@ describe("progressive payments", () => {
     const units = models.reduce((n, m) => n + m.levels.reduce((k, l) => k + l.unitIds.length, 0), 0);
     expect(units).toBe(priced.units.length);
     for (const m of models) expect(m.levels.map((l) => l.price)).toEqual([...m.levels.map((l) => l.price)].sort((a, b) => a - b));
+  });
+});
+
+describe("developer listing (Huttons New Launch API)", () => {
+  it("matches every Thomson Reserve unit by block, stack and floor", () => {
+    const r = applyListing(thomsonReserveDataset, huttonsSync);
+    expect(huttonsSync.units).toHaveLength(1268);
+    expect(r.matched).toBe(1268);
+    expect(r.unmatched).toEqual([]);
+    // No prices released yet: units are available and the estimate still stands in.
+    expect(r.priced).toBe(0);
+    expect(r.dataset.units.every((u) => u.status === "available" && u.price === null)).toBe(true);
+    expect(thomsonReserve.pricing.priceList).toBeNull();
+    const est = applyPriceEstimate(r.dataset, thomsonReserve.pricing.estimate!);
+    expect(est.units.every((u) => u.priceIsEstimate && u.price! > 0)).toBe(true);
+  });
+
+  it("uses a published price in place of the estimate, and keeps sold units unpriced by the estimate", () => {
+    const [first, second] = huttonsSync.units;
+    const listing = {
+      ...huttonsSync,
+      units: [
+        [first[0], first[1], first[2], first[3], first[4], "available", 3_200_000, 3_100_000],
+        [second[0], second[1], second[2], second[3], second[4], "sold", null, null],
+      ] as typeof huttonsSync.units,
+    };
+    const r = applyListing(thomsonReserveDataset, listing);
+    expect(r.priced).toBe(1);
+    const priced = r.dataset.units.find((u) => u.price !== null)!;
+    expect(priced.price).toBe(3_100_000);
+    expect(priced.priceIsEstimate).toBe(false);
+    expect(r.dataset.units.filter((u) => u.status === "sold")).toHaveLength(1);
+  });
+
+  it("gives the sales launch date", () => {
+    expect(thomsonReserve.profile.launchDate?.date).toBe("2026-10-31");
   });
 });

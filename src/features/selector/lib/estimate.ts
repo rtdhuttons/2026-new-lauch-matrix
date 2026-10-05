@@ -37,7 +37,8 @@ export function describeEstimate(e: PriceEstimate, baseLevel: number): string {
 
 /**
  * The dataset with an illustrative price on every unit awaiting the price
- * list. Units keep their "pending" status: availability is still unknown.
+ * list (pending, or released for sale without a price yet). Sold and
+ * reserved units are left as they are.
  * Datasets that already have real prices are returned unchanged.
  */
 export function applyPriceEstimate(ds: Dataset, e: PriceEstimate): Dataset {
@@ -49,7 +50,7 @@ export function applyPriceEstimate(ds: Dataset, e: PriceEstimate): Dataset {
   const note = `TRM illustration: ${describeEstimate(e, baseLevel)}. Not the developer's price.`;
   const units: Unit[] = ds.units.map((u) => {
     const area = areaByStack.get(u.stackId);
-    if (u.status !== "pending" || area == null) return u;
+    if ((u.status !== "pending" && u.status !== "available") || area == null) return u;
     const psf = estimatedPsf(u.level, e, baseLevel);
     return {
       ...u,

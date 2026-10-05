@@ -11,7 +11,17 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0e. Latest (5 Oct)
+## 0f. Latest: Huttons New Launch API (5 Oct)
+
+- Connected to the Huttons New Launch API. Thomson Reserve: all 1,268 units
+  listed as available, no prices yet, sales launch 31 Oct 2026.
+- Every unit matches the site's data by block, stack, floor, type and area
+  (one floor plan code differs: Block 3 #02-14, D3p in the developer's
+  charts vs D3 in the API; the developer's is kept).
+- Once prices are released, running `scripts/huttons/sync-project.py`
+  replaces every estimate with the developer's price and availability.
+
+## 0e. 5 Oct
 
 - **Budget** dropdown from $1.5M to $6M in $0.5M steps.
 - **Payment estimate** uses LTV (75%), interest (2%) and loan period (25
@@ -216,7 +226,7 @@ questions for every home:
 
 ## 7. Checks
 
-- 92 automated tests pass (prices, view clearance, sun, JadeScape figures,
+- 95 automated tests pass (prices, view clearance, sun, JadeScape figures,
   rents, PIVOT workings, payment estimates, project checks, no leaks into
   the sample project); typecheck and lint are clean.
 - The shared page was tested on desktop and phone widths, under the same

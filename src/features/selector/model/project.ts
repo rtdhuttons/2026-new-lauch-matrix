@@ -80,6 +80,8 @@ export interface ProjectProfile {
   nearestMrt: string | null;
   /** Expected completion (TOP); null until the developer confirms it. */
   expectedCompletion: { date: string; provenance: Provenance } | null;
+  /** Sales launch date, when known. */
+  launchDate?: { date: string; provenance: Provenance } | null;
   provenance: Provenance;
 }
 

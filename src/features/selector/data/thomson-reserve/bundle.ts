@@ -34,7 +34,14 @@ const onemap = (byBlock: [number, number][]) => ({
 
 /** A gallery image by file name, for the tab photos. */
 const pick = (file: string) => gallery.find((g) => g.src.endsWith(`/${file}`));
+import { applyListing } from "../../lib/listing";
+import { huttonsSync } from "./huttons-units";
 import { thomsonReserveDataset, thomsonReserveGaps, thomsonReserveMrtExit } from "./index";
+
+// Availability and, once released, prices from the Huttons New Launch API
+// (scripts/huttons/sync-project.py). Real prices replace the estimates.
+const listing = applyListing(thomsonReserveDataset, huttonsSync);
+const HUTTONS: Provenance = { source: "Huttons New Launch API", updated: huttonsSync.fetched, status: "verified" };
 
 const FACTSHEET: Provenance = {
   source: "Developer factsheet V1, 22 Sep 2026 (approved for release; bank details withheld)",
@@ -73,6 +80,7 @@ const school = (name: string, levels: ("primary" | "secondary" | "junior-college
 });
 
 const sources: SourceRecord[] = [
+  { item: "Availability of every unit (all 1,268 available), launch date 31 Oct 2026; prices once released", kind: "third-party", source: "Huttons New Launch API", checked: huttonsSync.fetched, status: "verified", note: "Cross-check of the unit schedule: all 1,268 units match by block, stack, floor, type and area. One floor plan code differs: Block 3 #02-14 is D3p on the developer's elevation chart and unit plans, D3 in the API; the developer's D3p is kept." },
   { item: "Project facts: developer, tenure, district, 1,268 homes, site area, expected vacant possession and legal completion", kind: "developer", source: "Developer factsheet V1", checked: "2026-09-22", status: "verified" },
   { item: "Unit type of every stack and level", kind: "developer", source: "Developer's elevation charts", checked: "2026-09-30", status: "verified" },
   { item: "Floor plans, unit areas and bedroom types", kind: "developer", source: "Developer's unit plans and factsheet", checked: "2026-09-18", status: "verified" },
@@ -109,6 +117,7 @@ export const thomsonReserve: ProjectBundle = {
       date: "2031-02-28",
       provenance: { ...FACTSHEET, note: "Expected date of Notice of Vacant Possession. Expected legal completion: 28 Feb 2034." },
     },
+    launchDate: huttonsSync.launchDate ? { date: huttonsSync.launchDate, provenance: HUTTONS } : null,
     provenance: FACTSHEET,
   },
   copy: {
@@ -130,7 +139,7 @@ export const thomsonReserve: ProjectBundle = {
     disclaimer:
       "This selector is a TRM prototype. Thomson Reserve's layout is traced from the developer's site plan, with unit types and floor plans from the developer's unit plans; prices and availability are not published yet: any prices shown are illustrative estimates from the assumptions on the page, and nothing here is the developer's advice. Always check the developer's brochure, price list and sale and purchase agreement.",
   },
-  dataset: thomsonReserveDataset,
+  dataset: listing.dataset,
   mrtEntrance: thomsonReserveMrtExit,
   media: {
     hero: heroImage,
@@ -184,7 +193,7 @@ export const thomsonReserve: ProjectBundle = {
       status: "assumed",
       note: "$2,850 psf at the lowest level plus $15 psf for each floor above, until the developer's price list is released.",
     },
-    priceList: null,
+    priceList: listing.priced > 0 ? { date: huttonsSync.fetched, provenance: { ...HUTTONS, note: `${listing.priced} units priced` } } : null,
   },
   payments: { schedule: null, scheduleProvenance: null, maintenance: null },
   schools: {

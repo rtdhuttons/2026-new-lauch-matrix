@@ -367,6 +367,9 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   });
 
   const isSample = project.status === "sample";
+  const launchText = project.profile.launchDate
+    ? new Date(`${project.profile.launchDate.date}T00:00:00Z`).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+    : null;
   const unitLayout = unit ? ix.stackLayout(unit.stackId) : null;
   // Alternatives are always compared at the project's standard estimate (not the visitor's adjustments).
   const ownTypes = useMemo(
@@ -403,7 +406,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
           {isSample
             ? dataset.project.display?.notice ?? dataset.project.demoNotice
             : estimatable
-              ? "The developer's price list hasn't been released. Each section shows its sources and dates."
+              ? `The developer's price list hasn't been released${launchText ? `; sales launch ${launchText}` : ""}. Each section shows its sources and dates.`
               : dataset.project.display?.notice ?? ""}
         </p>
       </div>
