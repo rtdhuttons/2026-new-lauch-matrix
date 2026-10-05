@@ -2,8 +2,8 @@
  "image": "https://img.singmap.com/upload/broke/a0a87c09a8fa45f1b629fd39f27224c6/7cf72256c81743dfba3986a927ef79e6/siteplanImg/20250626/Site_Plan.png",
  "widthPx": 1600,
  "heightPx": 1144,
- "pxPerM": 6.02,
- "scaleFrom": "scale bar",
+ "pxPerM": 7.2,
+ "scaleFrom": "known dimension",
  "northDeg": 0,
  "crop": [
   370,
@@ -60,5 +60,5 @@
  ],
  "stackPositions": "labelled",
  "checked": "2026-10-05",
- "notes": "Scale bar 0-50 m = 301 px (ticks at 10 and 20 m agree). North point straight up. Block number 22 is printed on the lift core and stack numbers 01-09 on the units. Caution: the plan's own '50m Lap Pool' measures about 360 px long (60 m at this scale), and the 1-bedroom units (44 sqm) also draw larger than expected, which would point to about 7.2 px/m; the scale bar is used as the guide requires, but it may be about 20% off."
+ "notes": "Scale bar 0-50 m = 301 px (ticks at 10 and 20 m agree). North point straight up. Block number 22 is printed on the lift core and stack numbers 01-09 on the units. Caution: the plan's own '50m Lap Pool' measures about 360 px long (60 m at this scale), and the 1-bedroom units (44 sqm) also draw larger than expected, which would point to about 7.2 px/m; the scale bar is used as the guide requires, but it may be about 20% off. Scale set by TRM to 7.2 px/m: the plan's scale bar (6.02 px/m) makes the legend's 50 m lap pool about 60 m long and the 44 m\u00b2 1-bedroom units too large; the pool and unit sizes agree on about 7.2 px/m."
 }
