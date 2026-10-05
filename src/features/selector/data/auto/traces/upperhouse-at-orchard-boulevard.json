@@ -1,0 +1,15 @@
+{
+ "image": "https://img.singmap.com/upload/broke/a0a87c09a8fa45f1b629fd39f27224c6/7cf72256c81743dfba3986a927ef79e6/siteplanImg/20250626/Site_Plan.png",
+ "widthPx": 1600,
+ "heightPx": 1144,
+ "pxPerM": 6.02,
+ "scaleFrom": "scale bar",
+ "northDeg": 0,
+ "crop": [370, 300, 1560, 1100],
+ "blocks": [
+  {"block": "Blk 22", "core": [953, 705], "stacks": {"01": [1108, 704], "02": [1034, 731], "03": [992, 746], "04": [941, 767], "05": [877, 785], "06": [836, 697], "07": [902, 668], "08": [963, 646], "09": [1029, 617]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 0-50 m = 301 px. North point straight up. Block number 22 is printed on the lift core and stack numbers 01-09 on the units."
+}

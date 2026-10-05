@@ -992,7 +992,7 @@ export const autoListings: AutoListing[] = [
     "area": "Loyang / Changi",
     "summary": "23 units · 999 Years · D17",
     "image": "https://img.singmap.com/upload/broke/ae3d954512b1415780510662dec6b8ff/707b1e5a66b34ba1ae679ae9caa298a7/imgs/20230913/53be4079660e4f1fac687982f25cd38b.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-venue-shoppes",
@@ -1046,7 +1046,7 @@ export const autoListings: AutoListing[] = [
     "area": "Tanglin / Holland",
     "summary": "301 units · 99 Years · D10",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/7cf72256c81743dfba3986a927ef79e6/imgs/20260612/72885e48f62f4ad3bfe57218eac3c2d3.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "v-on-shenton",
@@ -1317,9 +1317,11 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "the-orie": () => import("./traces/the-orie.json"),
   "the-robertson-opus": () => import("./traces/the-robertson-opus.json"),
   "the-sen": () => import("./traces/the-sen.json"),
+  "the-shorefront": () => import("./traces/the-shorefront.json"),
   "tmw-maxwell": () => import("./traces/tmw-maxwell.json"),
   "trio": () => import("./traces/trio.json"),
   "union-square-residences": () => import("./traces/union-square-residences.json"),
+  "upperhouse-at-orchard-boulevard": () => import("./traces/upperhouse-at-orchard-boulevard.json"),
   "vela-bay": () => import("./traces/vela-bay.json"),
   "verde-joo-chiat": () => import("./traces/verde-joo-chiat.json"),
   "zyon-grand": () => import("./traces/zyon-grand.json"),

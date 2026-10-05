@@ -1,0 +1,74 @@
+{
+ "image": "https://img.singmap.com/upload/broke/ae3d954512b1415780510662dec6b8ff/707b1e5a66b34ba1ae679ae9caa298a7/siteplanImg/20230806/Site Plan.png",
+ "widthPx": 2123,
+ "heightPx": 1525,
+ "pxPerM": 25.27,
+ "scaleFrom": "site area",
+ "siteBoundary": [
+  [
+   107,
+   213
+  ],
+  [
+   1654,
+   310
+  ],
+  [
+   1652,
+   485
+  ],
+  [
+   1641,
+   659
+  ],
+  [
+   1641,
+   829
+  ],
+  [
+   121,
+   926
+  ]
+ ],
+ "northDeg": 70,
+ "crop": [
+  60,
+  150,
+  1720,
+  1110
+ ],
+ "blocks": [
+  {
+   "block": "The Shorefront",
+   "core": [
+    595,
+    625
+   ],
+   "stacks": {
+    "01": [
+     327,
+     702
+    ],
+    "02": [
+     327,
+     446
+    ],
+    "03": [
+     611,
+     445
+    ],
+    "04": [
+     858,
+     445
+    ],
+    "05": [
+     858,
+     678
+    ]
+   }
+  }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "Scale from the site area (1,479.2 sq m) over the traced plot boundary: 25.27 px/m. The plan's own 0-5 m bar is copied from the floor plans and does not fit the plot (it would make the site about 170 sq m), so it is not used. North point (thick half of the cross, marked N) points about 290\u00b0 clockwise from plan up, i.e. north is to the left. Stack numbers are not printed on the site plan; stacks and the lift core are placed from the floor plans' 2nd-storey key plan (02, 03, 04 along the top; 01 and 05 along the bottom), fitted to the plot boundary."
+}
