@@ -10,6 +10,7 @@ import { AssetImg } from "./asset-image";
 import { NotSupplied } from "./tabs";
 import { BEDROOM_COLOURS, btnText, card } from "./ui";
 import { unitNumber } from "./unit-summary";
+import { isPesType } from "../lib/format";
 
 const NO_HOME = "#eef0ec";
 
@@ -56,8 +57,7 @@ export function PlansTab({
 }) {
   const ds = ix.ds;
   const typeColours = ds.project.display?.unitTypeColours;
-  const colourFor = (stackId: string) => {
-    const layout = ix.stackLayout(stackId);
+  const colourFor = (layout: { category?: string; bedrooms: number | null }) => {
     const typed = typeColours?.find((t) => t.category === layout.category)?.colour;
     return typed ?? (layout.bedrooms === null ? "#d9ded6" : BEDROOM_COLOURS[layout.bedrooms] ?? "#cccccc");
   };
@@ -71,7 +71,7 @@ export function PlansTab({
     const byImage = new Map<string, PlanGroup>();
     for (const u of units) {
       if (!u.floorPlan) continue;
-      const layout = ix.stackLayout(u.stackId);
+      const layout = ix.unitLayout(u);
       const key = u.floorPlan.src;
       const g =
         byImage.get(key) ??
@@ -125,8 +125,8 @@ export function PlansTab({
     return cats
       .sort((a, b) => categoryOrder(a) - categoryOrder(b))
       .map((c) => {
-        const stack = ds.stacks.find((s) => (ix.stackLayout(s.id).category ?? ix.stackLayout(s.id).name) === c);
-        return { label: c, colour: stack ? colourFor(stack.id) : "#cccccc" };
+        const layout = ds.layouts.find((l) => (l.category ?? l.name) === c);
+        return { label: c, colour: layout ? colourFor(layout) : "#cccccc" };
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- colourFor and categoryOrder only read ix and typeColours
   }, [ds, ix, typeColours]);
@@ -160,8 +160,9 @@ export function PlansTab({
         ) : (
           <>
             <p className="mt-1 max-w-[72ch] text-canopy/75">
-              {plans.length} plans covering every unit type. Tap a plan to enlarge it. Types ending in &ldquo;p&rdquo; are the same layout on the lowest residential
-              level, with a private enclosed space.
+              {plans.length} plans covering every unit type. Tap a plan to enlarge it.
+              {plans.some((g) => g.codes.some((c) => isPesType(c))) &&
+                " Types ending in \u201cp\u201d are the same layout on the lowest residential level, with a private enclosed space."}
             </p>
             {bedroomOptions.length > 1 && (
               <div role="group" aria-label="Show plans for" className="mt-4 flex flex-wrap gap-2">
@@ -177,7 +178,7 @@ export function PlansTab({
             )}
             <ul className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {shownPlans.map((p) => {
-                const colour = colourFor(p.stacks[0]);
+                const colour = colourFor(p);
                 return (
                   <li key={p.src} className="min-w-0">
                     <button type="button" onClick={() => showPlan(p)} className={`${card} block w-full overflow-hidden text-left hover:border-canopy/30`}>
@@ -263,9 +264,9 @@ export function PlansTab({
                       {chart.stacks.map((s) => {
                         const u = chart.byKey.get(`${s}|${level}`);
                         if (!u) return <td key={s} aria-label="No unit" className="h-[22px] rounded-sm" style={{ background: NO_HOME }} />;
-                        const bg = colourFor(s);
+                        const layout = ix.unitLayout(u);
+                        const bg = colourFor(layout);
                         const selected = selectedUnit?.id === u.id;
-                        const layout = ix.stackLayout(s);
                         const label = `Unit ${unitNumber(u)}, type ${u.typeCode ?? layout.name}, ${layout.category ?? ""}${layout.areaSqft ? `, ${layout.areaSqft.toLocaleString("en-SG")} sq ft` : ""}${u.price !== null ? `, ${u.priceIsEstimate ? "est. " : ""}${money(u.price)}` : ""}`;
                         return (
                           <td key={s} className="p-0">

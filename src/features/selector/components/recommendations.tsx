@@ -27,7 +27,7 @@ export function Recommendations({
       <div className="grid gap-4 lg:grid-cols-3">
         {recs.map((r) => {
           const u = r.unit;
-          const layout = u ? engine.ix.stackLayout(u.stackId) : null;
+          const layout = u ? engine.ix.unitLayout(u) : null;
           const onList = u ? shortlist.includes(u.id) : false;
           return (
             <article key={r.kind} className={`${card} flex flex-col p-5`}>

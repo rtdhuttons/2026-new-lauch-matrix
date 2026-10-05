@@ -106,7 +106,7 @@ export interface RankedUnit {
 export function rankUnits(engine: Engine, prefs: Preferences): RankedUnit[] {
   const rows = engine.ix.ds.units.map((unit) => {
     const assessment = engine.assess(unit);
-    const layout = engine.ix.stackLayout(unit.stackId);
+    const layout = engine.ix.unitLayout(unit);
     const exclusions: Exclusion[] = [];
     if (!onOffer(unit)) exclusions.push("not-available");
     if (unit.price !== null && unit.price > prefs.budget) exclusions.push("over-budget");

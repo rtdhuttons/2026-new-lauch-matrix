@@ -41,6 +41,7 @@ export function checkProject(p: ProjectBundle): ProjectCheck {
     if (b && (u.level < b.firstResidentialLevel || u.level > b.storeys)) {
       errors.push(`Unit ${u.id} is on level ${u.level}, outside ${b.name}'s homes (levels ${b.firstResidentialLevel}–${b.storeys}).`);
     }
+    if (u.layoutId && !layouts.has(u.layoutId)) errors.push(`Unit ${u.id} refers to unknown layout ${u.layoutId}.`);
     if (u.price !== null && u.price <= 0) errors.push(`Unit ${u.id} has a price of ${u.price}.`);
   }
 

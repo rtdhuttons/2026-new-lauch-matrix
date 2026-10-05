@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { sampleProject } from "../../data/demo/bundle";
 import { projects } from "../../data/projects";
 import { thomsonReserve } from "../../data/thomson-reserve/bundle";
+import { serraResidences } from "../../data/the-serra-residences/bundle";
 import { tabFromHash, TABS } from "../../components/tabs";
 import { comparisonFeedback } from "../../components/shortlist";
 import { differenceSentence } from "../../components/compare-cards";
@@ -26,10 +27,44 @@ import { floorBand } from "../comparable";
 import { checkProject } from "../project-check";
 import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../rentals";
 
+describe("The Serra Residences", () => {
+  const ds = serraResidences.dataset;
+  const ix = indexDataset(ds);
+
+  it("has every unit from the elevation chart, matched to the Huttons unit list", () => {
+    expect(ds.units).toHaveLength(133);
+    expect(ds.units.every((u) => u.status !== "pending")).toBe(true);
+    const byType = new Map<string, number>();
+    for (const u of ds.units) byType.set(u.typeCode!, (byType.get(u.typeCode!) ?? 0) + 1);
+    expect(Object.fromEntries(byType)).toEqual({ C1: 13, D4: 10, PH1: 1, C2: 13, B2: 13, D3: 10, B1: 13, B1a: 13, E: 10, PH2: 1, C3: 13, D1: 13, D2: 10 });
+  });
+
+  it("changes unit type above the Sky Terrace, with each unit's own size", () => {
+    expect(ds.units.some((u) => u.level === 17)).toBe(false);
+    const unit = (id: string) => ix.unit(id)!;
+    expect(ix.unitLayout(unit("01-16")).areaSqft).toBe(764);
+    expect(ix.unitLayout(unit("01-18")).areaSqft).toBe(1528);
+    expect(ix.unitLayout(unit("01-28")).category).toBe("Penthouse");
+    expect(ix.levelsForStack("02").at(-1)).toBe(16);
+    expect(ix.levelsForStack("05").at(-1)).toBe(28);
+    // Estimated prices use the unit's own size, not the stack's lower-floor type.
+    const priced = applyPriceEstimate(ds, serraResidences.pricing.estimate!);
+    const ph = priced.units.find((u) => u.id === "05-28")!;
+    expect(ph.price).toBe(Math.round(((2800 + 15 * 24) * 2669) / 1000) * 1000);
+  });
+
+  it("leaves views unassessed and borrows nothing from Thomson Reserve", () => {
+    expect(ds.stacks.some((s) => s.observedClearance)).toBe(false);
+    const text = JSON.stringify(serraResidences);
+    for (const word of ["Thomson Reserve", "JadeScape", "Bright Hill", "Ai Tong", "Upper Thomson"]) expect(text, word).not.toContain(word);
+  });
+});
+
 describe("project bundles", () => {
   it("pass the project check with no errors", () => {
     expect(checkProject(thomsonReserve).errors).toEqual([]);
     expect(checkProject(sampleProject).errors).toEqual([]);
+    expect(checkProject(serraResidences).errors).toEqual([]);
   });
 
   it("list what each project is still missing", () => {

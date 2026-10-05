@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { Dataset } from "../model/types";
 import type { PriceEstimate } from "../lib/estimate";
 import { averagePsf, baseFromAverage, describeEstimate, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
+import { layoutLookup } from "../lib/dataset-index";
 import { compactMoney } from "../lib/format";
 import { PriceMatrix } from "./price-matrix";
 import { BEDROOM_COLOURS, card, Segmented } from "./ui";
@@ -21,10 +22,10 @@ interface TypeRow {
 
 /** One row per unit type and size: the price range from its lowest to highest home. */
 function typeRows(ds: Dataset): TypeRow[] {
-  const layoutOf = new Map(ds.stacks.map((s) => [s.id, ds.layouts.find((l) => l.id === s.layoutId)!]));
+  const layoutOf = layoutLookup(ds);
   const rows = new Map<string, TypeRow>();
   for (const u of ds.units) {
-    const l = layoutOf.get(u.stackId);
+    const l = layoutOf(u);
     if (!l || u.price === null || l.areaSqft === null) continue;
     const key = `${l.category ?? l.name}|${l.areaSqft}`;
     const psf = u.price / l.areaSqft;

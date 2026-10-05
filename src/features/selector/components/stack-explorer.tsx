@@ -258,11 +258,11 @@ export function StackExplorer({
 }) {
   const ix = engine.ix;
   const block = ix.stackBlock(stackId);
-  const layout = ix.stackLayout(stackId);
   const stack = ix.stack(stackId);
   const view = engine.view(stackId);
   const units = ix.unitsInStack(stackId);
   const unit = units.find((u) => u.level === level) ?? null;
+  const layout = unit ? ix.unitLayout(unit) : ix.stackLayout(stackId);
   const lv = levelView(view, level)!;
   const levels = ix.levelsForStack(stackId);
   const available = units.filter(onOffer);

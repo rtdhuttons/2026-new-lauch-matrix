@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import type { Dataset } from "../model/types";
 import type { PriceEstimate } from "../lib/estimate";
 import { averagePsf, estimatedPsf, lowestHomeLevel } from "../lib/estimate";
+import { layoutLookup } from "../lib/dataset-index";
 import { BEDROOM_COLOURS } from "./ui";
 
 interface Column {
@@ -26,11 +27,11 @@ const money = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 const tint = (bedrooms: number | null, alpha: string) => (bedrooms ? `${BEDROOM_COLOURS[bedrooms]}${alpha}` : "transparent");
 
 function build(ds: Dataset) {
-  const layoutOf = new Map(ds.stacks.map((s) => [s.id, ds.layouts.find((l) => l.id === s.layoutId)!]));
+  const layoutOf = layoutLookup(ds);
   const columns = new Map<string, Column>();
   const cells = new Map<string, Cell>(); // `${level}|${column}`
   for (const u of ds.units) {
-    const l = layoutOf.get(u.stackId);
+    const l = layoutOf(u);
     if (!l || l.areaSqft === null) continue;
     const key = `${l.category ?? l.name}|${l.areaSqft}`;
     if (!columns.has(key)) columns.set(key, { key, name: l.category ?? l.name, bedrooms: l.bedrooms, areaSqft: l.areaSqft });

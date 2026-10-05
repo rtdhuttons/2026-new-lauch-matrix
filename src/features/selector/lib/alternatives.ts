@@ -22,7 +22,7 @@ export interface OwnUnitType {
 export function ownUnitTypes(units: Unit[], ix: DatasetIndex): OwnUnitType[] {
   const byType = new Map<string, OwnUnitType>();
   for (const u of units) {
-    const l = ix.stackLayout(u.stackId);
+    const l = ix.unitLayout(u);
     if (l.bedrooms === null || l.areaSqft === null || u.price === null) continue;
     const type = l.category ?? l.name;
     const key = `${type}|${l.areaSqft}`;
@@ -89,7 +89,7 @@ export interface UnitModel {
 export function unitModels(units: Unit[], ix: DatasetIndex): UnitModel[] {
   const models = new Map<string, UnitModel>();
   for (const u of units) {
-    const l = ix.stackLayout(u.stackId);
+    const l = ix.unitLayout(u);
     if (l.bedrooms === null || l.areaSqft === null || u.price === null) continue;
     const key = ownTypeKey(l);
     let m = models.get(key);

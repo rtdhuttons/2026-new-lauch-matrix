@@ -60,7 +60,7 @@ export function UnitSummary({
   const ix = engine.ix;
   const stack = ix.stack(stackId);
   const block = ix.stackBlock(stackId);
-  const layout = ix.stackLayout(stackId);
+  const layout = unit ? ix.unitLayout(unit) : ix.stackLayout(stackId);
   const stackUnits = ix.unitsInStack(stackId);
   const levels = stackUnits.map((u) => u.level);
   const idx = levels.indexOf(level);

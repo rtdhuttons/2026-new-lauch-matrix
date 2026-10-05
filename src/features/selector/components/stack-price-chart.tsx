@@ -6,10 +6,14 @@ import type { Engine } from "../lib/engine";
 import { ChartCard, fmtMoney, fmtMoneyShort, LineChart, SERIES } from "./charts";
 
 export function StackPriceChart({ engine, stackId, level, typeName, priceNote }: { engine: Engine; stackId: string; level: number; typeName: string; priceNote: string | null }) {
-  const area = engine.ix.stackLayout(stackId).areaSqft;
-  const units = engine.ix
-    .unitsInStack(stackId)
-    .filter((u) => u.price !== null)
+  const ix = engine.ix;
+  // Only the selected floor's unit type, where a stack's type changes higher up.
+  const all = ix.unitsInStack(stackId);
+  const here = all.find((u) => u.level === level);
+  const layout = here ? ix.unitLayout(here) : ix.stackLayout(stackId);
+  const area = layout.areaSqft;
+  const units = all
+    .filter((u) => u.price !== null && ix.unitLayout(u).id === layout.id)
     .sort((a, b) => a.level - b.level);
   if (units.length < 2) return null;
   const first = units[0];

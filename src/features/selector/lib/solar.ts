@@ -114,7 +114,7 @@ export function geometricSunProvider(ix: DatasetIndex): SunProvider {
   function stateAt(unit: Unit, facade: Facade, month: number, minutes: number): SunState {
     const stack = ix.stack(unit.stackId);
     const block = ix.stackBlock(unit.stackId);
-    const layout = ix.stackLayout(unit.stackId);
+    const layout = ix.unitLayout(unit);
     const sun = sunPosition(
       month,
       minutes,

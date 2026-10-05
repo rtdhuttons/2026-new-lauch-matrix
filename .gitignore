@@ -45,3 +45,4 @@ next-env.d.ts
 
 # standalone artifact build
 /dist-artifact/
+__pycache__/

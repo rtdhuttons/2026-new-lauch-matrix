@@ -36,6 +36,20 @@ export const projects: ProjectListing[] = [
       "Explore Thomson Reserve stack by stack: the site plan in 3D, floor plans, illustrative prices, schools, resale and rental evidence, and the PIVOT assessment.",
   },
   {
+    id: "the-serra-residences",
+    name: "The Serra Residences",
+    status: "live",
+    card: {
+      eyebrow: "Launching 17 Oct · Bassein Road, Novena",
+      summary:
+        "133 freehold homes in one 28-storey tower near Novena MRT. Every stack and floor in 3D, with floor plans, sun and illustrative prices from level 4 to the penthouses.",
+      image: { src: "/the-serra-residences/images/tower-1051.jpg", alt: "The Serra Residences tower above its landscaped podium. Artist's impression." },
+    },
+    load: () => import("./the-serra-residences/entry"),
+    description:
+      "Explore The Serra Residences stack by stack: the tower in 3D, floor plans, illustrative prices, schools and the payment estimate.",
+  },
+  {
     id: "sample-wrenfield",
     name: "Wrenfield Residences (sample)",
     status: "sample",

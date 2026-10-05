@@ -81,7 +81,7 @@ export function UnitDetails({
   if (!unit) return null;
   const ix = engine.ix;
   const a = engine.assess(unit);
-  const layout = ix.stackLayout(unit.stackId);
+  const layout = ix.unitLayout(unit);
   const stack = ix.stack(unit.stackId);
   const block = ix.stackBlock(unit.stackId);
 
@@ -463,7 +463,7 @@ function PricePanel({ engine, unit, reference }: { engine: Engine; unit: Unit; r
         <div>
           <dt className="font-display-normal text-sm text-stone">Area and PSF</dt>
           <dd className="font-display-normal text-lg font-semibold">
-            {areaText(ix.stackLayout(unit.stackId).areaSqft)}{psf(ix, unit) !== null && `, ${psfText(psf(ix, unit)!)}`}
+            {areaText(ix.unitLayout(unit).areaSqft)}{psf(ix, unit) !== null && `, ${psfText(psf(ix, unit)!)}`}
           </dd>
         </div>
         <div>

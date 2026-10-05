@@ -207,6 +207,13 @@ export interface Unit {
   typeCode?: string;
   /** The developer's floor plan for this unit's type, when published. */
   floorPlan?: { src: string; mirrored: boolean; credit: string };
+  /**
+   * This unit's layout when it differs from its stack's, e.g. a tower whose
+   * upper floors join two stacks into larger homes.
+   */
+  layoutId?: string;
+  /** Where this home sits on plan when it differs from its stack (used by the 3D model). */
+  box?: { position: Point; w: number; d: number; rotationDeg: number };
   priceProvenance: Provenance;
 }
 

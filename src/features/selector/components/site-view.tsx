@@ -182,7 +182,7 @@ export function SiteView({
       let c: string;
       switch (colourMode) {
         case "bedrooms": {
-          const layout = ix.stackLayout(u.stackId);
+          const layout = ix.unitLayout(u);
           const typed = typeColours?.find((t) => t.category === layout.category)?.colour;
           c = typed ?? (layout.bedrooms === null ? "#d9ded6" : BEDROOM_COLOURS[layout.bedrooms] ?? "#cccccc");
           break;
@@ -217,11 +217,11 @@ export function SiteView({
     ? {
         title: unitLabel(ix, selectedUnit),
         detail: `${
-          ix.stackLayout(selectedUnit.stackId).bedrooms === null && ix.stackBlock(selectedUnit.stackId).collection
+          ix.unitLayout(selectedUnit).bedrooms === null && ix.stackBlock(selectedUnit.stackId).collection
             ? `${ix.stackBlock(selectedUnit.stackId).collection} Collection`
             : selectedUnit.typeCode
               ? `Type ${selectedUnit.typeCode}`
-              : ix.stackLayout(selectedUnit.stackId).name
+              : ix.unitLayout(selectedUnit).name
         }, ${
           selectedUnit.price !== null
             ? `${compactMoney(selectedUnit.price)}${selectedUnit.priceIsEstimate ? " (estimate)" : ""}`

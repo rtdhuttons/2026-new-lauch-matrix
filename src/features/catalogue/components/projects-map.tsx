@@ -3,7 +3,7 @@
 // The new launches map, styled as a modern property search: URA's market
 // regions (CCR, RCR, OCR) in three coordinated colours over a quiet base map
 // of parks, water and major roads; compact navy markers for new launches,
-// upcoming projects and resale developments, gathering into count bubbles;
+// upcoming projects, gathering into count bubbles;
 // labels that never collide; a district card on hover or tap; and a compact
 // project card. A "Price heatmap" view shades postal districts by average psf
 // when that data is loaded. Everything is embedded, so it works where outside
@@ -17,7 +17,7 @@ import { SG_VIEWBOX, sgStations } from "../data/sg-basemap";
 import { DISTRICTS_NOTE, sgDistricts } from "../data/sg-districts";
 import { areaLabels, districtRegions, sgMajorRoads, sgParks, sgRegions, sgWater } from "../data/sg-layers";
 import { imageFor } from "../data/images";
-import { projectDistrict, projectRegion, regionAt, toXY } from "../geo";
+import { projectDistrict, projectRegion, toXY } from "../geo";
 import type { LabelCandidate, MapKind, Nearby, Region } from "../lib";
 import {
   bandColour,
@@ -46,11 +46,10 @@ const REGION: Record<Region, { name: string; fill: string; accent: string }> = {
   OCR: { name: "Outside Central Region", fill: "#D8EEE7", accent: "#247C69" },
 };
 const REGIONS: Region[] = ["CCR", "RCR", "OCR"];
-type Kind = MapKind | "resale";
+type Kind = MapKind;
 const KIND: Record<Kind, { label: string; badge: string }> = {
   new: { label: "New launch", badge: "New" },
   upcoming: { label: "Upcoming", badge: "Upcoming" },
-  resale: { label: "Resale", badge: "Resale" },
 };
 const NAVY = "#14284b";
 const SEA = "#EAF2F5";
@@ -113,14 +112,11 @@ function Marker({ kind, ring }: { kind: Kind; ring?: string }) {
           <path d="M0 -19.5 V-16.5 L2.2 -15" />
         </g>
       )}
-      {kind === "resale" && <path d="M-5 -15.5 L0 -20.5 L5 -15.5 V-12 H-5 Z" fill="#ffffff" />}
     </g>
   );
 }
 
-type Item =
-  | { kind: MapKind; key: string; x: number; y: number; project: CatalogueProject; region: Region | null }
-  | { kind: "resale"; key: string; x: number; y: number; market: MarketProject; region: Region | null };
+type Item = { kind: MapKind; key: string; x: number; y: number; project: CatalogueProject; region: Region | null };
 
 export function ProjectsMap({
   catalogue,
@@ -140,7 +136,7 @@ export function ProjectsMap({
   const [q, setQ] = useState("");
   const [bedrooms, setBedrooms] = useState<number | null>(null);
   const [budget, setBudget] = useState<number | null>(null);
-  const [kinds, setKinds] = useState<Record<Kind, boolean>>({ new: true, upcoming: true, resale: true });
+  const [kinds, setKinds] = useState<Record<Kind, boolean>>({ new: true, upcoming: true });
   const [region, setRegion] = useState<Region | "all">("all");
   const [mode, setMode] = useState<"regions" | "heatmap">("regions");
   const [hoverDistrict, setHoverDistrict] = useState<string | null>(null);
@@ -169,19 +165,11 @@ export function ProjectsMap({
     return true;
   };
   const shown = projects.filter(matchesFilters);
-  const resale = useMemo(
-    () => market.projects.map((m) => ({ m, region: regionAt(m.lat, m.lon) })),
-    [market.projects],
-  );
-  const shownResale = kinds.resale && !bedrooms && !budget
-    ? resale.filter((r) => (region === "all" || r.region === region) && (!q || r.m.name.toLowerCase().includes(q.toLowerCase())))
-    : [];
   const items: Item[] = [
     ...shown.filter(located).map((p) => ({ kind: mapKind(p, today), key: p.id, ...toXY(p.lat!, p.lon!), project: p, region: projectRegion(p) }) as Item),
-    ...shownResale.map((r) => ({ kind: "resale" as const, key: `resale:${r.m.name}:${r.m.street}`, ...toXY(r.m.lat, r.m.lon), market: r.m, region: r.region })),
   ];
   const selectedItem = items.find((i) => i.key === selectedKey) ?? null;
-  const selected = selectedItem && selectedItem.kind !== "resale" ? selectedItem.project : projects.find((p) => p.id === selectedKey) ?? null;
+  const selected = selectedItem ? selectedItem.project : projects.find((p) => p.id === selectedKey) ?? null;
   const allBedrooms = useMemo(() => [...new Set(projects.flatMap(bedroomRange))].sort((a, b) => a - b), [projects]);
   const shading = useMemo(() => districtPsf(projects, market, projectDistrict), [projects, market]);
   const bands = useMemo(() => psfBands([...shading.values.values()].map((v) => v.avgPsf)), [shading]);
@@ -295,7 +283,7 @@ export function ProjectsMap({
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-8 sm:px-8">
       <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-5xl">New launches map</h1>
       <p className="mt-3 max-w-[70ch] text-lg text-canopy/80">
-        New launches, upcoming projects and resale developments across Singapore&apos;s three market regions, with prices by unit type and the nearby
+        New launches and upcoming projects across Singapore&apos;s three market regions, with prices by unit type and the nearby
         projects worth comparing.
       </p>
       <p className="mt-2 font-display-normal text-sm text-stone">
@@ -347,11 +335,10 @@ export function ProjectsMap({
               {KIND[k].label}
             </button>
           ))}
-          {kinds.resale && (bedrooms || budget) ? <span className="text-xs text-stone">Resale developments hide when filtering by bedrooms or budget.</span> : null}
         </div>
       </div>
       <p className="mt-2 font-display-normal text-sm text-canopy/75" aria-live="polite">
-        {shown.length} of {projects.length} projects{shownResale.length ? ` and ${shownResale.length} resale development${shownResale.length > 1 ? "s" : ""}` : ""} shown
+        {shown.length} of {projects.length} projects shown
         {region !== "all" ? ` in ${REGION[region].name} (${region})` : ""}.
       </p>
 
@@ -522,7 +509,7 @@ export function ProjectsMap({
                 }
                 const it = g.items[0];
                 const on = it.key === selectedKey;
-                const name = it.kind === "resale" ? it.market.name : it.project.name;
+                const name = it.project.name;
                 return (
                   <g
                     key={it.key}
@@ -689,21 +676,17 @@ export function ProjectsMap({
               </div>
             )}
 
-            {/* Project or resale card */}
+            {/* Project card */}
             {selectedItem && (
               <div className="absolute inset-x-2 bottom-2 z-10 max-h-[62%] overflow-y-auto rounded-2xl bg-white shadow-xl sm:inset-x-auto sm:bottom-3 sm:left-3 sm:w-[23rem]">
-                {selectedItem.kind === "resale" ? (
-                  <ResaleCard m={selectedItem.market} region={selectedItem.region} onClose={() => setSelectedKey(null)} />
-                ) : (
-                  <ProjectCard
-                    p={selectedItem.project}
-                    kind={selectedItem.kind}
-                    region={selectedItem.region}
-                    link={projectLink?.(selectedItem.project) ?? null}
-                    onClose={() => setSelectedKey(null)}
-                    onDetails={() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                  />
-                )}
+                <ProjectCard
+                  p={selectedItem.project}
+                  kind={selectedItem.kind}
+                  region={selectedItem.region}
+                  link={projectLink?.(selectedItem.project) ?? null}
+                  onClose={() => setSelectedKey(null)}
+                  onDetails={() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                />
               </div>
             )}
 
@@ -904,26 +887,6 @@ function ProjectCard({
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function ResaleCard({ m, region, onClose }: { m: MarketProject; region: Region | null; onClose: () => void }) {
-  const latest = latestPsf(m);
-  const cagr = projectCagr(m);
-  return (
-    <div className="p-4">
-      <CardHeader title={m.name} badges={[{ text: "Resale" }, ...(region ? [{ text: region, colour: REGION[region].accent }] : []), ...(m.district ? [{ text: `D${m.district.padStart(2, "0")}` }] : [])]} onClose={onClose} />
-      <p className="mt-2 font-display-normal text-[17px] font-bold tabular-nums text-[#14284b]">{latest ? `${money(latest.medianPsf)} psf` : "No recent sales"}</p>
-      <p className="font-display-normal text-[13px] text-canopy/75">
-        {[latest ? `${latest.year} median, ${latest.count} sales` : null, cagr ? `CAGR ${pct(cagr.rate)} a year` : null, m.street].filter(Boolean).join(" · ")}
-      </p>
-      {m.rentals.some((r) => r.bedrooms) && (
-        <p className="mt-2 font-display-normal text-[13px]">
-          Rents: {m.rentals.filter((r) => r.bedrooms).slice(0, 4).map((r) => `${r.bedrooms}BR ${money(r.medianRent)}`).join(" · ")}
-        </p>
-      )}
-      <p className="mt-2 text-[11px] text-stone">{m.source ?? "URA Data Service"}</p>
     </div>
   );
 }

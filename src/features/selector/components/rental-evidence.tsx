@@ -80,7 +80,7 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
   const records = period === "12" ? recentRecords(ev.records, 12) : ev.records;
   const all = summariseRents("All", records);
   const months = records.map((r) => r.month).sort();
-  const layout = unit ? engine.ix.stackLayout(unit.stackId) : null;
+  const layout = unit ? engine.ix.unitLayout(unit) : null;
   const sizeMatch = layout?.areaSqft ? rentsForSize(records, layout.areaSqft) : [];
   const sizeSummary = layout?.areaSqft ? summariseRents("Same size band", sizeMatch) : null;
   const rent = rentInput !== "" ? Number(rentInput) : sizeSummary?.median ?? null;

@@ -35,7 +35,14 @@ HERO_FILES = {"sunset-1920.jpg"}
 
 
 def encode(path: Path, max_w: int, quality: int) -> str:
-    im = Image.open(path).convert("RGB")
+    im = Image.open(path)
+    if im.mode in ("RGBA", "LA", "P"):
+        # Transparent PNGs (floor plans) go on white, not black.
+        im = im.convert("RGBA")
+        bg = Image.new("RGB", im.size, "white")
+        bg.paste(im, mask=im.getchannel("A"))
+        im = bg
+    im = im.convert("RGB")
     if im.width > max_w:
         im = im.resize((max_w, round(im.height * max_w / im.width)), Image.LANCZOS)
     buf = io.BytesIO()
@@ -48,7 +55,7 @@ def main() -> None:
     out = ROOT / (sys.argv[2] if len(sys.argv) > 2 else "dist-artifact/embedded-assets.json")
     assets: dict[str, str] = {}
     for folder, prefix, max_w, quality, keep in groups:
-        for f in sorted((ROOT / folder).glob("*.jpg")):
+        for f in sorted([*(ROOT / folder).glob("*.jpg"), *(ROOT / folder).glob("*.png")]):
             if FILTERS[keep](f.name):
                 # The location map carries small text, so it keeps more width;
                 # the hero fills the screen, so it keeps its full size and detail.

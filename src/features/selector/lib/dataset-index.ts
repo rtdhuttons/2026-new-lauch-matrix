@@ -15,6 +15,8 @@ export interface DatasetIndex {
   unit: (id: string) => Unit | undefined;
   stackBlock: (stackId: string) => Block;
   stackLayout: (stackId: string) => Layout;
+  /** A unit's own layout: its stack's, unless the unit names another. */
+  unitLayout: (unit: Unit) => Layout;
   unitsInStack: (stackId: string) => Unit[];
   /** Every level of a stack's block, including levels without homes. */
   levelsForStack: (stackId: string) => number[];
@@ -53,17 +55,27 @@ export function indexDataset(ds: Dataset): DatasetIndex {
     unit: (id) => units.get(id),
     stackBlock: (stackId) => block(stack(stackId).blockId),
     stackLayout: (stackId) => must(layouts.get(stack(stackId).layoutId), "layout"),
+    unitLayout: (unit) => must(layouts.get(unit.layoutId ?? stack(unit.stackId).layoutId), "layout"),
     unitsInStack: (stackId) => unitsByStack.get(stackId) ?? [],
     levelsForStack: (stackId) => {
       const b = block(stack(stackId).blockId);
       // A stack starts at its own lowest home; some stacks in a block start higher.
       const own = unitsByStack.get(stackId);
       const start = own?.length ? own[0].level : b.firstResidentialLevel;
+      // ...and ends at its own highest home, where upper floors have fewer stacks.
+      const end = own?.length ? own[own.length - 1].level : b.storeys;
       const levels: number[] = [];
-      for (let l = start; l <= b.storeys; l++) levels.push(l);
+      for (let l = start; l <= end; l++) levels.push(l);
       return levels;
     },
   };
+}
+
+/** Each unit's layout (its own, else its stack's), without building a full index. */
+export function layoutLookup(ds: Dataset): (unit: Unit) => Layout | undefined {
+  const layouts = byId(ds.layouts);
+  const stackLayout = new Map(ds.stacks.map((s) => [s.id, s.layoutId]));
+  return (u) => layouts.get(u.layoutId ?? stackLayout.get(u.stackId) ?? "");
 }
 
 const STATUS_RANK: Record<DataStatus, number> = {

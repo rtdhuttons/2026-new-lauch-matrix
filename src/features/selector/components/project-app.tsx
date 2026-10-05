@@ -268,7 +268,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   // Units that match the filters: highlighted in the site view and listed in the unit list.
   const focus = useCallback(
     (u: Unit) =>
-      (prefs.bedrooms === "any" || ix.stackLayout(u.stackId).bedrooms === prefs.bedrooms) &&
+      (prefs.bedrooms === "any" || ix.unitLayout(u).bedrooms === prefs.bedrooms) &&
       (u.price === null || u.price <= prefs.budget) &&
       (!band || (u.level >= band.from && u.level <= band.to)) &&
       (filters.blockId === "any" || ix.stackBlock(u.stackId).id === filters.blockId),
@@ -290,7 +290,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   const heroFacts = [...project.copy.heroFacts];
   if (priceFact) heroFacts.splice(2, 0, priceFact);
   const layoutName = (u: Unit) => {
-    const l = ix.stackLayout(u.stackId);
+    const l = ix.unitLayout(u);
     return l.category ?? (l.bedrooms ? `${l.bedrooms}-bedroom` : l.name);
   };
 
@@ -379,7 +379,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
   const launchText = project.profile.launchDate
     ? new Date(`${project.profile.launchDate.date}T00:00:00Z`).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
     : null;
-  const unitLayout = unit ? ix.stackLayout(unit.stackId) : null;
+  const unitLayout = unit ? ix.unitLayout(unit) : null;
   // Alternatives are always compared at the project's standard estimate (not the visitor's adjustments).
   const ownTypes = useMemo(
     () => ownUnitTypes((estimatable && defaults ? applyPriceEstimate(dataset, defaults) : dataset).units, ix),

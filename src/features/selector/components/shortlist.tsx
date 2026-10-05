@@ -81,7 +81,7 @@ export function ShortlistDialog({
       ) : (
         <ul className="divide-y divide-canopy/10">
           {shortlist.map((u) => {
-            const layout = ix.stackLayout(u.stackId);
+            const layout = ix.unitLayout(u);
             return (
               <li key={u.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
                 <div className="min-w-0">

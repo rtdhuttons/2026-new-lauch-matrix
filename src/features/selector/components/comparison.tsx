@@ -60,7 +60,7 @@ export function Comparison({
   }
 
   const as: UnitAssessment[] = shortlist.map((u) => engine.assess(u));
-  const layouts = shortlist.map((u) => ix.stackLayout(u.stackId));
+  const layouts = shortlist.map((u) => ix.unitLayout(u));
   const costs = shortlist.map((u) => clearanceCost(ix, engine.view(u.stackId), u));
   const fits = as.map((a) => lifestyleFit(a, prefs.weights));
 

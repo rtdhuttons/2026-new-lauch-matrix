@@ -46,7 +46,7 @@ export function resaleCompetition(
   unit: Unit,
   viewOf: (stackId: string) => StackViewAnalysis,
 ): ResaleCompetition {
-  const layout = ix.stackLayout(unit.stackId);
+  const layout = ix.unitLayout(unit);
   const area = layout.areaSqft;
   if (layout.bedrooms === null || area === null) {
     return {
@@ -67,14 +67,14 @@ export function resaleCompetition(
   }
   const comparables = ix.ds.units.filter((u) => {
     if (u.id === unit.id) return false;
-    const l = ix.stackLayout(u.stackId);
+    const l = ix.unitLayout(u);
     return (
       l.bedrooms === layout.bedrooms &&
       l.areaSqft !== null &&
       Math.abs(l.areaSqft - area) <= area * SIMILAR_SIZE_SHARE
     );
   });
-  const sameLayout = comparables.filter((u) => ix.stackLayout(u.stackId).id === layout.id);
+  const sameLayout = comparables.filter((u) => ix.unitLayout(u).id === layout.id);
 
   const myCategory = levelView(viewOf(unit.stackId), unit.level)?.category ?? "unknown";
   const clearish = (c: string) => c === "clear" || c === "clear-limited";
@@ -94,7 +94,7 @@ export function resaleCompetition(
 
   const transactions = ix.ds.transactions.filter((t) => {
     const u = ix.unit(t.unitId);
-    return u && ix.stackLayout(u.stackId).id === layout.id;
+    return u && ix.unitLayout(u).id === layout.id;
   });
 
   const fb = floorBandPoints(ix.ds.comparable, unit.level);

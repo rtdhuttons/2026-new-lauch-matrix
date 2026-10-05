@@ -16,7 +16,7 @@ export function onOffer(u: Unit): boolean {
 }
 
 export function psf(ix: DatasetIndex, unit: Unit): number | null {
-  const area = ix.stackLayout(unit.stackId).areaSqft;
+  const area = ix.unitLayout(unit).areaSqft;
   if (unit.price === null || area === null) return null;
   return unit.price / area;
 }
@@ -52,7 +52,7 @@ export interface Premium {
 
 export function premiumOver(ix: DatasetIndex, unit: Unit, reference: Unit): Premium | null {
   if (unit.price === null || reference.price === null) return null;
-  const likeForLike = compareLayouts(ix.stackLayout(unit.stackId), ix.stackLayout(reference.stackId));
+  const likeForLike = compareLayouts(ix.unitLayout(unit), ix.unitLayout(reference));
   const sameStack = unit.stackId === reference.stackId && unit.level !== reference.level;
   return {
     amount: unit.price - reference.price,

@@ -121,18 +121,25 @@ export function buildScene(ds: Dataset): SceneData {
         const base = { x: stack.position.x, z: stack.position.y, w: fp.w, d: fp.d, rotY };
         // Podium from the ground plane up to the first homes (car park decks, raised platforms).
         if (y(podiumTop) > 0.2) podiums.push({ ...base, y: y(podiumTop) / 2, h: y(podiumTop) });
-        roofs.push({ ...base, w: fp.w * 0.9, d: fp.d * 0.9, y: y(top) + 0.4, h: 0.8 });
-        for (const unit of ds.units.filter((u) => u.stackId === stack.id)) {
+        const own = ds.units.filter((u) => u.stackId === stack.id);
+        // A stack that stops below the roof (upper floors with fewer, larger homes) is capped at its own top.
+        const topLevel = own.length ? Math.max(...own.map((u) => u.level)) : block.storeys;
+        const stackTop = topLevel < block.storeys ? floorRL(block, topLevel) + block.typicalFloorHeightM : top;
+        if (topLevel >= block.storeys || !own.some((u) => u.box)) roofs.push({ ...base, w: fp.w * 0.9, d: fp.d * 0.9, y: y(stackTop) + 0.4, h: 0.8 });
+        for (const unit of own) {
+          const at = unit.box
+            ? { x: unit.box.position.x, z: unit.box.position.y, w: unit.box.w, d: unit.box.d, rotY: planRotationToY(unit.box.rotationDeg) }
+            : base;
           units.push({
             unit,
-            ...base,
-            w: fp.w - GAP,
-            d: fp.d - GAP,
+            ...at,
+            w: at.w - GAP,
+            d: at.d - GAP,
             y: y(floorRL(block, unit.level)) + block.typicalFloorHeightM / 2,
             h: block.typicalFloorHeightM - 0.35,
           });
         }
-        stackLabels.push({ stackId: stack.id, text: stack.id, x: stack.position.x, y: y(top) + 3, z: stack.position.y });
+        stackLabels.push({ stackId: stack.id, text: stack.id, x: stack.position.x, y: y(stackTop) + 3, z: stack.position.y });
       }
       continue;
     }
@@ -310,7 +317,8 @@ export function buildScene(ds: Dataset): SceneData {
     blockLabels,
     lawns,
     centre: { x: width / 2, z: height / 2 },
-    radius: Math.hypot(width, height) / 2,
+    // A small site with a tall tower is framed by the tower's height, not just the plot.
+    radius: Math.max(Math.hypot(width, height) / 2, 2 * Math.max(0, ...units.map((u) => u.y + u.h / 2))),
   };
 }
 

@@ -80,7 +80,10 @@ This is the one part that needs hands-on work. Allow half a day per project.
    the facing of the living room and master bedroom, and its unit type.
 4. **Unit schedule.** From the elevation charts, list the unit type for every
    stack and floor, including PES units on the lowest floor and floors without
-   homes (sky terraces). Check the total against the factsheet.
+   homes (sky terraces). Check the total against the factsheet. Where upper
+   floors have fewer, larger homes (The Serra Residences: seven stacks on
+   levels 4–16, four on 18–27), give those units their own `layoutId` and
+   `box`; a stack simply ends at its last home.
 5. **Heights.** Set each block's ground level, level 1 height and typical
    floor-to-floor height. If only heights above a road are known, say so in
    `heightDatum`.

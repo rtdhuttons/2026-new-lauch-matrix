@@ -169,7 +169,7 @@ const PENALTY: Record<Potential, number> = { higher: 22, moderate: 10, lower: 3 
 export function screenExposure(ix: DatasetIndex, unit: Unit): ExposureScreening {
   const stack = ix.stack(unit.stackId);
   const block = ix.stackBlock(unit.stackId);
-  const layout = ix.stackLayout(unit.stackId);
+  const layout = ix.unitLayout(unit);
   const eye = eyeRL(block, unit.level);
   const north = ix.ds.project.planNorthDeg;
 

@@ -8,6 +8,7 @@
 // default, so one project's assumptions can't leak into another.
 
 import type { Dataset, Unit } from "../model/types";
+import { layoutLookup } from "./dataset-index";
 
 export interface PriceEstimate {
   /** PSF at the lowest level that has homes. */
@@ -44,12 +45,10 @@ export function describeEstimate(e: PriceEstimate, baseLevel: number): string {
 export function applyPriceEstimate(ds: Dataset, e: PriceEstimate): Dataset {
   if (!canEstimate(ds)) return ds;
   const baseLevel = lowestHomeLevel(ds);
-  const areaByStack = new Map(
-    ds.stacks.map((s) => [s.id, ds.layouts.find((l) => l.id === s.layoutId)?.areaSqft ?? null]),
-  );
+  const layoutOf = layoutLookup(ds);
   const note = `TRM illustration: ${describeEstimate(e, baseLevel)}. Not the developer's price.`;
   const units: Unit[] = ds.units.map((u) => {
-    const area = areaByStack.get(u.stackId);
+    const area = layoutOf(u)?.areaSqft;
     if ((u.status !== "pending" && u.status !== "available") || area == null) return u;
     const psf = estimatedPsf(u.level, e, baseLevel);
     return {

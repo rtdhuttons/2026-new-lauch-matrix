@@ -45,7 +45,7 @@ export function MatchingHomes({
   }
 
   const info = (u: Unit) => {
-    const layout = ix.stackLayout(u.stackId);
+    const layout = ix.unitLayout(u);
     const view = levelView(engine.view(u.stackId), u.level);
     return {
       layout,

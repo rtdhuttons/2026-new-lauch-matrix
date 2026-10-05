@@ -37,8 +37,8 @@ export function differenceSentence(engine: Engine, a: Unit, base: Unit): string 
   }
   const df = a.level - base.level;
   if (df !== 0) parts.push(`is ${floorsText(df)} ${df > 0 ? "higher" : "lower"}`);
-  const sa = ix.stackLayout(a.stackId).areaSqft;
-  const sb = ix.stackLayout(base.stackId).areaSqft;
+  const sa = ix.unitLayout(a).areaSqft;
+  const sb = ix.unitLayout(base).areaSqft;
   if (sa !== null && sb !== null && sa !== sb) parts.push(`is ${Math.abs(sa - sb).toLocaleString("en-SG")} sq ft ${sa > sb ? "larger" : "smaller"}`);
   const fa = compassWords16(ix.stack(a.stackId).livingBearingDeg);
   const fb = compassWords16(ix.stack(base.stackId).livingBearingDeg);
@@ -94,19 +94,19 @@ export function CompareCards({
       key: "size",
       label: "Size",
       values: units.map((u) => {
-        const a = ix.stackLayout(u.stackId).areaSqft;
+        const a = ix.unitLayout(u).areaSqft;
         return a !== null ? `${a.toLocaleString("en-SG")} sq ft` : "Not known";
       }),
-      raw: units.map((u) => ix.stackLayout(u.stackId).areaSqft),
+      raw: units.map((u) => ix.unitLayout(u).areaSqft),
     },
     {
       key: "layout",
       label: "Layout",
       values: units.map((u) => {
-        const l = ix.stackLayout(u.stackId);
+        const l = ix.unitLayout(u);
         return `${l.category ?? `${l.bedrooms}-bedroom`}${u.typeCode ? `, Type ${u.typeCode}` : ""}`;
       }),
-      raw: units.map((u) => u.typeCode ?? ix.stackLayout(u.stackId).id),
+      raw: units.map((u) => u.typeCode ?? ix.unitLayout(u).id),
     },
     { key: "floor", label: "Floor", values: units.map((u) => String(u.level)), raw: units.map((u) => u.level) },
     {
