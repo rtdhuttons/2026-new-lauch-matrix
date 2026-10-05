@@ -829,14 +829,15 @@ function ProjectCard({
   onDetails: () => void;
 }) {
   const img = imageFor(p);
-  const [imgOk, setImgOk] = useState(true);
+  // Remember which photo failed, so a failure doesn't hide the next project's photo.
+  const [failed, setFailed] = useState<string | null>(null);
   const rows = priceByBedroom(p);
   const from = fromPrice(p);
   return (
     <div>
-      {img && imgOk && (
+      {img && failed !== img && (
         <div className="relative h-32 w-full overflow-hidden bg-mist">
-          <AssetImg src={img} alt={`${p.name}. Artist's impression.`} loading="lazy" onError={() => setImgOk(false)} className="h-full w-full object-cover" />
+          <AssetImg key={img} src={img} alt={`${p.name}. Artist's impression.`} onError={() => setFailed(img)} className="h-full w-full object-cover" />
           <span className="absolute bottom-1.5 right-2 rounded bg-black/45 px-1.5 py-0.5 font-display-normal text-[10px] text-white">Artist&apos;s impression</span>
         </div>
       )}
