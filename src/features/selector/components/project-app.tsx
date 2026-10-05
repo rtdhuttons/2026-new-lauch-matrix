@@ -47,7 +47,7 @@ import { StackExplorer } from "./stack-explorer";
 import { StackPriceChart } from "./stack-price-chart";
 import type { TabId } from "./tabs";
 import { NotSupplied, SectionPager, TabIntro, TabNav, tabFromHash } from "./tabs";
-import { btnPrimary, btnSecondary, btnText, card, Disclosure, NextStep } from "./ui";
+import { btnPrimary, btnSecondary, btnText, card, Disclosure, NextStep, NumbersDisclaimer } from "./ui";
 import { UnitDetails } from "./unit-details";
 import type { UnitFilterState } from "./unit-filters";
 import { UnitFilters } from "./unit-filters";
@@ -800,6 +800,7 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       )}
 
       <div className="mx-auto max-w-7xl px-4 pb-32 sm:px-8">
+        <NumbersDisclaimer className="mt-10" />
         <SectionPager active={tab} onChange={(t) => goTo(t)} />
       </div>
 

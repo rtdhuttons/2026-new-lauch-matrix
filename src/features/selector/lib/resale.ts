@@ -13,6 +13,8 @@ import { floorBandPoints } from "./comparable";
 import type { DatasetIndex } from "./dataset-index";
 
 export const SIMILAR_SIZE_SHARE = 0.1;
+/** Most points a unit can earn: 50 for less competition plus 30 for its floor band. */
+export const EXIT_APPEAL_POINTS = 80;
 
 export interface ResaleCompetition {
   /** False until the unit's type and size are known. */
@@ -21,7 +23,6 @@ export interface ResaleCompetition {
   similarCount: number;
   /** Comparable units that share this unit's view category. */
   sameViewCategoryCount: number;
-  distinctive: string[];
   nearby: { project: NearbyProject; units: number }[];
   evidence: {
     transactions: Transaction[];
@@ -32,7 +33,11 @@ export interface ResaleCompetition {
    * exit-appeal points it adds (0–10). Null without a comparable.
    */
   floorEvidence: { project: string; band: BandStats; points: number } | null;
-  /** 0–100; fewer comparables, more distinctive traits and a stronger floor band score higher. */
+  /** Points for less competition, 0–50. */
+  competitionPoints: number | null;
+  /** Competition plus floor band points, out of 80. */
+  points: number | null;
+  /** 0–100: the 80 points rescaled. Fewer comparables and a stronger floor band score higher. */
   score: number | null;
 }
 
@@ -49,13 +54,14 @@ export function resaleCompetition(
       sameLayoutCount: 0,
       similarCount: 0,
       sameViewCategoryCount: 0,
-      distinctive: [],
       nearby: [],
       floorEvidence: null,
       evidence: {
         transactions: [],
         note: "Unit types and sizes are not published yet, so similar units cannot be counted.",
       },
+      competitionPoints: null,
+      points: null,
       score: null,
     };
   }
@@ -77,23 +83,6 @@ export function resaleCompetition(
     return clearish(myCategory) ? clearish(c) : c === myCategory;
   });
 
-  const distinctive: string[] = [];
-  if (clearish(myCategory) && sameView.length < comparables.length * 0.5) {
-    distinctive.push(
-      `Estimated clear main view, shared by only ${sameView.length} of ${comparables.length} comparable units`,
-    );
-  }
-  for (const f of layout.features) {
-    const share =
-      comparables.filter((u) => ix.stackLayout(u.stackId).features.includes(f)).length /
-      Math.max(1, comparables.length);
-    if (share < 0.5 && f !== "bedroom next to common corridor") {
-      distinctive.push(`${f[0].toUpperCase()}${f.slice(1)}, uncommon among comparables`);
-    }
-  }
-  const block = ix.stackBlock(unit.stackId);
-  if (unit.level >= block.storeys - 2) distinctive.push("One of the top three floors of its block");
-
   const nearby = ix.ds.nearbyProjects
     .map((p) => ({
       project: p,
@@ -111,20 +100,19 @@ export function resaleCompetition(
   const fb = floorBandPoints(ix.ds.comparable, unit.level);
   const floorEvidence = fb && ix.ds.comparable ? { project: ix.ds.comparable.name, ...fb } : null;
 
-  // Exit appeal, out of 100:
+  // Exit appeal, out of 100, from two parts worth 80 points together:
   //   competition, up to 50: fewer similar homes in the development score higher
   //   floor band, up to 30: how this floor band resold at the comparable development
-  //   distinctive features, 10 each, up to 20
+  // The 80 points are rescaled to 100 (distinctive features were dropped at TRM's request).
   const competition = 50 * (1 - comparables.length / Math.max(1, ix.ds.units.length - 1));
-  const traits = Math.min(20, distinctive.length * 10);
-  const score = Math.round(Math.max(0, Math.min(100, competition + (floorEvidence?.points ?? 0) + traits)));
+  const points = Math.max(0, Math.min(EXIT_APPEAL_POINTS, competition + (floorEvidence?.points ?? 0)));
+  const score = Math.round((points / EXIT_APPEAL_POINTS) * 100);
 
   return {
     known: true,
     sameLayoutCount: sameLayout.length,
     similarCount: comparables.length,
     sameViewCategoryCount: sameView.length,
-    distinctive,
     nearby,
     floorEvidence,
     evidence: {
@@ -134,6 +122,8 @@ export function resaleCompetition(
           ? "Insufficient evidence: no verified transactions for this layout, so no returns, demand or days-on-market are shown."
           : `${transactions.length} transactions for this layout. Check matching quality before drawing conclusions.`,
     },
+    competitionPoints: competition,
+    points,
     score,
   };
 }

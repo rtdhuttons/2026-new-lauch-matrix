@@ -432,8 +432,8 @@ Rows:
   view risk
 - **Noise & privacy:** main sources, privacy, screening score
 - **MRT access:** walk to MRT, gate
-- **Resale competition:** similar units in the development, distinctive
-  benefits, transaction evidence
+- **Resale competition:** similar units in the development, transaction
+  evidence
 - **Fit & data confidence:** lifestyle fit, each criterion score, exit
   appeal score, weakest data status
 
@@ -479,8 +479,8 @@ Phone bottom bar: selected home, its estimated price and **Compare (n)**.
 - Exit appeal, out of 100: up to 50 points for less competition (fewer
   similar homes in the development), up to 30 points for the floor band's
   resale record at a comparable development (JadeScape: low floors 0, mid
-  floors 10, high floors 30, in proportion to each band's annualised return),
-  and 10 points for each distinctive feature, up to 20.
+  floors 10, high floors 30, in proportion to each band's annualised return);
+  the 80 points are rescaled to a score out of 100.
 
 **View Clearance Floor Marker**
 

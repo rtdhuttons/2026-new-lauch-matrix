@@ -1,20 +1,18 @@
 "use client";
 
-// Explains the exit appeal score for the selected home: its three parts,
+// Explains the exit appeal score for the selected home: its two parts,
 // what each means and what it can't tell you. It is a guide to how easy a
 // home may be to resell against similar homes, not a profit forecast.
 
 import type { Unit } from "../model/types";
 import { unitLabel } from "../lib/dataset-index";
+import { EXIT_APPEAL_POINTS } from "../lib/resale";
 import type { Engine } from "../lib/engine";
 import { card } from "./ui";
 
 export function ExitAppeal({ engine, unit }: { engine: Engine; unit: Unit | null }) {
   const ix = engine.ix;
   const r = unit ? engine.assess(unit).resale : null;
-  const total = ix.ds.units.length;
-  const competition = r?.known ? 50 * (1 - r.similarCount / Math.max(1, total - 1)) : null;
-  const traits = r?.known ? Math.min(20, r.distinctive.length * 10) : null;
 
   return (
     <div className={`${card} p-5 sm:p-6`}>
@@ -33,7 +31,7 @@ export function ExitAppeal({ engine, unit }: { engine: Engine; unit: Unit | null
               <dl className="mt-3 grid gap-2 font-display-normal text-sm sm:grid-cols-3">
                 <div className="rounded-lg bg-mist p-3">
                   <dt className="text-canopy/70">Less competition (up to 50)</dt>
-                  <dd className="text-lg font-semibold tabular-nums">{competition!.toFixed(0)}</dd>
+                  <dd className="text-lg font-semibold tabular-nums">{(r.competitionPoints ?? 0).toFixed(0)}</dd>
                   <dd className="text-xs text-stone">{r.similarCount.toLocaleString("en-SG")} similar units in the project</dd>
                 </div>
                 <div className="rounded-lg bg-mist p-3">
@@ -44,9 +42,11 @@ export function ExitAppeal({ engine, unit }: { engine: Engine; unit: Unit | null
                   </dd>
                 </div>
                 <div className="rounded-lg bg-mist p-3">
-                  <dt className="text-canopy/70">Distinctive features (up to 20)</dt>
-                  <dd className="text-lg font-semibold tabular-nums">{traits}</dd>
-                  <dd className="text-xs text-stone">{r.distinctive.length > 0 ? r.distinctive.join("; ") : "None found"}</dd>
+                  <dt className="text-canopy/70">Score out of 100</dt>
+                  <dd className="text-lg font-semibold tabular-nums">{r.score}</dd>
+                  <dd className="text-xs text-stone">
+                    ({(r.competitionPoints ?? 0).toFixed(0)} + {r.floorEvidence ? r.floorEvidence.points : 0}) ÷ {EXIT_APPEAL_POINTS} × 100
+                  </dd>
                 </div>
               </dl>
             </>

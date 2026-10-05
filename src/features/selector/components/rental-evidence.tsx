@@ -15,7 +15,7 @@ import type { RentSummary } from "../lib/rentals";
 import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../lib/rentals";
 import { NotSupplied } from "./tabs";
 import { BarChart, ChartCard, fmtMoney } from "./charts";
-import { card, Disclosure } from "./ui";
+import { AmountInput, card, Disclosure } from "./ui";
 
 const monthText = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-SG", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -166,14 +166,10 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
               </label>
               <div className="mt-1 flex items-center gap-1">
                 <span className="text-canopy/70">$</span>
-                <input
+                <AmountInput
                   id="rent-input"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  step={50}
-                  value={rentInput !== "" ? rentInput : sizeSummary ? Math.round(sizeSummary.median) : ""}
-                  onChange={(e) => setRentInput(e.target.value)}
+                  value={rentInput !== "" ? Number(rentInput) : sizeSummary ? Math.round(sizeSummary.median) : null}
+                  onChange={(v) => setRentInput(v === null ? "" : String(v))}
                   className="w-32 rounded-lg border border-canopy/20 bg-paper px-3 py-1.5 font-display-normal"
                 />
               </div>

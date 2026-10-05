@@ -212,10 +212,6 @@ export function Comparison({
           cells: as.map((a) => String(a.resale.similarCount)),
           best: bestIndex(as.map((a) => a.resale.similarCount), false, 15),
         },
-        {
-          label: "Distinctive benefits",
-          cells: as.map((a) => a.resale.distinctive.join("; ") || "None found"),
-        },
         { label: "Transaction evidence", cells: as.map(() => "Insufficient evidence") },
       ],
     },

@@ -32,6 +32,8 @@ describe("JadeScape floor-band evidence", () => {
     const low = engine.assess(unit(5)).resale;
     const high = engine.assess(unit(25)).resale;
     expect(high.floorEvidence?.points).toBe(30);
-    expect(high.score! - low.score!).toBe(30);
+    // Same stack, so the same competition points; the floor band adds 30 of 80.
+    expect(high.points! - low.points!).toBeCloseTo(30, 6);
+    expect(high.score).toBe(Math.round((high.points! / 80) * 100));
   });
 });

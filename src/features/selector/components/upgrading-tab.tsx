@@ -12,7 +12,7 @@ import type { SellingInputs } from "../lib/selling";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE, sameSellingInputs } from "../lib/selling";
 import type { ContactMethod, ValuationState } from "../lib/valuation";
 import { ChartCard, Waterfall } from "./charts";
-import { btnPrimary, btnSecondary, btnText, card, Disclosure } from "./ui";
+import { AmountInput, btnPrimary, btnSecondary, btnText, card, Disclosure } from "./ui";
 
 const sgd = (n: number) => `${n < 0 ? "−" : ""}S$${Math.abs(Math.round(n)).toLocaleString("en-SG")}`;
 const input = "mt-1.5 block w-full min-w-0 rounded-lg border border-canopy/25 bg-paper px-3 py-2 font-display-normal text-base";
@@ -111,14 +111,10 @@ function MoneyField({ id, label, help, value, onChange }: { id: string; label: s
       <label htmlFor={id} className={labelCls}>{label}</label>
       <div className="mt-1.5 flex items-center gap-1.5">
         <span className="text-canopy/70">S$</span>
-        <input
+        <AmountInput
           id={id}
-          type="number"
-          inputMode="decimal"
-          min={0}
-          step={1000}
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
+          value={value}
+          onChange={onChange}
           aria-describedby={help ? `${id}-help` : undefined}
           className="w-full min-w-0 rounded-lg border border-canopy/25 bg-paper px-3 py-2 font-display-normal tabular-nums"
         />

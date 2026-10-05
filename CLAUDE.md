@@ -189,9 +189,12 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   also clear that block's roof.
 - Homes start at level 1 in the Luxury blocks (5 and 7) and level 2 in the
   Classic blocks (1, 3, 9, 11); typical floors start at level 3.
-- Exit appeal, out of 100: less competition (up to 50), the floor band's
-  resale record at JadeScape (low 0, mid 10, high 30) and distinctive
-  features (up to 20).
+- Exit appeal, out of 100: less competition (up to 50) plus the floor band's
+  resale record at JadeScape (low 0, mid 10, high 30), out of 80, rescaled
+  to 100. Distinctive features are not scored (removed at TRM's request).
+- Every page with figures carries the standard disclaimer
+  (`NumbersDisclaimer` in `ui.tsx`). Dollar amounts the visitor types use
+  `AmountInput`, which shows thousands separators (1,803,000).
 - Label every render "Artist's impression".
 - Do not commit developer PDFs. Never publish the project bank account details
   in the factsheet.

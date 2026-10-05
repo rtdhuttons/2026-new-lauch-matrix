@@ -21,7 +21,7 @@ const RULES: { title: string; body: string[] }[] = [
       "Views: below obstruction 10, partially cleared 45, estimated clear 85, clear with limited further gain 90. Uncertain floors use the conservative category.",
       "Quiet & privacy: 100 minus 22, 10 or 3 points for each higher, moderate or lower potential source or privacy issue in the screening.",
       "MRT: 100 at 5 minutes' walk or less, falling to 0 at 15 minutes.",
-      "Exit appeal, out of 100: up to 50 points for less competition (fewer similar units in the project), up to 30 points for the floor band's resale record at a comparable development (the weakest band 0, the strongest 30, in proportion to each band's annualised return), and 10 points for each distinctive feature, up to 20.",
+      "Exit appeal, out of 100: up to 50 points for less competition (fewer similar units in the project), up to 30 points for the floor band's resale record at a comparable development (the weakest band 0, the strongest 30, in proportion to each band's annualised return), out of 80 together and rescaled to a score out of 100.",
     ],
   },
   {

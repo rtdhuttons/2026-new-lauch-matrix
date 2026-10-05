@@ -11,7 +11,17 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0h. Latest: exit strategy by CAGR (5 Oct)
+## 0i. Latest: exit appeal, price boxes, disclaimer (5 Oct)
+
+- Exit appeal no longer counts distinctive features: less competition (up
+  to 50) plus floor band record (up to 30), out of 80, rescaled to 100, with
+  the working shown.
+- Dollar boxes (purchase price, selling figures, rent) show commas as you
+  type: 1,803,000.
+- Every tab ends with a standard note that all figures are estimates for
+  general information, not advice or the developer's prices.
+
+## 0h. Exit strategy by CAGR (5 Oct)
 
 - Removed "Timing of exit: a benchmark from Thomson Three".
 - The exit strategy now grows the purchase price at a compound annual growth

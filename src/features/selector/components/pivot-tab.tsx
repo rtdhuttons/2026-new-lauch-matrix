@@ -14,7 +14,7 @@ import { annualisedSpread, averageScore, entryPsfSteps, exitProjection, PIVOT_CA
 import { BarChart, ChartCard, LineChart, SERIES } from "./charts";
 import { NotSupplied } from "./tabs";
 import { EstimateTag } from "./unit-summary";
-import { card, Disclosure } from "./ui";
+import { AmountInput, card, Disclosure } from "./ui";
 
 const psf = (n: number) => `$${Math.round(n).toLocaleString("en-SG")} psf`;
 export interface PivotUnit {
@@ -359,7 +359,7 @@ function ExitOutcomes({
           </label>
           <label className="grid gap-1 font-display-normal text-sm">
             <span className="text-canopy/70">Purchase price (S$)</span>
-            <input type="number" inputMode="decimal" min={0} step={10000} value={Math.round(price)} onChange={(e) => setPriceInput(e.target.value === "" ? null : Number(e.target.value))} className={input} />
+            <AmountInput value={price} onChange={setPriceInput} className={input} />
             <span className="text-xs text-canopy/60">{priceInput === null ? (floor.isEstimate ? "Estimated price; type your own to change it" : "Price list") : "Your price"}</span>
           </label>
           <label className="grid gap-1 font-display-normal text-sm">

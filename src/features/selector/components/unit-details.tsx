@@ -426,18 +426,9 @@ export function UnitDetails({
             {a.resale.score !== null && (
               <p className="font-display-normal text-base">
                 <span className="font-semibold">Exit appeal: {a.resale.score} / 100.</span>{" "}
-                <span className="text-canopy/75">Less competition (up to 50), floor band record (up to 30) and distinctive features (up to 20).</span>
+                <span className="text-canopy/75">Less competition (up to 50) plus floor band record (up to 30), out of 80, rescaled to 100.</span>
               </p>
             )}
-            <div>
-              <p className="font-display-normal text-sm font-semibold">What sets this unit apart</p>
-              <ul className="mt-1 list-disc pl-5 text-[1rem]">
-                {a.resale.distinctive.length === 0 && <li>Nothing distinctive among comparable units in this screening.</li>}
-                {a.resale.distinctive.map((d) => (
-                  <li key={d}>{d}</li>
-                ))}
-              </ul>
-            </div>
             <p className="rounded-lg bg-mist p-4 text-[1rem]">{a.resale.evidence.note}</p>
           </div>
         )}
