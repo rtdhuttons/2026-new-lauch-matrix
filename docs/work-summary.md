@@ -22,10 +22,14 @@ first complete project and the template for future developments. Work done
   floor plans, site plans and public renders (shown straight from Huttons'
   image server), MRT walking distance, primary schools within 2.5 km
   measured on OneMap, and the nearest projects with the same bedroom types.
-- Site plans traced for the 3D view: blocks and stacks placed on the
-  developer's plan at its scale and north point, as for Thomson Reserve.
-  Projects not yet traced show a schematic layout, and their facings and
-  sun are marked as not known yet rather than guessed.
+- Site plans traced for the 3D view on 76 of the 113 projects with units:
+  blocks and stacks placed on the developer's plan at its scale (scale bar,
+  or the plot boundary against the published site area) and north point,
+  as for Thomson Reserve. The other 37 plans have no usable scale (renders,
+  cutaways, "not to scale" key plans) or no site plan, so they show a
+  schematic layout, and their facings and sun are marked as not known yet
+  rather than guessed. 11 upcoming projects have no units released and
+  show a coming-soon guide.
 - Where a project's prices aren't released, illustrative prices come from
   the nearest projects' published prices, labelled as estimates.
 - The daily update refreshes all of them.
