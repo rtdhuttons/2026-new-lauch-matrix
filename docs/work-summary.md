@@ -11,7 +11,17 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0g. Latest: feedback round (5 Oct)
+## 0h. Latest: exit strategy by CAGR (5 Oct)
+
+- Removed "Timing of exit: a benchmark from Thomson Three".
+- The exit strategy now grows the purchase price at a compound annual growth
+  rate (CAGR) you can type in. It starts at JadeScape's average CAGR, 5.42%
+  a year across 321 resales, with low, mid and high floor averages to pick
+  from, and projects the selling price from 4 to 10 years.
+- Shows the working, e.g. $2,000,000 × 1.05⁵ = $2,552,563 after 5 years, a
+  gain of $552,563.
+
+## 0g. Feedback round (5 Oct)
 
 - **Plans tab** (new, second): all 41 floor plans with sizes and stacks, an
   elevation chart for each block in the developer's unit type colours (tap a

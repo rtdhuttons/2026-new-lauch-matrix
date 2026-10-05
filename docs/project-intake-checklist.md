@@ -105,7 +105,7 @@ Never include the project's bank account details.
 | How the overall rating is worked out | TRM |
 | Land tender price and price psf ppr | URA tender record |
 | Construction cost, margin and breakeven assumptions | TRM |
-| Exit benchmark project, its average psf, completion years, growth a year | TRM, URA transactions |
+| Resale records of a comparable completed project (purchase and sale prices and dates), for the average CAGR used in the exit strategy | Huttons transaction report, URA |
 
 ---
 

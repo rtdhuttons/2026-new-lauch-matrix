@@ -255,19 +255,6 @@ export interface PivotEntryEstimate {
   provenance: Provenance;
 }
 
-/** Exit benchmark from an older nearby project, as TRM's e-book works it out. */
-export interface PivotExitBenchmark {
-  comparable: string;
-  comparablePsf: number;
-  comparableCompletionYear: number;
-  subjectCompletionYear: number;
-  growthPsfPerYear: number;
-  /** Uplift for a project completed before area harmonisation (1 June 2023), e.g. 0.05. */
-  harmonisationUplift: number;
-  statedPsf: number;
-  provenance: Provenance;
-}
-
 export interface PivotInfo {
   /** TRM's scores out of 10, with the reason given for each. */
   scores: { category: PivotCategory; score: number; reason: string }[] | null;
@@ -276,7 +263,6 @@ export interface PivotInfo {
   /** How the overall is worked out, once TRM confirms it. */
   overallMethod: string | null;
   entry: PivotEntryEstimate | null;
-  exit: PivotExitBenchmark | null;
   provenance: Provenance | null;
 }
 

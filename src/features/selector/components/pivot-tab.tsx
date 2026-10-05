@@ -1,42 +1,22 @@
 "use client";
 
 // PIVOT: TRM's five-segment assessment. Scores and reasons come from the
-// project's own assessment; the entry-price and exit-benchmark workings
-// reproduce TRM's e-book and every input can be changed. These are
-// conditional estimates, never promised returns.
+// project's own assessment; the entry-price working reproduces TRM's e-book.
+// The exit strategy grows the purchase price at a yearly rate (CAGR), by
+// default the average at the comparison project. Every input can be
+// changed. These are conditional estimates, never promised returns.
 
 import { useState } from "react";
 import type { PivotInfo } from "../model/project";
 import { floorBand, FLOOR_BANDS } from "../lib/comparable";
 import type { UnitModel } from "../lib/alternatives";
-import { annualisedSpread, averageScore, entryPsfSteps, exitPsfSteps, exitProjection, PIVOT_CATEGORIES } from "../lib/pivot";
-import { BarChart, ChartCard, LineChart, SERIES, Waterfall } from "./charts";
+import { annualisedSpread, averageScore, entryPsfSteps, exitProjection, PIVOT_CATEGORIES } from "../lib/pivot";
+import { BarChart, ChartCard, LineChart, SERIES } from "./charts";
 import { NotSupplied } from "./tabs";
 import { EstimateTag } from "./unit-summary";
 import { card, Disclosure } from "./ui";
 
 const psf = (n: number) => `$${Math.round(n).toLocaleString("en-SG")} psf`;
-const exact = (n: number) => `$${n.toLocaleString("en-SG", { maximumFractionDigits: 1 })}`;
-
-function NumberField({ id, label, value, onChange, step = 1, suffix }: { id: string; label: string; value: number; onChange: (n: number) => void; step?: number; suffix?: string }) {
-  return (
-    <label htmlFor={id} className="grid gap-1 font-display-normal text-sm">
-      <span className="text-canopy/75">{label}</span>
-      <span className="flex items-center gap-1.5">
-        <input
-          id={id}
-          type="number"
-          step={step}
-          value={Number.isFinite(value) ? value : ""}
-          onChange={(e) => onChange(e.target.value === "" ? NaN : Number(e.target.value))}
-          className="w-28 rounded-lg border border-canopy/20 bg-paper px-3 py-1.5 tabular-nums"
-        />
-        {suffix && <span className="text-canopy/70">{suffix}</span>}
-      </span>
-    </label>
-  );
-}
-
 export interface PivotUnit {
   name: string;
   price: number | null;
@@ -79,46 +59,64 @@ export function PivotTab({
   completionDate: string | null;
 }) {
   const entry = pivot.entry;
-  const [exit, setExit] = useState(pivot.exit);
   const avg = averageScore(pivot);
+  // Exit strategy: the yearly growth rate (CAGR). Default: the comparison project's average.
+  const spread = evidence ? annualisedSpread(evidence.resales.map((r) => r.annualised)) : null;
+  const [cagrInput, setCagrInput] = useState<number | null>(null);
+  const cagr = cagrInput !== null ? cagrInput / 100 : (spread?.mean ?? null);
 
-  if (!pivot.scores && !pivot.entry && !pivot.exit) {
+  if (!pivot.scores && !pivot.entry && !evidence) {
     return (
       <div className="grid gap-6">
         <NotSupplied
           title={`A PIVOT assessment has not been added for ${projectName}.`}
-          needed={["TRM's scores and reasons for the five segments.", "Land bid evidence for the entry-price working.", "An older nearby project's prices for the exit benchmark."]}
+          needed={["TRM's scores and reasons for the five segments.", "Land bid evidence for the entry-price working.", "Resale records from a comparable project, for the exit projection."]}
         />
       </div>
     );
   }
 
   const e = entry ? entryPsfSteps(entry) : null;
-  const x = exit ? exitPsfSteps(exit) : null;
 
   return (
     <div className="grid grid-cols-1 gap-8 [&>*]:min-w-0">
-      <UnitAssessment unit={unit} entry={e?.estimate ?? null} exit={x?.estimate ?? null} onChooseUnit={onChooseUnit} />
+      <UnitAssessment
+        unit={unit}
+        entry={e?.estimate ?? null}
+        cagr={cagr}
+        cagrNote={cagrInput === null && evidence && spread ? `${evidence.project} average` : "your rate"}
+        onChooseUnit={onChooseUnit}
+      />
 
-      {unit && unit.price !== null && unit.areaSqft && (e || x) && (
+      {unit && unit.price !== null && unit.areaSqft && e && (
         <ChartCard
-          title="Price per sq ft: entry, this unit and exit"
-          subtitle={`${unit.name} against TRM's fair-entry estimate from the land bid and the exit benchmark at completion`}
+          title="Price per sq ft: fair entry and this unit"
+          subtitle={`${unit.name} against TRM's fair-entry estimate from the land bid`}
           note={unit.isEstimate ? "This unit's price is an estimate, not the developer's price." : undefined}
         >
           <BarChart
-            ariaLabel="Price per square foot: fair entry estimate, this unit and the exit benchmark"
+            ariaLabel="Price per square foot: fair entry estimate and this unit"
             format={(n) => `$${Math.round(n).toLocaleString("en-SG")}`}
             bars={[
               ...(e ? [{ id: "entry", label: "Fair entry (land bid)", sub: "TRM estimate", value: e.estimate, color: SERIES[1] }] : []),
               { id: "unit", label: unit.name, sub: unit.isEstimate ? "estimated price" : "price", value: unit.price / unit.areaSqft, color: SERIES[0], emphasis: true },
-              ...(x && exit ? [{ id: "exit", label: "Exit benchmark", sub: `at completion, from ${exit.comparable}`, value: x.estimate, color: SERIES[2] }] : []),
             ]}
           />
         </ChartCard>
       )}
 
-      {evidence && models.length > 0 && <ExitOutcomes models={models} start={start} evidence={evidence} completionDate={completionDate} />}
+      {evidence && spread && cagr !== null && models.length > 0 && (
+        <ExitOutcomes
+          models={models}
+          start={start}
+          evidence={evidence}
+          spread={spread}
+          rate={cagr}
+          isDefault={cagrInput === null}
+          onRate={setCagrInput}
+          completionDate={completionDate}
+        />
+      )}
 
       {photo}
 
@@ -170,50 +168,13 @@ export function PivotTab({
         </div>
       )}
 
-      {exit && x && (
-        <section className={`${card} p-5 sm:p-6`} aria-labelledby="pivot-exit">
-          <h3 id="pivot-exit" className="font-display text-lg font-extrabold">Timing of exit: a benchmark from {exit.comparable}</h3>
-          <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
-            An older nearby project&apos;s average price, grown by a yearly amount to {projectName}&apos;s completion, then adjusted because older projects
-            counted more space (such as air-con ledges) before area harmonisation on 1 June 2023.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-5">
-            <NumberField id="pv-cpsf" label={`${exit.comparable} average`} value={exit.comparablePsf} onChange={(n) => setExit({ ...exit, comparablePsf: n })} suffix="$ psf" />
-            <NumberField id="pv-cy" label={`${exit.comparable} completed`} value={exit.comparableCompletionYear} onChange={(n) => setExit({ ...exit, comparableCompletionYear: n })} />
-            <NumberField id="pv-sy" label={`${projectName} completes`} value={exit.subjectCompletionYear} onChange={(n) => setExit({ ...exit, subjectCompletionYear: n })} />
-            <NumberField id="pv-g" label="Growth a year" value={exit.growthPsfPerYear} onChange={(n) => setExit({ ...exit, growthPsfPerYear: n })} suffix="$ psf" />
-            <NumberField id="pv-h" label="Harmonisation adjustment" value={Math.round(exit.harmonisationUplift * 1000) / 10} step={0.5} onChange={(n) => setExit({ ...exit, harmonisationUplift: n / 100 })} suffix="%" />
-          </div>
-          <div className="mt-4">
-            <Waterfall
-              ariaLabel="How the exit benchmark price per square foot builds up"
-              height={230}
-              format={(n) => `$${Math.round(n).toLocaleString("en-SG")}`}
-              steps={[
-                { label: `${exit.comparable} average`, value: exit.comparablePsf, kind: "total" },
-                { label: `${x.years} years of growth`, value: x.growth, kind: "change" },
-                { label: "Harmonisation", value: x.estimate - x.beforeUplift, kind: "change" },
-                { label: "Exit benchmark", value: x.estimate, kind: "total" },
-              ]}
-            />
-          </div>
-          <ol className="mt-4 grid gap-1 font-display-normal text-[0.9375rem] tabular-nums">
-            <li>{x.years} years × {exact(exit.growthPsfPerYear)} = {exact(x.growth)}</li>
-            <li>{exact(exit.comparablePsf)} + {exact(x.growth)} = <strong>{exact(x.beforeUplift)}</strong></li>
-            <li>× {(1 + exit.harmonisationUplift).toFixed(3).replace(/0+$/, "")} = <strong className="text-lg">{psf(x.estimate)}</strong> benchmark at completion</li>
-          </ol>
-          <p className="mt-2 text-sm text-stone">The e-book&apos;s figure: {psf(exit.statedPsf)}. A benchmark under these assumptions, not a forecast.</p>
-        </section>
-      )}
-
       <NotSupplied
-        title="Break-even price, holding periods and selling scenarios aren't available yet."
+        title="Break-even price and net selling scenarios aren't available yet."
         needed={[
           ...(pivot.overallMethod === null && pivot.overallStated !== null
             ? [`How the overall rating is worked out (stated ${pivot.overallStated}/10${avg !== null ? `; the five scores average ${avg.toFixed(1)}` : ""}).`]
             : []),
           "The purchase costs to include (buyer's stamp duty, legal fees) and financing assumptions, confirmed against current official rules.",
-          "The holding periods and the downside, middle and upside selling prices you want to show.",
           "One worked example of how you assess a specific unit, to check the tool reproduces it.",
         ]}
       >
@@ -223,8 +184,20 @@ export function PivotTab({
   );
 }
 
-/** The selected unit against the entry estimate and the exit benchmark. Conditional, gross figures only. */
-function UnitAssessment({ unit, entry, exit, onChooseUnit }: { unit: PivotUnit | null; entry: number | null; exit: number | null; onChooseUnit: () => void }) {
+/** The selected unit against the entry estimate, and sold after a few years at the chosen CAGR. Conditional, gross figures only. */
+function UnitAssessment({
+  unit,
+  entry,
+  cagr,
+  cagrNote,
+  onChooseUnit,
+}: {
+  unit: PivotUnit | null;
+  entry: number | null;
+  cagr: number | null;
+  cagrNote: string;
+  onChooseUnit: () => void;
+}) {
   if (!unit || unit.price === null || unit.areaSqft === null) {
     return (
       <div className={`${card} p-5`}>
@@ -237,8 +210,7 @@ function UnitAssessment({ unit, entry, exit, onChooseUnit }: { unit: PivotUnit |
   }
   const unitPsf = unit.price / unit.areaSqft;
   const vsEntry = entry !== null ? unitPsf - entry : null;
-  const atExit = exit !== null ? exit * unit.areaSqft : null;
-  const gain = atExit !== null ? atExit - unit.price : null;
+  const atExit = cagr !== null ? exitProjection(unit.price, cagr, [SAMPLE_YEARS])[0] : null;
   return (
     <section aria-labelledby="pivot-unit" className="rounded-2xl bg-canopy p-5 text-mist sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -257,29 +229,45 @@ function UnitAssessment({ unit, entry, exit, onChooseUnit }: { unit: PivotUnit |
           <dd className="text-xs text-mist/70">{entry !== null ? `TRM's fair-entry estimate from the land bid: ${psf(entry)}.` : "No entry estimate."}</dd>
         </div>
         <div className="rounded-xl bg-white/10 p-4">
-          <dt className="text-sm text-mist/75">If sold at the exit benchmark</dt>
-          <dd className="text-2xl font-extrabold tabular-nums text-white">{gain !== null ? `${gain >= 0 ? "+" : "−"}$${Math.round(Math.abs(gain)).toLocaleString("en-SG")}` : "—"}</dd>
-          <dd className="text-xs text-mist/70">{exit !== null ? `At ${psf(exit)} on completion. Gross: before stamp duty, fees, loan repayment and CPF refund.` : "No exit benchmark."}</dd>
+          <dt className="text-sm text-mist/75">If sold after {SAMPLE_YEARS} years</dt>
+          <dd className="text-2xl font-extrabold tabular-nums text-white">{atExit ? dollars(atExit.value) : "—"}</dd>
+          <dd className="text-xs text-mist/70">
+            {atExit && cagr !== null
+              ? `+${dollars(atExit.gain)} at ${pctText(cagr)} a year (${cagrNote}). Before stamp duty, fees, loan repayment and CPF refund.`
+              : "No growth rate."}
+          </dd>
         </div>
       </dl>
-      <p className="mt-3 text-xs text-mist/70">A scenario under the assumptions below, not a forecast or a guaranteed return.</p>
+      <p className="mt-3 text-xs text-mist/70">A scenario under the assumptions below, not a forecast or a guaranteed return. Change the yearly growth rate under Exit strategy.</p>
     </section>
   );
 }
 
 const pctText = (r: number) => `${(r * 100).toFixed(2)}%`;
+/** The holding period used for the one-line example at the top. */
+const SAMPLE_YEARS = 5;
 const dollars = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 
-/** The unit's price grown at the comparison project's yearly returns, by year of sale. */
+/** Exit strategy: the unit's price grown at a yearly rate (CAGR), by year of sale. */
 function ExitOutcomes({
   models,
   start,
   evidence,
+  spread,
+  rate,
+  isDefault,
+  onRate,
   completionDate,
 }: {
   models: UnitModel[];
   start: { key: string; level: number } | null;
   evidence: ExitEvidence;
+  /** Spread of the comparison project's yearly returns (all resales). */
+  spread: { q1: number; median: number; q3: number; mean: number; n: number };
+  /** Yearly growth rate (CAGR) in use, e.g. 0.054. */
+  rate: number;
+  isDefault: boolean;
+  onRate: (percent: number | null) => void;
   completionDate: string | null;
 }) {
   const fallback = models.find((m) => m.bedrooms === 3) ?? models[0];
@@ -287,26 +275,25 @@ function ExitOutcomes({
   const [key, setKey] = useState(startModel?.key ?? "");
   const [level, setLevel] = useState(start && startModel?.key === start.key ? start.level : (startModel?.levels[0]?.level ?? 0));
   const [priceInput, setPriceInput] = useState<number | null>(null);
-  const [rateInput, setRateInput] = useState<number | null>(null);
-  const [basis, setBasis] = useState<"all" | "band">("all");
   // Read the clock once, so the year around completion stays stable between renders.
   const [now] = useState(() => Date.now());
   const model = models.find((m) => m.key === key) ?? fallback;
   if (!model) return null;
   const floor = model.levels.find((l) => l.level === level) ?? model.levels[0];
   const band = floorBand(floor.level);
-  const bandInfo = FLOOR_BANDS.find((b) => b.id === band)!;
-  const pool = basis === "all" ? evidence.resales : evidence.resales.filter((r) => floorBand(r.floor) === band);
-  const spread = annualisedSpread(pool.map((r) => r.annualised));
-  if (!spread) return null;
+  // The comparison project's average by floor band, as reference rates.
+  const bands = FLOOR_BANDS.map((b) => {
+    const s = annualisedSpread(evidence.resales.filter((r) => floorBand(r.floor) === b.id).map((r) => r.annualised));
+    return s ? { ...b, mean: s.mean, n: s.n } : null;
+  }).filter((b): b is NonNullable<typeof b> => b !== null);
   const price = priceInput ?? floor.price;
-  const rate = rateInput !== null ? rateInput / 100 : spread.median;
   // The lower and higher case keep the spread of past results around the chosen rate.
   const lowRate = rate - (spread.median - spread.q1);
   const highRate = rate + (spread.q3 - spread.median);
   const yearsToCompletion = completionDate ? (new Date(`${completionDate}T00:00:00Z`).getTime() - now) / (365.25 * 24 * 3600 * 1000) : null;
   const completionYear = yearsToCompletion !== null ? Math.max(1, Math.round(yearsToCompletion)) : null;
   const mid = exitProjection(price, rate);
+  const sample = exitProjection(price, rate, [SAMPLE_YEARS])[0];
   const low = exitProjection(price, lowRate);
   const high = exitProjection(price, highRate);
   const label = (y: number) => `+${y} years${completionYear === y ? " (around completion)" : ""}`;
@@ -320,9 +307,10 @@ function ExitOutcomes({
 
   return (
     <section aria-labelledby="exit-outcomes" className={`${card} p-5 sm:p-6`}>
-      <h3 id="exit-outcomes" className="font-display text-lg font-extrabold">Exit outcomes by year of sale</h3>
+      <h3 id="exit-outcomes" className="font-display text-lg font-extrabold">Exit strategy: selling price by year of sale</h3>
       <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
-        Choose a unit type and price, and a yearly growth rate. The default rate is the median yearly return owners made when they resold at {evidence.project}.
+        Your purchase price grown each year at a compound annual growth rate (CAGR). The starting rate is the average CAGR owners made when they resold at{" "}
+        {evidence.project}: <strong>{pctText(spread.mean)} a year</strong> across {spread.n} resales. Change the price or the rate to test your own.
       </p>
 
       <div className="mt-4 grid gap-4 rounded-xl bg-mist p-4">
@@ -375,43 +363,53 @@ function ExitOutcomes({
             <span className="text-xs text-canopy/60">{priceInput === null ? (floor.isEstimate ? "Estimated price; type your own to change it" : "Price list") : "Your price"}</span>
           </label>
           <label className="grid gap-1 font-display-normal text-sm">
-            <span className="text-canopy/70">Yearly growth (%)</span>
-            <input type="number" inputMode="decimal" step={0.1} value={Math.round(rate * 10000) / 100} onChange={(e) => setRateInput(e.target.value === "" ? null : Number(e.target.value))} className={input} />
+            <span className="text-canopy/70">CAGR (% a year)</span>
+            <input type="number" inputMode="decimal" step={0.1} value={Math.round(rate * 10000) / 100} onChange={(e) => onRate(e.target.value === "" ? null : Number(e.target.value))} className={input} />
             <span className="text-xs text-canopy/60">
-              {rateInput === null ? `${evidence.project} median, ${spread.n} resales` : "Your rate"}
-              {rateInput !== null && (
+              {isDefault ? `${evidence.project} average, ${spread.n} resales` : "Your rate"}
+              {!isDefault && (
                 <>
                   {" · "}
-                  <button type="button" onClick={() => setRateInput(null)} className="font-semibold text-reservoir underline">
-                    use median ({pctText(spread.median)})
+                  <button type="button" onClick={() => onRate(null)} className="font-semibold text-reservoir underline">
+                    use average ({pctText(spread.mean)})
                   </button>
                 </>
               )}
             </span>
           </label>
         </div>
-        <div role="group" aria-label="Which resales the default rate uses" className="inline-flex w-fit flex-wrap rounded-full border border-canopy/15 bg-paper p-1">
-          {([
-            ["all", `All ${evidence.project} resales`],
-            ["band", `${bandInfo.label} floors only, like level ${floor.level}`],
-          ] as const).map(([id, text]) => (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={basis === id}
-              onClick={() => setBasis(id)}
-              className={`rounded-full px-4 py-1.5 font-display-normal text-sm font-semibold ${basis === id ? "bg-canopy text-mist" : "text-canopy/75"}`}
-            >
-              {text}
-            </button>
-          ))}
-        </div>
+        {bands.length > 1 && (
+          <div className="flex flex-wrap items-center gap-2 font-display-normal text-sm">
+            <span className="text-canopy/70">{evidence.project} average by floor:</span>
+            {bands.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => onRate(Math.round(b.mean * 10000) / 100)}
+                aria-label={`Use ${b.label.toLowerCase()} floors' average, ${pctText(b.mean)} a year`}
+                className={`rounded-full border px-3 py-1 tabular-nums ${b.id === band ? "border-canopy/40 bg-paper font-semibold" : "border-canopy/15 bg-paper/60 text-canopy/80"}`}
+              >
+                {b.label} {pctText(b.mean)}
+              </button>
+            ))}
+            <span className="text-xs text-canopy/60">Tap one to use it. Level {floor.level} is {FLOOR_BANDS.find((b) => b.id === band)!.label.toLowerCase()}.</span>
+          </div>
+        )}
       </div>
 
-      <p className="mt-4 max-w-[72ch] text-[0.9375rem] text-canopy/80">
-        {model.type}, level {floor.level}: {dollars(price)}
-        {priceInput === null && floor.isEstimate ? " (an estimate)" : ""}, grown at <strong>{pctText(rate)} a year</strong>.
-      </p>
+      <div className="mt-4 rounded-xl border border-canopy/10 p-4 font-display-normal">
+        <p className="text-sm text-canopy/70">
+          {model.type}, level {floor.level}
+          {priceInput === null && floor.isEstimate ? " (estimated price)" : ""}, sold after {SAMPLE_YEARS} years
+        </p>
+        <p className="mt-1 text-[0.9375rem] tabular-nums">
+          {dollars(price)} × (1 + {pctText(rate)})<sup>{SAMPLE_YEARS}</sup> = <strong className="text-xl">{dollars(sample.value)}</strong>
+        </p>
+        <p className="text-[0.9375rem] tabular-nums">
+          Gain before costs: <strong>+{dollars(sample.gain)}</strong>
+        </p>
+        <p className="mt-2 text-xs text-stone">For example, $2,000,000 at 5% a year: $2,000,000 × 1.05<sup>5</sup> = $2,552,563 after 5 years, a gain of $552,563.</p>
+      </div>
 
       <div className="mt-4">
         <ChartCard
@@ -460,7 +458,7 @@ function ExitOutcomes({
       </div>
 
       <div className="mt-4">
-        <Disclosure title="Show a lower and a higher case" hint={`${pctText(lowRate)} to ${pctText(highRate)} a year, the spread of ${evidence.project}'s middle half of resales`}>
+        <Disclosure title="Show a lower and a higher case" hint={`${pctText(lowRate)} to ${pctText(highRate)} a year, from the spread of ${evidence.project}'s middle half of resales`}>
           <div className="relative overflow-x-auto">
             <table className="w-full border-collapse font-display-normal text-sm tabular-nums">
               <caption className="sr-only">Lower, middle and higher case projected selling prices</caption>
@@ -484,7 +482,10 @@ function ExitOutcomes({
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-xs text-stone">At the median rate, a quarter of {evidence.project}&apos;s resales did worse than the lower case, and a quarter did better than the higher case.</p>
+          <p className="mt-2 text-xs text-stone">
+            The lower and higher case sit as far from your rate as a quarter of {evidence.project}&apos;s resales sat below and above its median ({pctText(spread.q1)} and{" "}
+            {pctText(spread.q3)} a year).
+          </p>
         </Disclosure>
       </div>
 

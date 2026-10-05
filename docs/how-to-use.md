@@ -128,14 +128,17 @@ availability changes daily.
 *Assess your selected unit's entry price and explore possible exit outcomes.*
 
 Your selected unit's price per sq ft against TRM's entry estimate from the
-land bid, and what it would be worth at the exit benchmark.
+land bid, and what it could sell for after 5 years at the growth rate below.
 
-**Exit outcomes by year of sale**: choose a bedroom type, model and floor
-(or type your own purchase price) and a yearly growth rate. The rate starts at
-the median yearly return JadeScape owners made when they resold, for selling after 4
-years (around completion) up to 10 years. Switch between all JadeScape
-resales and only those on the same floor band as your unit, and open "Show a
-lower and a higher case" for the range. Gains are before stamp duty, fees,
+**Exit strategy: selling price by year of sale**: choose a bedroom type,
+model and floor (or type your own purchase price) and a compound annual
+growth rate (CAGR). The CAGR starts at the average JadeScape owners made
+when they resold (5.42% a year across 321 resales); type your own, or tap
+JadeScape's low, mid or high floor average. You'll see the projected selling
+price and gain for selling after 4 years (around completion) up to 10 years,
+with the working (for example, $2,000,000 × 1.05⁵ = $2,552,563 after 5
+years, a gain of $552,563). Open "Show a lower and a higher case" for the
+range. Gains are before stamp duty, fees,
 interest, loan repayment and CPF refund. These are scenarios, not forecasts.
 
 Below are TRM's five PIVOT scores and the two workings, with every input you

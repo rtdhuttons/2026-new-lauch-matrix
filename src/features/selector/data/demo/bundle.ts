@@ -48,7 +48,7 @@ export const sampleProject: ProjectBundle = {
   comparables: [],
   rentals: [],
   alternatives: [],
-  pivot: { scores: null, overallStated: null, overallMethod: null, entry: null, exit: null, provenance: null },
+  pivot: { scores: null, overallStated: null, overallMethod: null, entry: null, provenance: null },
   sources: [
     { item: "Everything on this page", kind: "illustrative", source: "TRM fictional sample data", checked: "2026-10-03", status: "assumed" },
   ],

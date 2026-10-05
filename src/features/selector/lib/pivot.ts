@@ -6,7 +6,7 @@
 // They are conditional estimates built on the stated assumptions, not
 // forecasts, and every input stays visible and editable on the page.
 
-import type { PivotCategory, PivotEntryEstimate, PivotExitBenchmark, PivotInfo } from "../model/project";
+import type { PivotCategory, PivotEntryEstimate, PivotInfo } from "../model/project";
 
 export const PIVOT_CATEGORIES: { id: PivotCategory; letter: string; name: string; subtitle: string; question: string }[] = [
   {
@@ -54,15 +54,6 @@ export function entryPsfSteps(e: Pick<PivotEntryEstimate, "landPsfPpr" | "constr
   return { cost, withMargin, estimate };
 }
 
-/** (comparable psf + yearly growth × years between completions) × (1 + harmonisation uplift). */
-export function exitPsfSteps(x: Pick<PivotExitBenchmark, "comparablePsf" | "comparableCompletionYear" | "subjectCompletionYear" | "growthPsfPerYear" | "harmonisationUplift">) {
-  const years = x.subjectCompletionYear - x.comparableCompletionYear;
-  const growth = x.growthPsfPerYear * years;
-  const beforeUplift = x.comparablePsf + growth;
-  const estimate = beforeUplift * (1 + x.harmonisationUplift);
-  return { years, growth, beforeUplift, estimate };
-}
-
 /** Simple average of the five scores, shown beside the stated overall rating. */
 export function averageScore(p: PivotInfo): number | null {
   if (!p.scores || p.scores.length === 0) return null;
@@ -72,8 +63,8 @@ export function averageScore(p: PivotInfo): number | null {
 /** Years after purchase shown in the exit projection: from around completion to 10 years. */
 export const EXIT_YEARS = [4, 5, 6, 7, 8, 9, 10];
 
-/** Middle and spread of the yearly (annualised) returns in a set of resales. */
-export function annualisedSpread(returns: number[]): { q1: number; median: number; q3: number; n: number } | null {
+/** Average, middle and spread of the yearly (annualised) returns, i.e. each resale's CAGR. */
+export function annualisedSpread(returns: number[]): { q1: number; median: number; q3: number; mean: number; n: number } | null {
   if (returns.length === 0) return null;
   const s = [...returns].sort((a, b) => a - b);
   const q = (p: number) => {
@@ -82,7 +73,7 @@ export function annualisedSpread(returns: number[]): { q1: number; median: numbe
     const hi = Math.ceil(pos);
     return s[lo] + (s[hi] - s[lo]) * (pos - lo);
   };
-  return { q1: q(0.25), median: q(0.5), q3: q(0.75), n: s.length };
+  return { q1: q(0.25), median: q(0.5), q3: q(0.75), mean: s.reduce((a, r) => a + r, 0) / s.length, n: s.length };
 }
 
 /**

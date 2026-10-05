@@ -10,7 +10,7 @@ import { applyPriceEstimate } from "../estimate";
 import * as estimate from "../estimate";
 import { DEFAULT_PAYMENT_INPUTS, estimatePayments, loanSchedule, monthlyInstalment } from "../payments";
 import { niceTicks, waterfallColumns } from "../../components/charts";
-import { annualisedSpread, averageScore, entryPsfSteps, EXIT_YEARS, exitProjection, exitPsfSteps, PIVOT_CATEGORIES } from "../pivot";
+import { annualisedSpread, averageScore, entryPsfSteps, EXIT_YEARS, exitProjection, PIVOT_CATEGORIES } from "../pivot";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE } from "../selling";
 import { checkValuationRequest } from "../valuation";
 import { closestBySize, ownUnitTypes, sizePriceSentence, unitModels } from "../alternatives";
@@ -85,13 +85,6 @@ describe("PIVOT", () => {
     expect(e.cost).toBe(1878);
     expect(e.withMargin).toBeCloseTo(2159.7, 1);
     expect(Math.round(e.estimate)).toBe(p.entry!.statedPsf);
-  });
-
-  it("reproduces the e-book's exit benchmark", () => {
-    const x = exitPsfSteps(p.exit!);
-    expect(x.years).toBe(15);
-    expect(x.beforeUplift).toBe(2950);
-    expect(Math.round(x.estimate)).toBe(p.exit!.statedPsf);
   });
 
   it("states the overall rating as the average of the five scores", () => {
@@ -222,9 +215,10 @@ describe("comparison wording", () => {
 });
 
 describe("PIVOT exit projection", () => {
-  it("uses JadeScape's median yearly return across all resales", () => {
+  it("defaults to JadeScape's average CAGR across all resales", () => {
     const all = annualisedSpread(jadescape.transactions.map((t) => t.annualised))!;
     expect(all.n).toBe(321);
+    expect(all.mean).toBeCloseTo(0.0542, 4);
     expect(all.median).toBeCloseTo(0.0534, 4);
     expect(all.q1).toBeLessThan(all.median);
     expect(all.q3).toBeGreaterThan(all.median);
@@ -239,6 +233,12 @@ describe("PIVOT exit projection", () => {
     expect(rows[0].value).toBeCloseTo(2_000_000 * 1.05 ** 4, 6);
     expect(rows.at(-1)!.gain).toBeCloseTo(2_000_000 * (1.05 ** 10 - 1), 6);
     expect(annualisedSpread([])).toBeNull();
+  });
+
+  it("reproduces TRM's example: $2 million at 5% a year for 5 years", () => {
+    const [five] = exitProjection(2_000_000, 0.05, [5]);
+    expect(Math.round(five.value)).toBe(2_552_563);
+    expect(Math.round(five.gain)).toBe(552_563);
   });
 });
 
