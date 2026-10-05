@@ -220,9 +220,11 @@ describe("Thomson Reserve neighbourhood map", () => {
     expect(mapped.some((o) => o.name.startsWith("21-storey block, 45 Bright Hill Drive"))).toBe(true);
     for (const o of mapped) {
       expect(o.kind).toBe("existing-building");
-      expect(o.heightProvenance.source).toBe("OpenStreetMap");
+      expect(["OpenStreetMap", "HDB Property Information (data.gov.sg)"]).toContain(o.heightProvenance.source);
       expect(Number(o.name.split("-")[0])).toBeGreaterThanOrEqual(4);
     }
+    // HDB blocks the map has without storeys take HDB's own highest floor.
+    expect(mapped.some((o) => o.name === "25-storey block, Blk 444 Sin Ming Avenue" && o.heightProvenance.source.startsWith("HDB"))).toBe(true);
     // The 3D model draws them with the map layer, not twice.
     expect(buildScene(ds).buildings.some((b) => b.id.startsWith("osm-"))).toBe(false);
   });

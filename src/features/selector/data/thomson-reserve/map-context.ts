@@ -11,8 +11,14 @@
 // storey count are drawn at 2 storeys, as the architect's brief describes
 // the landed estates; other buildings without one are drawn as low
 // footprints only and never used in the analysis.
+//
+// HDB blocks: OpenStreetMap often lacks their storeys, so the footprint
+// named after an HDB block, or nearest its address point, takes that
+// block's highest floor from HDB's own records (hdb-blocks.ts, from data.gov.sg via
+// scripts/data/hdb-storeys.py), in preference to the map's figure.
 
 import type { MapBuilding, MapContext, Obstruction, Point, Provenance } from "../../model/types";
+import { HDB_FETCHED, hdbBlocks } from "./hdb-blocks";
 import { OSM_EXTRACT_DATE, osmBuildings, osmGreen, osmRoadLabels, osmRoads, osmWater } from "./osm-context";
 
 export const OSM_CREDIT = "Map data © OpenStreetMap contributors";
@@ -35,16 +41,101 @@ const osm = (note: string, status: Provenance["status"] = "estimated"): Provenan
   note,
 });
 
-const buildings: MapBuilding[] = osmBuildings.map(([levels, kind, label, ring]) => ({
-  footprint: points(ring),
-  levels,
-  label,
-  ...(levels !== null
-    ? { height: "levels" as const, heightM: levels * STOREY_M }
-    : kind === "house"
-      ? { height: "assumed" as const, heightM: HOUSE_STOREYS * STOREY_M }
-      : { height: "unknown" as const, heightM: UNKNOWN_HEIGHT_M }),
-}));
+const HDB_SOURCE = "HDB Property Information (data.gov.sg)";
+
+function insideRing(x: number, y: number, ring: number[]): boolean {
+  let c = false;
+  for (let i = 0, j = ring.length - 2; i < ring.length; j = i, i += 2) {
+    const [x1, y1, x2, y2] = [ring[i], ring[i + 1], ring[j], ring[j + 1]];
+    if (y1 > y !== y2 > y && x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) c = !c;
+  }
+  return c;
+}
+
+/** Distance from a point to a footprint's outline, metres (0 inside). */
+function distanceToRing(x: number, y: number, ring: number[]): number {
+  if (insideRing(x, y, ring)) return 0;
+  let best = Infinity;
+  for (let i = 0, j = ring.length - 2; i < ring.length; j = i, i += 2) {
+    const [ax, ay, bx, by] = [ring[j], ring[j + 1], ring[i], ring[i + 1]];
+    const len2 = (bx - ax) ** 2 + (by - ay) ** 2 || 1;
+    const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / len2));
+    best = Math.min(best, Math.hypot(x - (ax + t * (bx - ax)), y - (ay + t * (by - ay))));
+  }
+  return best;
+}
+
+/** An address point can sit at a block's entrance, just outside its outline. */
+const HDB_MATCH_M = 20;
+
+type Hdb = { label: string; floors: number; x: number; y: number };
+
+// Each HDB block goes to the footprint the map names after it, else the
+// non-house footprint nearest its address point (within HDB_MATCH_M).
+const hdbByBuilding = new Map<number, Hdb[]>();
+for (const [blk, street, floors, , , x, y] of hdbBlocks) {
+  let index = osmBuildings.findIndex(([, kind, name]) => kind !== "house" && name?.toLowerCase() === `${blk} ${street}`.toLowerCase());
+  if (index < 0) {
+    let best = HDB_MATCH_M;
+    osmBuildings.forEach(([, kind, , ring], i) => {
+      if (kind === "house") return;
+      const d = distanceToRing(x, y, ring);
+      if (d <= best) [best, index] = [d, i];
+    });
+  }
+  if (index < 0) continue;
+  hdbByBuilding.set(index, [...(hdbByBuilding.get(index) ?? []), { label: `Blk ${blk} ${street}`, floors, x, y }]);
+}
+
+/** Keeps the part of a footprint on the side of the line nearer `a` than `b` (one Sutherland–Hodgman pass). */
+function clipCloserTo(poly: Point[], a: Hdb, b: Hdb): Point[] {
+  const side = (p: Point) => (p.x - (a.x + b.x) / 2) * (b.x - a.x) + (p.y - (a.y + b.y) / 2) * (b.y - a.y);
+  const out: Point[] = [];
+  poly.forEach((p, i) => {
+    const q = poly[(i + 1) % poly.length];
+    const [sp, sq] = [side(p), side(q)];
+    if (sp <= 0) out.push(p);
+    if (sp < 0 !== sq < 0) {
+      const t = sp / (sp - sq);
+      out.push({ x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y) });
+    }
+  });
+  return out;
+}
+
+const fromHdb = (hdb: Hdb, footprint: Point[]): MapBuilding => ({
+  footprint,
+  levels: hdb.floors,
+  label: hdb.label,
+  levelsSource: HDB_SOURCE,
+  height: "levels",
+  heightM: hdb.floors * STOREY_M,
+});
+
+// Several HDB blocks joined into one outline on the map are split between
+// them, each part going to the block whose address point is nearest.
+const buildings: MapBuilding[] = osmBuildings.flatMap(([levels, kind, label, ring], i): MapBuilding[] => {
+  const footprint = points(ring);
+  const hdb = hdbByBuilding.get(i);
+  if (hdb?.length === 1) return [fromHdb(hdb[0], footprint)];
+  if (hdb && hdb.length > 1) {
+    return hdb
+      .map((h) => fromHdb(h, hdb.reduce((poly, other) => (other === h ? poly : clipCloserTo(poly, h, other)), footprint)))
+      .filter((b) => b.footprint.length >= 3);
+  }
+  return [
+    {
+      footprint,
+      levels,
+      label,
+      ...(levels !== null
+        ? { height: "levels" as const, heightM: levels * STOREY_M }
+        : kind === "house"
+          ? { height: "assumed" as const, heightM: HOUSE_STOREYS * STOREY_M }
+          : { height: "unknown" as const, heightM: UNKNOWN_HEIGHT_M }),
+    },
+  ];
+});
 
 export const thomsonReserveMapContext: MapContext = {
   buildings,
@@ -53,7 +144,7 @@ export const thomsonReserveMapContext: MapContext = {
   water: osmWater.map(points),
   credit: OSM_CREDIT,
   provenance: osm(
-    "Buildings, roads, parks and water within about 650 m. Placed by the plan's north point and scale bar, Upper Thomson MRT Exit 2 falls within about a metre of the plan's marker. Heights use 2.8–3.2 m a storey plus up to 3 m of roof structures; buildings of 4+ storeys within 450 m are checked as obstructions. Houses without a storey count are drawn at 2 storeys, as the architect's brief describes the landed estates; other buildings without one are drawn as low outlines.",
+    `Buildings, roads, parks and water within about 650 m. Placed by the plan's north point and scale bar, Upper Thomson MRT Exit 2 falls within about a metre of the plan's marker. Heights use 2.8–3.2 m a storey plus up to 3 m of roof structures; buildings of 4+ storeys within 450 m are checked as obstructions. HDB blocks take their highest floor from HDB Property Information (data.gov.sg, ${HDB_FETCHED}). Houses without a storey count are drawn at 2 storeys, as the architect's brief describes the landed estates; other buildings without one are drawn as low outlines.`,
   ),
 };
 
@@ -84,9 +175,16 @@ export function mapObstructions(siteCentre: Point): Obstruction[] {
         footprint: b.footprint,
         baseRL: 0,
         topRL: { min: Math.round(b.levels * 2.8), max: Math.round(b.levels * 3.2 + 3) },
-        heightProvenance: osm(
-          `${b.levels} storeys recorded in OpenStreetMap. Top taken as 2.8–3.2 m a storey plus up to 3 m of roof structures, measured from road level; ground level not surveyed.`,
-        ),
+        heightProvenance: b.levelsSource
+          ? {
+              source: b.levelsSource,
+              updated: HDB_FETCHED,
+              status: "estimated" as const,
+              note: `Highest floor ${b.levels} in HDB's records; footprint from OpenStreetMap. Top taken as 2.8–3.2 m a storey plus up to 3 m of roof structures, measured from road level; ground level not surveyed.`,
+            }
+          : osm(
+              `${b.levels} storeys recorded in OpenStreetMap. Top taken as 2.8–3.2 m a storey plus up to 3 m of roof structures, measured from road level; ground level not surveyed.`,
+            ),
         fromMap: true,
       },
     ];

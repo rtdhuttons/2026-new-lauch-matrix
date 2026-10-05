@@ -16,7 +16,9 @@ import { checkValuationRequest } from "../valuation";
 import { closestBySize, ownUnitTypes, sizePriceSentence, unitModels } from "../alternatives";
 import { progressivePayments, STANDARD_SCHEDULE } from "../progressive";
 import { applyListing } from "../listing";
+import { buyerStampDuty, stampDuty } from "../stamp-duty";
 import { huttonsSync } from "../../data/thomson-reserve/huttons-units";
+import { alternativesSync } from "../../data/thomson-reserve/alternatives-huttons";
 import { thomsonReserveDataset } from "../../data/thomson-reserve/index";
 import { indexDataset } from "../dataset-index";
 import { jadescape } from "../../data/comparables/jadescape";
@@ -136,9 +138,10 @@ describe("rental evidence", () => {
 });
 
 describe("tabs", () => {
-  it("has the seven tabs in order", () => {
+  it("has the eight tabs in order", () => {
     expect(TABS.map((t) => t.label)).toEqual([
       "Project & 3D Site",
+      "Plans",
       "Units & Payments",
       "Schools",
       "Investor",
@@ -168,7 +171,7 @@ describe("payment estimate", () => {
   });
 
   it("starts at 75% LTV, 2% a year over 25 years", () => {
-    expect(DEFAULT_PAYMENT_INPUTS).toEqual({ ltvPct: 75, interestRatePct: 2, loanYears: 25 });
+    expect(DEFAULT_PAYMENT_INPUTS).toEqual({ buyer: "sc-1", ltvPct: 75, interestRatePct: 2, loanYears: 25 });
   });
 
   it("works out the loan from the LTV, and the down payment from the rest", () => {
@@ -283,7 +286,8 @@ describe("alternative projects", () => {
   it("lists four alternatives with dated, sourced prices", () => {
     expect(thomsonReserve.alternatives.map((a) => a.name)).toEqual(["Lentor Gardens Residences", "Lentoria", "Springleaf Residence", "Chuan Park"]);
     for (const a of thomsonReserve.alternatives) {
-      expect(a.provenance.updated).toBe("2026-09-27");
+      expect(a.provenance.updated).toBe(alternativesSync.fetched);
+      expect(a.provenance.source).toBe("Huttons New Launch API");
       expect(a.unitTypes.length).toBeGreaterThan(0);
     }
     expect(sampleProject.alternatives).toEqual([]);
@@ -422,5 +426,43 @@ describe("developer listing (Huttons New Launch API)", () => {
 
   it("gives the sales launch date", () => {
     expect(thomsonReserve.profile.launchDate?.date).toBe("2026-10-31");
+  });
+});
+
+describe("stamp duty", () => {
+  it("applies the IRAS Buyer's Stamp Duty bands", () => {
+    expect(buyerStampDuty(1_000_000)).toBe(24_600);
+    expect(buyerStampDuty(3_181_000)).toBe(130_460);
+  });
+
+  it("adds Additional Buyer's Stamp Duty by buyer type", () => {
+    expect(stampDuty(2_000_000, "sc-1").absd).toBe(0);
+    expect(stampDuty(2_000_000, "sc-2").absd).toBe(400_000);
+    expect(stampDuty(2_000_000, "pr-1").absd).toBe(100_000);
+    expect(stampDuty(2_000_000, "foreigner").absd).toBe(1_200_000);
+  });
+
+  it("counts stamp duty in the money needed upfront", () => {
+    const r = estimatePayments(2_000_000, { ...DEFAULT_PAYMENT_INPUTS, buyer: "sc-2" });
+    expect(r.ok && r.value.upfront).toBe(500_000 + buyerStampDuty(2_000_000) + 400_000);
+  });
+});
+
+describe("distances between blocks", () => {
+  const distances = thomsonReserveDataset.project.display?.distances ?? [];
+
+  it("redraws the architect's figures on the site plan at its scale", () => {
+    expect(distances.length).toBeGreaterThan(15);
+    for (const d of distances) {
+      const drawn = Math.hypot(d.to.x - d.from.x, d.to.y - d.from.y);
+      // Each line, measured on the plan, is within 20% of the printed figure.
+      expect(Math.abs(drawn - d.metres) / d.metres, d.between).toBeLessThan(0.2);
+    }
+  });
+
+  it("names the closest towers and is not shared with the sample project", () => {
+    const blocks = distances.filter((d) => d.kind === "blocks");
+    expect(Math.min(...blocks.map((d) => d.metres))).toBe(26);
+    expect(sampleProject.dataset.project.display?.distances).toBeUndefined();
   });
 });

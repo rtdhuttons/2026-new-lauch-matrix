@@ -28,6 +28,10 @@ FILTERS = {
 }
 
 
+# Full-width hero images, embedded at full resolution.
+HERO_FILES = {"sunset-1920.jpg"}
+
+
 def encode(path: Path, max_w: int, quality: int) -> str:
     im = Image.open(path).convert("RGB")
     if im.width > max_w:
@@ -44,9 +48,14 @@ def main() -> None:
     for folder, prefix, max_w, quality, keep in groups:
         for f in sorted((ROOT / folder).glob("*.jpg")):
             if FILTERS[keep](f.name):
-                # The location map carries small text, so it keeps more width.
-                w = 1800 if f.name.startswith("location-map") else max_w
-                assets[f"{prefix}/{f.name}"] = encode(f, w, quality)
+                # The location map carries small text, so it keeps more width;
+                # the hero fills the screen, so it keeps its full size and detail.
+                w, q = max_w, quality
+                if f.name.startswith("location-map"):
+                    w = 1800
+                elif f.name in HERO_FILES:
+                    w, q = 1920, 85
+                assets[f"{prefix}/{f.name}"] = encode(f, w, q)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(assets))
     total = sum(len(v) for v in assets.values())

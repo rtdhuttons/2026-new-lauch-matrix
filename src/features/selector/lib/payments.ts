@@ -1,13 +1,18 @@
+import type { BuyerProfile } from "./stamp-duty";
+import { stampDuty } from "./stamp-duty";
+
 // Payment estimate for one unit from three figures the buyer can change:
 // loan-to-value (LTV), interest rate and loan period.
 //
 // The loan is the price × LTV; the down payment is the rest, paid in cash or
 // CPF (the 5% booking fee must be cash). The monthly instalment is a standard
-// fixed-rate repayment on the full loan. Rules that depend on official policy
-// or the buyer's circumstances (the LTV they qualify for, stamp duty) are not
-// applied here and are listed as not included.
+// fixed-rate repayment on the full loan. Stamp duty follows IRAS rates for the
+// buyer type chosen. Rules that depend on the buyer's circumstances (the LTV
+// they qualify for) are not applied here and are listed as not included.
 
 export interface PaymentInputs {
+  /** Who is buying, for Additional Buyer's Stamp Duty. */
+  buyer: BuyerProfile;
   /** Loan as a % of the price. */
   ltvPct: number | null;
   interestRatePct: number | null;
@@ -15,7 +20,7 @@ export interface PaymentInputs {
 }
 
 /** Starting figures, all changeable: 75% LTV, 2% a year, 25 years. */
-export const DEFAULT_PAYMENT_INPUTS: PaymentInputs = { ltvPct: 75, interestRatePct: 2, loanYears: 25 };
+export const DEFAULT_PAYMENT_INPUTS: PaymentInputs = { buyer: "sc-1", ltvPct: 75, interestRatePct: 2, loanYears: 25 };
 
 export interface PaymentEstimate {
   price: number;
@@ -25,6 +30,13 @@ export interface PaymentEstimate {
   downPayment: number;
   /** The booking fee, which must be paid in cash. */
   minCash: number;
+  /** Buyer's Stamp Duty. */
+  bsd: number;
+  /** Additional Buyer's Stamp Duty, and its rate. */
+  absd: number;
+  absdRate: number;
+  /** Down payment plus stamp duty: what you pay before the loan starts. */
+  upfront: number;
   monthlyInstalment: number;
   totalInterest: number;
   months: number;
@@ -79,6 +91,7 @@ export function estimatePayments(price: number | null, inp: PaymentInputs): { ok
   const loanAmount = loanFor(price, inp.ltvPct);
   const monthly = loanAmount > 0 ? monthlyInstalment(loanAmount, inp.interestRatePct, inp.loanYears) : 0;
   const months = Math.round(inp.loanYears * 12);
+  const duty = stampDuty(price, inp.buyer);
   return {
     ok: true,
     value: {
@@ -87,6 +100,10 @@ export function estimatePayments(price: number | null, inp: PaymentInputs): { ok
       loanAmount,
       downPayment: price - loanAmount,
       minCash: price * 0.05,
+      bsd: duty.bsd,
+      absd: duty.absd,
+      absdRate: duty.absdRate,
+      upfront: price - loanAmount + duty.total,
       monthlyInstalment: monthly,
       totalInterest: monthly * months - loanAmount,
       months,
@@ -96,7 +113,7 @@ export function estimatePayments(price: number | null, inp: PaymentInputs): { ok
 
 /** What the estimate leaves out, shown next to the result. */
 export const PAYMENT_NOT_INCLUDED = [
-  "Stamp duty, legal and valuation fees.",
+  "Legal and valuation fees. (Stamp duty is included, at IRAS rates for the buyer type chosen.)",
   "Whether you qualify for the LTV entered: it depends on your age, loan period and other housing loans. Your bank confirms it.",
   "The developer's own payment schedule, if it differs from the standard stages shown.",
   "Maintenance fees and property tax, until they are added for this project.",

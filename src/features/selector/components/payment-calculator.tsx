@@ -8,7 +8,9 @@
 
 import type { PaymentsInfo, ProjectProfile } from "../model/project";
 import type { PaymentInputs } from "../lib/payments";
-import { DEFAULT_PAYMENT_INPUTS, estimatePayments, loanFor, loanSchedule, PAYMENT_NOT_INCLUDED } from "../lib/payments";
+import { DEFAULT_PAYMENT_INPUTS, estimatePayments, loanSchedule, PAYMENT_NOT_INCLUDED } from "../lib/payments";
+import type { BuyerProfile } from "../lib/stamp-duty";
+import { BUYER_PROFILES, STAMP_DUTY_SOURCE } from "../lib/stamp-duty";
 import type { UnitModel } from "../lib/alternatives";
 import type { ProgressiveResult } from "../lib/progressive";
 import { progressivePayments, STANDARD_SCHEDULE, STANDARD_SCHEDULE_SOURCE } from "../lib/progressive";
@@ -59,15 +61,6 @@ function Field({
   );
 }
 
-function Result({ label, value, note }: { label: string; value: string; note?: string }) {
-  return (
-    <div className="rounded-xl bg-mist p-4">
-      <dt className="font-display-normal text-sm text-canopy/75">{label}</dt>
-      <dd className="mt-1 font-display text-2xl font-extrabold tabular-nums">{value}</dd>
-      {note && <dd className="mt-1 text-xs text-canopy/65">{note}</dd>}
-    </div>
-  );
-}
 
 export interface CalcPick {
   key: string;
@@ -169,75 +162,110 @@ export function PaymentCalculator({
             })}
           </div>
         </div>
-        <div className="flex flex-wrap items-end gap-4">
+        <label className="grid w-fit gap-1.5 font-display-normal text-sm">
+          <span className="text-canopy/70">3. Floor level</span>
+          <select
+            value={current.level}
+            onChange={(e) => onPick({ key: model.key, level: Number(e.target.value) })}
+            className="w-44 rounded-lg border border-canopy/25 bg-paper px-3 py-2 text-base"
+          >
+            {model.levels.map((l) => (
+              <option key={l.level} value={l.level}>
+                Level {l.level}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {/* The chosen unit's price, on its own row */}
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-canopy/10 bg-mist px-5 py-4">
+        <div>
+          <p className="font-display-normal text-sm text-canopy/70">
+            {model.type} · level {current.level} · {model.sizeSqft.toLocaleString("en-SG")} sq ft
+          </p>
+          <p className="mt-0.5 flex flex-wrap items-center gap-2 font-display text-3xl font-extrabold tabular-nums">
+            {money(price)} {floor.isEstimate && <EstimateTag />}
+          </p>
+        </div>
+        <p className="font-display-normal text-sm tabular-nums text-canopy/75">S${Math.round(price / model.sizeSqft).toLocaleString("en-SG")} per sq ft</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 p-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] [&>*]:min-w-0">
+        {/* Your figures */}
+        <div className="grid grid-cols-1 content-start gap-5">
           <label className="grid gap-1.5 font-display-normal text-sm">
-            <span className="text-canopy/70">3. Floor level</span>
-            <select
-              value={current.level}
-              onChange={(e) => onPick({ key: model.key, level: Number(e.target.value) })}
-              className="w-40 rounded-lg border border-canopy/25 bg-paper px-3 py-2 text-base"
-            >
-              {model.levels.map((l) => (
-                <option key={l.level} value={l.level}>
-                  Level {l.level}
+            <span className="font-semibold">Who is buying</span>
+            <select value={inputs.buyer} onChange={(e) => onInputs({ ...inputs, buyer: e.target.value as BuyerProfile })} className="w-full min-w-0 rounded-lg border border-canopy/25 bg-paper px-3 py-2 text-base">
+              {BUYER_PROFILES.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.label}
                 </option>
               ))}
             </select>
+            <span className="text-xs text-canopy/65">Sets the Additional Buyer&apos;s Stamp Duty.</span>
           </label>
-          <div className="rounded-xl bg-mist px-4 py-2.5">
-            <p className="font-display-normal text-xs text-canopy/70">
-              Estimated price · {model.type}, level {current.level}
-            </p>
-            <p className="flex flex-wrap items-center gap-2 font-display text-2xl font-extrabold tabular-nums">
-              {money(price)} {floor.isEstimate && <EstimateTag />}
-            </p>
-            <p className="font-display-normal text-xs text-canopy/65">
-              S${Math.round(price / model.sizeSqft).toLocaleString("en-SG")} per sq ft · {model.sizeSqft.toLocaleString("en-SG")} sq ft
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <div className="grid content-start gap-4">
           <Field
             id="pay-ltv"
             label="Loan-to-value (LTV)"
-            help="The share of the price borrowed from the bank. 75% is usual for a first housing loan; your bank confirms what you qualify for."
+            help="75% is usual for a first housing loan; your bank confirms what you qualify for."
             value={inputs.ltvPct}
             onChange={set("ltvPct")}
-            suffix="% of the price"
+            suffix="% of price"
             step={5}
           />
-          <div className="rounded-xl bg-mist px-4 py-3">
-            <p className="font-display-normal text-sm text-canopy/70">Loan amount</p>
-            <p className="font-display text-2xl font-extrabold tabular-nums">{inputs.ltvPct !== null && inputs.ltvPct >= 0 ? money(loanFor(price, inputs.ltvPct)) : "—"}</p>
-            <p className="font-display-normal text-xs text-canopy/65">
-              {inputs.ltvPct ?? "—"}% of {money(price)}. Down payment: {inputs.ltvPct !== null ? money(price - loanFor(price, inputs.ltvPct)) : "—"} in cash or CPF.
-            </p>
-          </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field id="pay-rate" label="Interest rate" help="Yearly rate offered by the bank." value={inputs.interestRatePct} onChange={set("interestRatePct")} suffix="% a year" step={0.05} />
-            <Field id="pay-years" label="Loan period" help="How many years to repay." value={inputs.loanYears} onChange={set("loanYears")} suffix="years" step={1} />
+            <Field id="pay-rate" label="Interest rate" help="Yearly rate from the bank." value={inputs.interestRatePct} onChange={set("interestRatePct")} suffix="% a year" step={0.05} />
+            <Field id="pay-years" label="Loan period" help="Years to repay." value={inputs.loanYears} onChange={set("loanYears")} suffix="years" step={1} />
           </div>
         </div>
 
+        {/* Results: one main figure, then a clear list */}
         <div aria-live="polite">
           {r.ok ? (
             <>
-              <dl className="grid gap-3 sm:grid-cols-2">
-                <Result label="Monthly loan payment once the full loan is drawn" value={`${money(Math.round(r.value.monthlyInstalment))} a month`} note={`${r.value.months} monthly payments at ${inputs.interestRatePct}% a year.`} />
-                <Result label="Down payment" value={money(r.value.downPayment)} note={`Cash or CPF; at least ${money(r.value.minCash)} (the 5% booking fee) must be cash.`} />
-                <Result label="Total interest over the loan" value={money(Math.round(r.value.totalInterest))} note={`On a ${money(r.value.loanAmount)} loan over ${inputs.loanYears} years.`} />
-                <Result
-                  label="Estimated ongoing expenses"
-                  value={payments.maintenance ? "See below" : "Not available"}
-                  note={payments.maintenance ? undefined : "Maintenance fees and property tax have not been added for this project."}
-                />
+              <div className="rounded-2xl bg-canopy p-5 text-mist">
+                <p className="font-display-normal text-sm text-mist/75">Monthly loan payment, once the full loan is drawn</p>
+                <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-white">{money(Math.round(r.value.monthlyInstalment))}</p>
+                <p className="font-display-normal text-base text-mist/85">a month</p>
+                <p className="mt-2 text-xs text-mist/70">
+                  {r.value.months} payments on a {money(r.value.loanAmount)} loan at {inputs.interestRatePct}% a year.
+                </p>
+              </div>
+              <dl className="mt-4 grid font-display-normal text-[0.9375rem] tabular-nums">
+                {[
+                  ["Loan amount", `${money(r.value.loanAmount)}`, `${r.value.ltvPct}% of the price`],
+                  ["Down payment", money(r.value.downPayment), `Cash or CPF; at least ${money(r.value.minCash)} in cash`],
+                  ["Buyer's Stamp Duty", money(r.value.bsd), "IRAS rates"],
+                  [`Additional Buyer's Stamp Duty (${Math.round(r.value.absdRate * 100)}%)`, money(r.value.absd), BUYER_PROFILES.find((b) => b.id === inputs.buyer)?.label ?? ""],
+                ].map(([k, v, note]) => (
+                  <div key={k} className="flex items-baseline justify-between gap-4 border-b border-canopy/10 py-2.5">
+                    <dt>
+                      <span className="text-canopy/85">{k}</span>
+                      <span className="block text-xs text-canopy/55">{note}</span>
+                    </dt>
+                    <dd className="shrink-0 font-semibold">{v}</dd>
+                  </div>
+                ))}
+                <div className="flex items-baseline justify-between gap-4 py-3">
+                  <dt>
+                    <span className="font-semibold">Total needed before the loan starts</span>
+                    <span className="block text-xs text-canopy/55">Down payment plus stamp duty, due within weeks of signing</span>
+                  </dt>
+                  <dd className="shrink-0 font-display text-xl font-extrabold">{money(r.value.upfront)}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4 border-t border-canopy/10 py-2.5 text-sm">
+                  <dt className="text-canopy/70">Total interest over the loan</dt>
+                  <dd className="shrink-0">{money(Math.round(r.value.totalInterest))}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4 py-1 text-sm">
+                  <dt className="text-canopy/70">Maintenance fees and property tax</dt>
+                  <dd className="shrink-0 text-canopy/60">{payments.maintenance ? "See below" : "Not added yet"}</dd>
+                </div>
               </dl>
               <PaymentCharts price={r.value.price} down={r.value.downPayment} loan={r.value.loanAmount} rate={inputs.interestRatePct!} years={inputs.loanYears!} />
               <p className="mt-3 text-xs text-stone">
-                The monthly loan payment is what the bank collects; your total household costs also include the ongoing expenses above. {floor.isEstimate ? "The price is an estimate, so every figure here is too." : ""}
+                Stamp duty: {STAMP_DUTY_SOURCE}. {floor.isEstimate ? "The price is an estimate, so every figure here is too." : ""}
               </p>
             </>
           ) : (

@@ -27,7 +27,7 @@ const Site3D = dynamic(() => import("./site-3d"), {
 type ColourMode = "bedrooms" | "collection" | "sun" | "budget" | "view" | "availability";
 
 const COLOUR_MODES: { id: ColourMode; label: string }[] = [
-  { id: "bedrooms", label: "Bedroom type" },
+  { id: "bedrooms", label: "Unit type" },
   { id: "collection", label: "Collection" },
   { id: "budget", label: "Within budget" },
   { id: "view", label: "View clearance" },
@@ -112,7 +112,6 @@ export function SiteView({
   const ix = engine.ix;
   const ds = ix.ds;
   const canUse3D = useSyncExternalStore(noSubscribe, webglSupported, () => true);
-  const [mode, setMode] = useState<"3d" | "flat">("3d");
   const modes = useMemo(() => {
     const has: Record<ColourMode, boolean> = {
       bedrooms: ds.layouts.some((l) => l.bedrooms !== null),
@@ -131,6 +130,8 @@ export function SiteView({
   const [colourMode, setColourMode] = useState<ColourMode>(modes[0]?.id ?? "sun");
   const [showSurroundings, setShowSurroundings] = useState(true);
   const [showSun, setShowSun] = useState(false);
+  const distances = ds.project.display?.distances ?? [];
+  const [showDistances, setShowDistances] = useState(false);
   const [overlays, setOverlays] = useState<Set<Overlay>>(new Set(["views"]));
   const [azimuth, setAzimuth] = useState(0);
   const [resetSignal, setResetSignal] = useState(0);
@@ -140,7 +141,6 @@ export function SiteView({
   if (shadowsSignal !== seenSignal) {
     // Adjust state during render rather than in an effect (React's recommended pattern).
     setSeenSignal(shadowsSignal);
-    setMode("3d");
     setShowSun(true);
     setPlaying(false);
   }
@@ -174,6 +174,7 @@ export function SiteView({
   const sun = sunPosition(month, minutes, ds.project.latitudeDeg, ds.project.longitudeDeg, ds.project.utcOffsetHours);
   const eligible = useMemo(() => new Set(ranked.filter((r) => r.eligible).map((r) => r.assessment.unit.id)), [ranked]);
 
+  const typeColours = ds.project.display?.unitTypeColours;
   const colours = useMemo(() => {
     const map = new Map<string, string>();
     for (const u of ds.units) {
@@ -181,8 +182,9 @@ export function SiteView({
       let c: string;
       switch (colourMode) {
         case "bedrooms": {
-          const beds = ix.stackLayout(u.stackId).bedrooms;
-          c = beds === null ? "#d9ded6" : BEDROOM_COLOURS[beds] ?? "#cccccc";
+          const layout = ix.stackLayout(u.stackId);
+          const typed = typeColours?.find((t) => t.category === layout.category)?.colour;
+          c = typed ?? (layout.bedrooms === null ? "#d9ded6" : BEDROOM_COLOURS[layout.bedrooms] ?? "#cccccc");
           break;
         }
         case "collection": {
@@ -209,7 +211,7 @@ export function SiteView({
       map.set(u.id, c);
     }
     return map;
-  }, [ds.units, colourMode, eligible, engine, ix, collections, focus, selectedUnit]);
+  }, [ds.units, colourMode, eligible, engine, ix, collections, focus, selectedUnit, typeColours]);
 
   const tooltip = selectedUnit
     ? {
@@ -243,11 +245,9 @@ export function SiteView({
             { colour: sunColour(240), label: "4 hours or more (living room, yearly average, estimated)" },
           ]
         : colourMode === "bedrooms"
-      ? [
-          ...[2, 3, 4, 5]
-            .filter((b) => ds.layouts.some((l) => l.bedrooms === b))
-            .map((b) => ({ colour: BEDROOM_COLOURS[b], label: `${b} bedrooms` })),
-        ]
+      ? typeColours
+        ? typeColours.filter((t) => ds.layouts.some((l) => l.category === t.category)).map((t) => ({ colour: t.colour, label: t.category }))
+        : [2, 3, 4, 5].filter((b) => ds.layouts.some((l) => l.bedrooms === b)).map((b) => ({ colour: BEDROOM_COLOURS[b], label: `${b} bedrooms` }))
       : colourMode === "budget"
         ? [
             { colour: "#2f7d57", label: "Meets your essentials" },
@@ -288,25 +288,17 @@ export function SiteView({
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <div role="group" aria-label="Map type" className="flex rounded-full bg-mist-deep p-1">
-          <button type="button" aria-pressed={mode === "3d"} onClick={() => setMode("3d")} className={segButton(mode === "3d")} disabled={!canUse3D}>
-            3D view
-          </button>
-          <button type="button" aria-pressed={mode === "flat"} onClick={() => setMode("flat")} className={segButton(mode === "flat")}>
-            Flat plan
-          </button>
-        </div>
-        {!canUse3D && (
-          <p className="font-display-normal text-sm text-stone">3D needs WebGL, which this browser doesn&apos;t support.</p>
-        )}
-      </div>
+      {!canUse3D && (
+        <p className="mb-3 font-display-normal text-sm text-stone">
+          3D needs WebGL, which this browser doesn&apos;t support, so the site plan is shown instead.
+        </p>
+      )}
 
-      {mode === "3d" && canUse3D ? (
+      {canUse3D ? (
         <div className="overflow-hidden rounded-xl border border-canopy/10 bg-paper">
           <div
             className="relative h-[420px] touch-none sm:h-[520px]"
-            aria-label="3D view of the site. Drag to spin, pinch or scroll to zoom, tap a unit to select it. Keyboard users can choose stacks with the stack list or the flat plan."
+            aria-label="3D view of the site. Drag to spin, pinch or scroll to zoom, tap a unit to select it. Keyboard users can choose stacks with the stack list or the stack picker below."
             role="region"
           >
             <Site3D
@@ -336,6 +328,7 @@ export function SiteView({
                 };
               })}
               mrt={ds.project.display?.mrtLabel ? { name: ds.project.display.mrtLabel.text, position: ds.project.display.mrtLabel.at } : null}
+              distances={showDistances ? distances : null}
             />
             <button
               type="button"
@@ -416,10 +409,56 @@ export function SiteView({
                   </div>
                 </div>
               </details>
+              {distances.length > 0 && (
+                <button
+                  type="button"
+                  aria-pressed={showDistances}
+                  aria-controls="site-distances"
+                  onClick={() => setShowDistances((v) => !v)}
+                  className={toggleButton(showDistances)}
+                >
+                  {showDistances ? "✓ " : ""}Distances between blocks
+                </button>
+              )}
               <button type="button" onClick={() => setResetSignal((n) => n + 1)} className="font-display-normal text-sm font-semibold text-reservoir underline underline-offset-4">
                 Reset view
               </button>
             </div>
+
+            {showDistances && distances.length > 0 && (
+              <div id="site-distances" className="grid gap-3 border-t border-canopy/10 pt-4 font-display-normal text-sm">
+                {(
+                  [
+                    ["blocks", "Between towers", "#c62f2f"],
+                    ["edge", "Towers to the site edge", "#c9693b"],
+                  ] as const
+                ).map(([kind, title, colour]) => (
+                  <div key={kind}>
+                    <p className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-canopy/70">
+                      <span aria-hidden="true" className="h-0.5 w-5" style={{ background: colour }} />
+                      {title}
+                    </p>
+                    <ul className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
+                      {distances
+                        .filter((d) => d.kind === kind)
+                        .sort((a, b) => a.metres - b.metres)
+                        .map((d, i) => (
+                          <li key={i} className="flex gap-2">
+                            <span className="w-14 shrink-0 font-semibold tabular-nums text-canopy">{d.metres} m</span>
+                            <span className="text-canopy/80">
+                              {d.between}
+                              {d.note && <span className="block text-xs text-stone">{d.note}</span>}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                ))}
+                {ds.project.display?.distancesCredit && (
+                  <p className="text-xs text-stone">{ds.project.display.distancesCredit}</p>
+                )}
+              </div>
+            )}
 
             {showSun && (
               <div className="grid gap-3 border-t border-canopy/10 pt-4">

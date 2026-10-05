@@ -146,9 +146,7 @@ export const thomsonReserve: ProjectBundle = {
     gallery,
     tabPhotos: {
       units: pick("poolside-homes.jpg"),
-      schools: pick("lawn.jpg"),
       investor: pick("towers.jpg"),
-      alternatives: pick("arrival-court.jpg"),
       pivot: pick("sunset-1920.jpg"),
       upgrading: pick("lounge.jpg"),
     },

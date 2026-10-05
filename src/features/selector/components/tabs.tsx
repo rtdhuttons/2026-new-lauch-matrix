@@ -1,16 +1,17 @@
 "use client";
 
-// The seven main tabs, in a fixed order for every project, their one-line
+// The eight main tabs, in a fixed order for every project, their one-line
 // introductions, and the shared "not added yet" card used wherever a project
 // hasn't supplied the data.
 
 import { useEffect, useRef, useState } from "react";
 import { card } from "./ui";
 
-export type TabId = "project" | "units" | "schools" | "investor" | "alternatives" | "pivot" | "upgrading";
+export type TabId = "project" | "plans" | "units" | "schools" | "investor" | "alternatives" | "pivot" | "upgrading";
 
 export const TABS: { id: TabId; label: string; intro: string }[] = [
   { id: "project", label: "Project & 3D Site", intro: "Explore the development and see where each block and unit sits." },
+  { id: "plans", label: "Plans", intro: "Every floor plan, the elevation chart of unit types by stack and level, and the site plan, in one place." },
   { id: "units", label: "Units & Payments", intro: "Choose up to three units to compare prices, layouts, and estimated payments." },
   { id: "schools", label: "Schools", intro: "Explore nearby primary schools and understand the registration considerations." },
   { id: "investor", label: "Investor", intro: "Review past resale results and rental potential using comparable properties." },
@@ -23,6 +24,8 @@ export const TABS: { id: TabId; label: string; intro: string }[] = [
 const SECTION_TAB: Record<string, TabId> = {
   explore: "project",
   "site-plan": "project",
+  "floor-plans": "plans",
+  elevation: "plans",
   analysis: "project",
   gallery: "project",
   location: "project",
@@ -79,7 +82,7 @@ export function TabNav({ active, onChange, shortlistButton }: { active: TabId; o
         <div
           ref={stripRef}
           onScroll={updateEdges}
-          className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+          className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] xl:hidden [&::-webkit-scrollbar]:hidden"
           style={{ maskImage: `linear-gradient(to right, ${fade})`, WebkitMaskImage: `linear-gradient(to right, ${fade})` }}
         >
           {TABS.map((t, i) => {
@@ -103,7 +106,7 @@ export function TabNav({ active, onChange, shortlistButton }: { active: TabId; o
         </div>
 
         {/* Desktop */}
-        <div role="tablist" aria-label="Project sections" className="hidden min-w-0 flex-1 gap-1 py-2 lg:flex">
+        <div role="tablist" aria-label="Project sections" className="hidden min-w-0 flex-1 gap-1 py-2 xl:flex">
           {TABS.map((t, i) => {
             const on = t.id === active;
             return (
@@ -122,7 +125,7 @@ export function TabNav({ active, onChange, shortlistButton }: { active: TabId; o
                   onChange(next.id);
                   requestAnimationFrame(() => document.getElementById(`tab-${next.id}`)?.focus());
                 }}
-                className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 font-display-normal text-sm font-semibold transition-colors xl:px-4 ${
+                className={`shrink-0 whitespace-nowrap rounded-full px-3 py-2 font-display-normal text-sm font-semibold transition-colors xl:px-3.5 ${
                   on ? "bg-canopy text-mist" : "text-canopy/75 hover:bg-mist-deep"
                 }`}
               >

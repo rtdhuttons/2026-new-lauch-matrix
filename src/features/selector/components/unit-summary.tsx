@@ -220,6 +220,9 @@ export function UnitSummary({
             <dl className="grid gap-1.5 font-display-normal text-sm tabular-nums">
               <div className="flex justify-between gap-4"><dt className="text-canopy/70">Loan ({payment.ltvPct}% LTV)</dt><dd className="font-semibold">{money(payment.loanAmount)}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-canopy/70">Down payment (cash or CPF)</dt><dd className="font-semibold">{money(payment.downPayment)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-canopy/70">Buyer&apos;s Stamp Duty</dt><dd className="font-semibold">{money(payment.bsd)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-canopy/70">Additional Buyer&apos;s Stamp Duty ({Math.round(payment.absdRate * 100)}%)</dt><dd className="font-semibold">{money(payment.absd)}</dd></div>
+              <div className="flex justify-between gap-4 border-t border-canopy/15 pt-1.5"><dt className="font-semibold">Total needed upfront</dt><dd className="font-semibold">{money(payment.upfront)}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-canopy/70">Monthly loan payment after full loan disbursement</dt><dd className="font-semibold">{money(Math.round(payment.monthlyInstalment))}</dd></div>
             </dl>
           ) : (

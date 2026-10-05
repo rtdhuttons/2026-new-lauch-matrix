@@ -4,11 +4,12 @@ The website helps you choose a unit at a new launch, starting with Thomson
 Reserve: where each unit sits, what it could cost, what you'd pay each
 month, and how it compares. It works on a phone, tablet or computer.
 
-The opening screen shows the project and a few key facts. Tap **Explore
-units** to start choosing, or **View project & site** to look around first.
+The opening screen says what the site is for: an independent buyer's guide
+by TRM to choosing the right unit, not the developer's own site. Tap **Find
+my unit** to start choosing, or **See the 3D site** to look around first.
 Investors can go straight to **View investment analysis**.
 
-The seven sections are always in the same order. On a computer they're
+The eight sections are always in the same order. On a computer they're
 across the top; on a phone, tap the **Section** button to see them all.
 **My Shortlist** (top right) is always there.
 
@@ -21,16 +22,36 @@ across the top; on a phone, tap the **Section** button to see them all.
 - Drag to spin the model, pinch or scroll to zoom. **Tap any unit** to see
   its details beside the model (below it on a phone, with a **View details**
   button).
-- **Display options** changes the colours (bedroom type, budget, view, sun),
-  turns the neighbourhood map, sun and shadows, and the facilities key on or
-  off. **Reset view** puts north back at the top.
+- **Display options** changes the colours (unit type, in the developer's
+  elevation-chart colours; budget, view, sun) and turns the neighbourhood
+  map, sun and shadows, and the facilities key on or off. **Reset view** puts
+  north back at the top.
+- **Distances between blocks** draws the architect's measurements on the
+  model (red: between towers, from 26 m between Blocks 9 and 3 to 240 m
+  across the pools; orange: towers to the site edge) and lists them below.
+- The neighbourhood shows the HDB blocks around Sin Ming Avenue and Bright
+  Hill Drive at their real height (HDB's records of each block's highest
+  floor). The flat plan view has been removed; it only appears if a browser
+  can't show 3D.
 - **Sun, privacy and view for every floor of stack…** opens the detail for
   the selected unit's stack. A stack is a column of units directly above one
   another, with the same layout and facing.
 - Below: the gallery (artist's impressions), the location, and **Assumptions
   & sources**.
 
-## 2. Units & Payments
+## 2. Plans
+
+*Every floor plan, the elevation chart of unit types by stack and level, and the site plan, in one place.*
+
+- **Floor plans**: all 41 of the developer's plans, grouped by unit type,
+  with size, number of units and the stacks that use each. Filter by
+  bedrooms; tap a plan to enlarge it.
+- **Elevation chart**: pick a block to see every unit by stack and level,
+  coloured like the developer's chart. Tap a unit to select it, then **See
+  its details and payments**.
+- **Site plan**: the developer's plan with its facilities.
+
+## 3. Units & Payments
 
 *Choose up to three units to compare prices, layouts, and estimated payments.*
 
@@ -49,8 +70,11 @@ across the top; on a phone, tap the **Section** button to see them all.
    3-Bedroom, 3-Bedroom Premium or 3-Bedroom Premium + Study), then the floor
    level to see its estimated price; or use the unit you selected above. The
    loan is set by **LTV** (75% to start), with a 2% interest rate over 25
-   years; change any of them. You'll see the loan amount, the down payment
-   (cash or CPF), the monthly loan payment once the whole loan is drawn, and **progressive
+   years; change any of them, and choose **Who is buying** (Singapore citizen,
+   PR or foreigner, and which property) for the stamp duty. You'll see the
+   loan amount, the down payment (cash or CPF), Buyer's Stamp Duty and
+   Additional Buyer's Stamp Duty (IRAS rates), the total needed before the
+   loan starts, the monthly loan payment once the whole loan is drawn, and **progressive
    payments**: what's due at each construction stage (booking fee, sale and
    purchase agreement, foundation … keys at TOP, and the final payment at
    completion), whether it comes from your down payment or the loan, and how the
@@ -59,9 +83,9 @@ across the top; on a phone, tap the **Section** button to see them all.
    them to 75%, 2% and 25 years.
 
 Further down: **Price by floor for every unit type** (and the assumption
-behind the estimated prices), and **Suggested units for your priorities**.
+behind the estimated prices).
 
-## 3. Schools
+## 4. Schools
 
 *Explore nearby primary schools and understand the registration considerations.*
 
@@ -71,7 +95,7 @@ Primary and CHIJ St. Nicholas Girls'); Marymount Convent is just over 2 km. Each
 (OneMap) or indicative (worked out from map data). Living nearby doesn't
 guarantee a place.
 
-## 4. Investor
+## 5. Investor
 
 *Review past resale results and rental potential using comparable properties.*
 
@@ -82,12 +106,12 @@ guarantee a place.
 - **Rental potential**: JadeScape rents by bedrooms and size, and an
   indicative gross yield for your selected unit (change the rent to test it).
 
-## 5. Alternative Projects
+## 6. Alternative Projects
 
 *See what other projects offer within a similar budget.*
 
-- **Compared with your unit:** the closest size at each alternative project,
-  with the difference in size and starting price.
+- **Compared with your unit:** a bullet for each alternative project's
+  closest size, with the difference in size and starting price.
 - **Same bedroom type, different projects:** choose a bedroom type (2 to 5,
   the types Thomson Reserve offers) to see a chart of size against starting
   price, and every project's units side by side: size, starting price, price
@@ -95,10 +119,11 @@ guarantee a place.
   sq ft. Thomson Reserve's prices are marked "Estimate".
 - **The alternatives:** what each project offers and who it suits.
 
-Other projects' prices are the lowest among the units still available on the
-date shown; availability changes daily.
+Other projects' prices and units left come from the Huttons New Launch API:
+the lowest price among the units still available on the date shown;
+availability changes daily.
 
-## 6. PIVOT
+## 7. PIVOT
 
 *Assess your selected unit's entry price and explore possible exit outcomes.*
 
@@ -116,7 +141,7 @@ interest, loan repayment and CPF refund. These are scenarios, not forecasts.
 Below are TRM's five PIVOT scores and the two workings, with every input you
 can change.
 
-## 7. My Upgrading Plan
+## 8. My Upgrading Plan
 
 *Start with your current home. Request a valuation report or estimate how
 much cash you could receive from selling.*
@@ -144,7 +169,7 @@ figures.
 
 ## Getting around
 
-All seven tabs are along the top. On a phone, swipe the row of tabs to see
+All eight tabs are along the top. On a phone, swipe the row of tabs to see
 them all; the current one is highlighted. Each tab ends with buttons for the
 previous and next section.
 

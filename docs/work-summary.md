@@ -2,7 +2,7 @@
 
 Project: the TRM (The Realty Master) website, with Thomson Reserve as the
 first complete project and the template for future developments. Work done
-30 September – 3 October 2026.
+30 September – 5 October 2026.
 
 - Live page: https://claude.ai/artifact/5kRAW7usFiDUPDepbFZjSP (shared with
   anyone who has the link)
@@ -11,7 +11,29 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0f. Latest: Huttons New Launch API (5 Oct)
+## 0g. Latest: feedback round (5 Oct)
+
+- **Plans tab** (new, second): all 41 floor plans with sizes and stacks, an
+  elevation chart for each block in the developer's unit type colours (tap a
+  unit to select it), and the site plan.
+- **Opening screen**: a clearer purpose ("Choose the right unit, not just the
+  right project", an independent buyer's guide by TRM) and the hero render
+  embedded at full resolution.
+- **Stamp duty**: Buyer's and Additional Buyer's Stamp Duty (IRAS rates) by
+  buyer profile, in the payment estimate and the unit's payment breakdown.
+- **Payment estimate layout**: the estimated price on its own row; the
+  monthly payment as the main figure, with "a month" on the next line.
+- **Unit type colours** match the developer's elevation charts (Luxury
+  Collection shades chosen by TRM, as the charts don't cover them).
+- **Flat plan removed**; **Distances between blocks** from the architect's
+  brief drawn on the 3D model and listed.
+- **HDB blocks** north of the site now show at their real height, from
+  HDB's records (data.gov.sg) matched to the map by OneMap address points.
+- **Alternative projects**: prices and units left from the Huttons New
+  Launch API; the comparison is now in bullet points.
+- Photos removed from Schools and Alternative Projects (not relevant there).
+
+## 0f. Huttons New Launch API (5 Oct)
 
 - Connected to the Huttons New Launch API. Thomson Reserve: all 1,268 units
   listed as available, no prices yet, sales launch 31 Oct 2026.

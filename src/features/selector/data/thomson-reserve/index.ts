@@ -30,6 +30,7 @@ import type {
   Obstruction,
   Point,
   Provenance,
+  SiteDistance,
   Stack,
   Unit,
 } from "../../model/types";
@@ -230,10 +231,49 @@ note(["14"], "About 24 m from the Upper Thomson Road site boundary; about 171 m 
 note(["37"], "About 28 m to the northern site boundary (architect's brief).");
 note(["50"], "About 10 m from the Bright Hill Drive site boundary (architect's brief).");
 note(["02"], "About 24 m from the Bright Hill Drive site boundary (architect's brief).");
-note(["51", "09"], "Blocks 1 and 11 are about 40 m apart here, the closest pair of blocks in the development (architect's brief).");
+note(["51", "09"], "Blocks 1 and 11 are about 40 m apart here (architect's brief).");
+note(["41", "15"], "Blocks 9 and 3 are about 26 m apart here, the closest pair of blocks in the development (architect's brief).");
 note(["55", "15"], "About 77 m between Blocks 3 and 11 here (architect's brief).");
 note(["54", "16"], "About 80 m between Blocks 3 and 11 here (architect's brief).");
 note(["18"], "About 63 m to Block 11 (architect's brief).");
+
+// The architect's "distance between blocks" plan, redrawn on this site plan.
+// Line ends were registered from the brief's plan onto this one (same
+// developer drawing, matched by its features); the figure is the brief's,
+// and each drawn line measures within about 10% of it at the plan's scale.
+const D = (metres: number, between: string, from: [number, number], to: [number, number], kind: SiteDistance["kind"], note?: string): SiteDistance => ({
+  metres,
+  between,
+  from: P(...from),
+  to: P(...to),
+  kind,
+  ...(note ? { note } : {}),
+});
+const SITE_DISTANCES: SiteDistance[] = [
+  D(40, "Block 11 to Block 1", [1179, 262], [1235, 337], "blocks"),
+  D(26, "Block 9 to Block 3", [1010, 394], [1023, 450], "blocks", "The closest pair of towers in the development."),
+  D(63, "Block 11 to Block 3", [1150, 284], [1117, 438], "blocks"),
+  D(77, "Block 11 to Block 3", [1069, 257], [1029, 449], "blocks"),
+  D(80, "Block 11 to Block 3", [1107, 265], [1067, 457], "blocks"),
+  D(171, "Block 5 to Block 3", [574, 465], [1016, 509], "blocks", "Across the pools."),
+  D(182, "Block 7 to Block 9", [402, 380], [873, 400], "blocks", "Across the pools."),
+  D(190, "Block 7 to Block 9", [405, 334], [894, 358], "blocks", "Across the pools."),
+  D(240, "Block 7 to Block 3", [402, 380], [1009, 481], "blocks", "Across the pools."),
+  D(70, "Block 7 to the Wellness Club", [323, 312], [186, 201], "edge"),
+  D(17, "Block 7 to the northern site boundary", [404, 316], [433, 289], "edge"),
+  D(37, "Block 7 to the western site boundary", [324, 376], [214, 378], "edge"),
+  D(26, "Block 7 to the Upper Thomson Road boundary", [371, 430], [364, 492], "edge"),
+  D(55, "Block 5 to the northern site boundary", [515, 421], [553, 303], "edge"),
+  D(19, "Block 5 to the Upper Thomson Road boundary", [532, 513], [522, 553], "edge"),
+  D(28, "Block 9 to the northern site boundary", [929, 334], [900, 279], "edge"),
+  D(60, "Block 9 to the Upper Thomson Road boundary", [905, 422], [952, 575], "edge"),
+  D(95, "Block 9 to the Bright Hill Drive boundary", [1018, 357], [1257, 284], "edge", "The figure is partly hidden on the brief; the line measures about 94 m at the plan's scale."),
+  D(24, "Block 3 to the Upper Thomson Road boundary", [1068, 529], [1079, 590], "edge"),
+  D(10, "Block 11 to the Bright Hill Drive boundary", [1168, 224], [1195, 224], "edge"),
+  D(24, "Block 1 to the Bright Hill Drive boundary", [1295, 398], [1334, 431], "edge"),
+  D(36, "Block 1 to Upper Thomson MRT Exit 2", [1264, 462], [1342, 498], "edge"),
+  D(81, "Block 1 to the south-east tip of the site", [1259, 473], [1436, 554], "edge"),
+];
 
 // The brief orients the towers to three outlooks west of Upper Thomson Road.
 // Directions (true bearings) are read from its orientation diagram; whether a
@@ -646,6 +686,23 @@ export const thomsonReserveDataset: Dataset = {
         "Built from the developer's site plan, elevation charts, unit plans and factsheet, the architect's brief and TRM's on-site assessment. Prices are illustrative until the price list is released; see Method for what is still estimated.",
       pricingNote:
         "Awaiting the developer's price list. Prices and premiums appear once it is loaded.",
+      // Matched to the developer's elevation charts (Classic Collection). The three
+      // Luxury Collection types aren't on those charts, so TRM chose distinct shades.
+      unitTypeColours: [
+        { category: "2-Bedroom", colour: "#d9cfa6" },
+        { category: "2-Bedroom Premium", colour: "#a8a06a" },
+        { category: "2-Bedroom Premium + Study", colour: "#857a3f" },
+        { category: "3-Bedroom", colour: "#b4e6e4" },
+        { category: "3-Bedroom Premium", colour: "#6fcfd3" },
+        { category: "3-Bedroom Premium + Study", colour: "#4f8f8c" },
+        { category: "4-Bedroom", colour: "#efc4da" },
+        { category: "4-Bedroom Premium", colour: "#d98bb0" },
+        { category: "4-Bedroom Premium + Study", colour: "#a85f87" },
+        { category: "5-Bedroom Suite", colour: "#7d5a99" },
+      ],
+      distances: SITE_DISTANCES,
+      distancesCredit: "Distances from the architect's agent brief (\"Site plan – distance between blocks\"), redrawn on the developer's site plan.",
+      unitTypeColoursCredit: "Colours match the developer's elevation charts; Luxury Collection shades (4-Bedroom Premium, 4-Bedroom Premium + Study, 5-Bedroom Suite) chosen by TRM.",
     },
   },
   blocks,

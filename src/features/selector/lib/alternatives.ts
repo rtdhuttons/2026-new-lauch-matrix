@@ -48,6 +48,14 @@ export function closestBySize<T extends AlternativeUnitType>(own: OwnUnitType, o
   return pool.reduce((best, o) => (Math.abs(mid(o) - own.sizeSqft) < Math.abs(mid(best) - own.sizeSqft) ? o : best));
 }
 
+/** The size and starting-price differences as two short phrases. */
+export function sizePriceParts(own: OwnUnitType, other: AlternativeUnitType): { size: string; price: string } | null {
+  const s = sizePriceSentence(own, other);
+  if (!s) return null;
+  const [size, price] = s.replace(/\.$/, "").split(", with ");
+  return { size, price: price.charAt(0).toUpperCase() + price.slice(1) };
+}
+
 /** "About 30–62 sqft smaller, and about S$180,000 lower in price." */
 export function sizePriceSentence(own: OwnUnitType, other: AlternativeUnitType): string | null {
   if (!other.sizeSqft || other.fromPrice === null) return null;

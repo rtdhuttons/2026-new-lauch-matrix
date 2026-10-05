@@ -68,6 +68,24 @@ export interface ProjectDisplay {
   notice: string;
   /** What the prices and unit types currently are, in plain words. */
   pricingNote: string;
+  /** Colours for each unit type, matching the developer's elevation charts. */
+  unitTypeColours?: { category: string; colour: string }[];
+  unitTypeColoursCredit?: string;
+  /** Distances marked on the developer's plans, drawn as lines in the 3D view. */
+  distances?: SiteDistance[];
+  distancesCredit?: string;
+}
+
+export interface SiteDistance {
+  from: Point;
+  to: Point;
+  /** The figure printed on the developer's plan. */
+  metres: number;
+  /** What the line measures, e.g. "Block 11 to Block 1". */
+  between: string;
+  /** "blocks": between two towers; "edge": from a tower to the site boundary or a facility. */
+  kind: "blocks" | "edge";
+  note?: string;
 }
 
 export interface MapBuilding {
@@ -78,6 +96,8 @@ export interface MapBuilding {
   height: "levels" | "assumed" | "unknown";
   levels: number | null;
   label: string | null;
+  /** Where the storey count comes from when it isn't OpenStreetMap, e.g. HDB's records. */
+  levelsSource?: string;
 }
 
 export interface MapContext {

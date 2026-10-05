@@ -7,7 +7,7 @@
 import { useState } from "react";
 import type { AlternativeProject } from "../model/project";
 import type { OwnUnitType } from "../lib/alternatives";
-import { closestBySize, sizePriceSentence } from "../lib/alternatives";
+import { closestBySize, sizePriceParts } from "../lib/alternatives";
 import { AssetImg } from "./asset-image";
 import { BarChart, ChartCard, fmtMoneyShort, ScatterChart, SERIES, TipRow } from "./charts";
 import { NotSupplied } from "./tabs";
@@ -114,20 +114,32 @@ export function AlternativesTab({
             {selected.type.type}, {selected.type.sizeSqft.toLocaleString("en-SG")} sq ft, from {sgd(selected.type.fromPrice)} in this type
             {selected.type.isEstimate ? " (an estimate)" : ""}. The closest size at each alternative:
           </p>
-          <ul className="mt-3 grid gap-2 md:grid-cols-2">
-            {alternatives.map((a) => {
+          <ul className="mt-4 grid gap-3">
+            {alternatives.map((a, i) => {
               const match = closestBySize(selected.type, a.unitTypes);
-              const sentence = match ? sizePriceSentence(selected.type, match) : null;
+              const parts = match ? sizePriceParts(selected.type, match) : null;
               return (
-                <li key={a.name} className="rounded-lg bg-mist px-4 py-3 text-sm">
-                  <p className="font-display-normal font-semibold">{a.name}</p>
-                  {match && sentence ? (
-                    <p className="mt-0.5 text-canopy/85">
-                      {match.type}, {sizeText(match.sizeSqft)} sq ft, from {sgd(match.fromPrice!)}. {sentence}
+                <li key={a.name} className="flex gap-3">
+                  <span aria-hidden="true" className="mt-1.5 size-2.5 shrink-0 rounded-full" style={{ background: SERIES[(i + 1) % SERIES.length] }} />
+                  <div className="min-w-0 text-[0.9375rem]">
+                    <p>
+                      <strong className="font-display-normal">{a.name}</strong>
+                      {match ? (
+                        <span className="text-canopy/75">
+                          {" "}
+                          · {match.type}, {sizeText(match.sizeSqft)} sq ft, from {sgd(match.fromPrice!)}
+                        </span>
+                      ) : null}
                     </p>
-                  ) : (
-                    <p className="mt-0.5 text-canopy/70">No {selected.type.bedrooms}-bedroom units listed.</p>
-                  )}
+                    {parts ? (
+                      <ul className="mt-0.5 list-disc pl-5 text-sm text-canopy/85 marker:text-canopy/40">
+                        <li>{parts.size}</li>
+                        <li>{parts.price}</li>
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-canopy/70">No {selected.type.bedrooms}-bedroom units on sale.</p>
+                    )}
+                  </div>
                 </li>
               );
             })}

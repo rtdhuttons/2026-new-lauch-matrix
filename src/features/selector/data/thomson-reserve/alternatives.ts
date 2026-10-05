@@ -1,16 +1,18 @@
-// Alternative projects for Thomson Reserve buyers, from TRM's "What can your
-// budget buy?" comparison page (published 27 Sep 2026). Prices are the
-// lowest among the units still available then; availability changes daily.
+// Alternative projects for Thomson Reserve buyers. The projects, their roles
+// and descriptions come from TRM's "What can your budget buy?" comparison
+// page; unit types still on sale, the lowest price of each and units left
+// come from the Huttons New Launch API (scripts/huttons/sync-alternatives.py).
 
 import type { AlternativeProject } from "../../model/project";
+import { alternativesSync } from "./alternatives-huttons";
 
 const base = process.env.NEXT_PUBLIC_TR_IMAGE_BASE ?? "/thomson-reserve/images";
 
 const provenance = {
-  source: "TRM comparison page, \"What can your budget buy?\"",
-  updated: "2026-09-27",
+  source: alternativesSync.source,
+  updated: alternativesSync.fetched,
   status: "verified" as const,
-  note: "Starting prices and units left as supplied by TRM. Check the latest availability and price before deciding.",
+  note: "Lowest price among the units still available, and units left, from the developers' sales listings. Availability changes daily.",
 };
 const priceBasis = "Lowest price among the units still available";
 const web = (note?: string) => ({
@@ -19,7 +21,7 @@ const web = (note?: string) => ({
   note: note ?? "Not checked against the developer's documents.",
 });
 
-export const alternatives: AlternativeProject[] = [
+const listed: AlternativeProject[] = [
   {
     name: "Lentor Gardens Residences",
     tag: "More choices across 2 to 4 bedrooms",
@@ -107,3 +109,9 @@ export const alternatives: AlternativeProject[] = [
     kind: "agent",
   },
 ];
+
+/** Unit types, prices, units left and total units replaced by the latest Huttons listing where available. */
+export const alternatives: AlternativeProject[] = listed.map((a) => {
+  const live = alternativesSync.projects[a.name];
+  return live ? { ...a, totalUnits: live.totalUnits ?? a.totalUnits, unitTypes: live.unitTypes } : a;
+});

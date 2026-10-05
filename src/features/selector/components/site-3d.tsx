@@ -2,13 +2,13 @@
 
 // 3D massing view of the site. Loaded only in the browser (see site-view.tsx).
 
-import { Edges, Html, OrbitControls } from "@react-three/drei";
+import { Edges, Html, Line, OrbitControls } from "@react-three/drei";
 import type { ThreeEvent } from "@react-three/fiber";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import type { Dataset, Point, Unit } from "../model/types";
+import type { Dataset, Point, SiteDistance, Unit } from "../model/types";
 import type { Box, Extrusion, SceneData, Tree, UnitBox } from "../lib/scene";
 import { buildScene, sunVector } from "../lib/scene";
 import { MapLayer } from "./map-layer";
@@ -35,6 +35,8 @@ export interface Site3DProps {
   onAzimuth: (deg: number) => void;
   gates: { name: string; position: Point }[];
   mrt: { name: string; position: Point } | null;
+  /** Measured lines from the developer's plans, or null to hide them. */
+  distances: SiteDistance[] | null;
 }
 
 const tmp = new THREE.Object3D();
@@ -506,6 +508,42 @@ function Scene(props: Site3DProps & { scene: SceneData }) {
             <Pill>{b.name.replace(/ \(.*\)$/, "")}</Pill>
           </Html>
         ))}
+
+      {/* Distances from the developer's plans */}
+      {props.distances?.map((d, i) => {
+        const y = 7;
+        const mid: [number, number, number] = [(d.from.x + d.to.x) / 2, y, (d.from.y + d.to.y) / 2];
+        return (
+          <group key={`d-${i}`}>
+            <Line
+              points={[[d.from.x, y, d.from.y], [d.to.x, y, d.to.y]]}
+              color={d.kind === "blocks" ? "#c62f2f" : "#c9693b"}
+              lineWidth={d.kind === "blocks" ? 2.5 : 1.75}
+              dashed={d.kind === "edge"}
+              dashSize={3}
+              gapSize={2}
+              depthTest={false}
+              renderOrder={20}
+            />
+            {[d.from, d.to].map((p, j) => (
+              <mesh key={j} position={[p.x, y, p.y]} renderOrder={20} raycast={() => null}>
+                <sphereGeometry args={[1.4, 10, 8]} />
+                <meshBasicMaterial color={d.kind === "blocks" ? "#c62f2f" : "#c9693b"} depthTest={false} />
+              </mesh>
+            ))}
+            <Html position={mid} center zIndexRange={[13, 0]}>
+              <span
+                className={`pointer-events-none whitespace-nowrap rounded-full px-1.5 py-px font-display-normal text-[11px] font-bold shadow-sm ${
+                  d.kind === "blocks" ? "bg-[#c62f2f] text-white" : "bg-paper/95 text-[#9a4a22] ring-1 ring-[#c9693b]"
+                }`}
+                title={d.between}
+              >
+                {d.metres} m
+              </span>
+            </Html>
+          </group>
+        );
+      })}
 
       {/* Sun glow */}
       {showSun && sunUp && (

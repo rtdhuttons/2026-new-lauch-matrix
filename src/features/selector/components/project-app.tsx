@@ -2,12 +2,13 @@
 
 // The project website, shaped like a consultation: each tab says what the
 // buyer can do there, shows the useful information first and puts the
-// detail behind named sections, then suggests one next step. Seven tabs in
+// detail behind named sections, then suggests one next step. Eight tabs in
 // a fixed order for every project; the selected unit, the comparison and
 // the payment inputs stay as the buyer moves between them. Everything
 // project-specific comes from the bundle passed in.
 
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { site } from "@/content/site";
 import type { ProjectBundle } from "../model/project";
 import type { Unit } from "../model/types";
 import { ownTypeKey, ownUnitTypes, unitModels } from "../lib/alternatives";
@@ -35,6 +36,7 @@ import type { CalcPick } from "./payment-calculator";
 import { PaymentCalculator } from "./payment-calculator";
 import { PhotoBand } from "./photo-band";
 import { PivotTab } from "./pivot-tab";
+import { PlansTab } from "./plans-tab";
 import { PriceEstimateSection } from "./price-estimate";
 import { Gallery, ProjectHero } from "./project-hero";
 import { RentalPotential } from "./rental-evidence";
@@ -381,15 +383,19 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
 
   const intro = (
     <>
-      <p className="mt-4 max-w-[52ch] text-lg leading-relaxed text-white/90 sm:text-xl">
-        Explore {project.profile.name}, compare units, and understand your next purchase.
+      <p className="mt-5 max-w-[30ch] font-display text-2xl font-extrabold leading-tight sm:text-[2.1rem]">
+        Choose the right unit, not just the right project.
+      </p>
+      <p className="mt-3 max-w-[60ch] text-[1.0625rem] leading-relaxed text-white/90 sm:text-lg">
+        An independent buyer&apos;s guide by {site.brand}, {site.brandFull}. Compare all {dataset.units.length.toLocaleString("en-SG")} units by view,
+        sun, noise and price, work out your payments and stamp duty, and see how the floor you pick could pay off when you sell.
       </p>
       <div className="mt-5 flex flex-wrap items-center gap-3 [text-shadow:none]">
         <button type="button" onClick={() => goTo("units")} className="rounded-full bg-white px-6 py-3 font-display-normal text-[0.9375rem] font-semibold text-canopy hover:bg-mist">
-          Explore units
+          Find my unit
         </button>
         <button type="button" onClick={() => goTo("project", "explore")} className="rounded-full border border-white/50 px-5 py-2.5 font-display-normal text-sm font-semibold text-white hover:bg-white/10">
-          View project &amp; site
+          See the 3D site
         </button>
         <button type="button" onClick={() => goTo("investor")} className="px-2 py-2 font-display-normal text-sm font-semibold text-white/85 underline underline-offset-4 hover:text-white">
           Investing? View investment analysis
@@ -518,6 +524,15 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
           </section>
 
           <NextStep note={unit ? `Unit ${unitNumber(unit)} is selected.` : "Ready to look at units?"} label="Explore units" onClick={() => goTo("units")} />
+        </div>
+      )}
+
+      {/* 2. Plans */}
+      {tab === "plans" && (
+        <div {...panel("plans")}>
+          <TabIntro tab="plans" />
+          <PlansTab ix={ix} units={priced.units} selectedUnit={unit} onSelectUnit={selectUnit} onViewUnit={() => goTo("units", "unit-details")} />
+          <NextStep note={unit ? `Unit ${unitNumber(unit)} is selected.` : "Found a layout you like?"} label="Explore units" onClick={() => goTo("units")} />
         </div>
       )}
 
