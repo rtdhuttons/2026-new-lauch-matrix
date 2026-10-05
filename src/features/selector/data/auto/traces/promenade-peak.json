@@ -1,0 +1,25 @@
+{
+ "image": "https://img.singmap.com/upload/broke/22e794e47aae4f7da8a230195f30e7a1/1917872113dc425797ca4239311a6ee3/siteplanImg/20250724/Site_Plan_1.png",
+ "widthPx": 1600,
+ "heightPx": 2665,
+ "pxPerM": 7.45,
+ "northDeg": 355,
+ "crop": [
+  30,
+  250,
+  1060,
+  970
+ ],
+ "blocks": [
+  {
+   "block": "Promenade Peak",
+   "core": [
+    397,
+    528
+   ]
+  }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "Traced on the 1st Storey Plan (top panel). Scale bar 20 m = 149 px (0 at x 1210.5, 20m at x 1359.5); north point about 5° clockwise from plan up. Core at the tower's central core, the grey cross between Lobby Reception (6) and Club Promenade (20-23), which matches the core on the 22nd Storey Plan. Stack numbers are not printed, so stacks are arranged round the core."
+}

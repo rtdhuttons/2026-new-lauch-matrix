@@ -1,0 +1,22 @@
+{
+ "image": "https://img.singmap.com/upload/broke/2f604efc567047edb5e7e92d5ec0666b/a49e407ce61345b2b1d462221494bb62/siteplanImg/20230323/Site Plan.png",
+ "widthPx": 1600,
+ "heightPx": 1181,
+ "pxPerM": 5.95,
+ "northDeg": 0,
+ "crop": [300, 30, 1600, 1160],
+ "blocks": [
+  {"block": "Block 21", "core": [1255, 784], "stacks": {"01": [1296, 774], "02": [1251, 828], "03": [1208, 791], "04": [1258, 744]}},
+  {"block": "Block 23", "core": [1208, 667], "stacks": {"05": [1211, 624], "06": [1252, 652], "07": [1202, 711], "08": [1160, 672]}},
+  {"block": "Block 25", "core": [1160, 539], "stacks": {"09": [1174, 502], "10": [1205, 525], "11": [1159, 585], "12": [1116, 545]}},
+  {"block": "Block 27", "core": [1114, 417], "stacks": {"13": [1127, 377], "14": [1160, 405], "15": [1112, 462], "16": [1073, 424]}},
+  {"block": "Block 29", "core": [934, 383], "stacks": {"17": [949, 346], "18": [974, 408], "19": [920, 426], "20": [911, 357]}},
+  {"block": "Block 31", "core": [830, 490], "stacks": {"21": [849, 452], "22": [881, 515], "23": [825, 535], "24": [811, 464]}},
+  {"block": "Block 33", "core": [742, 614], "stacks": {"25": [734, 654], "26": [718, 586], "27": [756, 575], "28": [769, 645]}},
+  {"block": "Block 35", "core": [652, 720], "stacks": {"29": [687, 745], "30": [642, 763], "31": [630, 695], "32": [665, 681]}},
+  {"block": "Townhouses", "core": [880, 886]}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 30 m = 178.5 px (0 at x 1252.5, 30 m at x 1431); north point straight up. Block and stack numbers are printed on the plan. Townhouses core is the middle of the terrace row (houses 01-19)."
+}

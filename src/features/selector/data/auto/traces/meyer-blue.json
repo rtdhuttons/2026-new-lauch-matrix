@@ -1,0 +1,64 @@
+{
+ "image": "https://img.singmap.com/upload/broke/a0a87c09a8fa45f1b629fd39f27224c6/83b9b826f1f0445ca23b38813aea6358/siteplanImg/20240907/Site Plan 1.png",
+ "widthPx": 1600,
+ "heightPx": 1124,
+ "pxPerM": 6.1,
+ "scaleFrom": "scale bar",
+ "northDeg": 0,
+ "crop": [
+  390,
+  130,
+  1000,
+  1085
+ ],
+ "blocks": [
+  {
+   "block": "83 MEYER ROAD",
+   "core": [
+    682,
+    798
+   ],
+   "stacks": {
+    "01": [
+     789,
+     698
+    ],
+    "02": [
+     807,
+     784
+    ],
+    "03": [
+     730,
+     814
+    ],
+    "04": [
+     671,
+     834
+    ],
+    "05": [
+     622,
+     862
+    ],
+    "06": [
+     578,
+     878
+    ],
+    "07": [
+     596,
+     792
+    ],
+    "08": [
+     636,
+     772
+    ],
+    "09": [
+     703,
+     730
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "1st storey plan (left). Scale bar 20 m = 122 px (0 at x 1120, 20 m end at x 1242; its 0-10 m part is slightly shorter, 59 px); the 40 m lap pool (item 20) measures about 246 px, so 6.1 px/m. North point straight up. Stack numbers are printed on the plan; core at the printed '83'."
+}

@@ -1,0 +1,44 @@
+{
+ "image": "https://img.singmap.com/upload/broke/a9a01cbb4f6f4db1abb85b4c1b314e0e/33e2df04dc4b4e3c8bb0d6c780ffdc89/siteplanImg/20230106/Site Plan.jpeg",
+ "widthPx": 1600,
+ "heightPx": 1131,
+ "pxPerM": 27.2,
+ "scaleFrom": "scale bar",
+ "northDeg": 73,
+ "crop": [
+  0,
+  0,
+  1080,
+  1000
+ ],
+ "blocks": [
+  {
+   "block": "Block 8",
+   "core": [
+    603,
+    384
+   ],
+   "stacks": {
+    "01": [
+     264,
+     615
+    ],
+    "04": [
+     488,
+     615
+    ],
+    "03": [
+     693,
+     615
+    ],
+    "02": [
+     904,
+     615
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 10 m = 272 px (0 at x 154, 10M at x 426.5); north point about 73° anticlockwise from plan up (Lorong 13 Geylang runs across the bottom). Core at the lift (legend D). Stack numbers are not on the main plan: they are printed on the unit key plan inset (top right of the same sheet, same orientation, about 1:3 of the main plan), and are mapped onto the main plan by matching the site boundary and driveway."
+}

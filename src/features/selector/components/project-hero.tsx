@@ -12,7 +12,7 @@ export function ProjectHero({
   facts,
   children,
 }: {
-  image: { src: string; srcSet: string; alt: string };
+  image: { src: string; srcSet: string; alt: string; credit?: string };
   name: string;
   eyebrow: string;
   facts: { label: string; value: string }[];
@@ -41,7 +41,7 @@ export function ProjectHero({
             </div>
           ))}
         </dl>
-        <p className="mt-4 text-right font-display-normal text-xs text-white/70">Artist&apos;s impression</p>
+        <p className="mt-4 text-right font-display-normal text-xs text-white/70">{image.credit ?? "Artist's impression"}</p>
       </div>
     </section>
   );

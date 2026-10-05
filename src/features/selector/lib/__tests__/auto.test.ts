@@ -24,6 +24,15 @@ describe("automatic mini sites", () => {
     expect(projects.filter((p) => p.featured).map((p) => p.id)).toEqual(["thomson-reserve", "the-serra-residences"]);
   });
 
+  it("shows projects without released units as coming soon, not an empty selector", () => {
+    const empty = specs.filter((s) => s.units.length === 0);
+    for (const s of empty) {
+      const b = buildAutoBundle(s, null);
+      expect(b.dataset.units).toEqual([]);
+      expect(b.profile.towersSummary).toBeNull();
+    }
+  });
+
   it.each(specs.map((s) => [s.name, s] as const))("%s builds a bundle that passes the project check", (_, spec) => {
     const bundle = buildAutoBundle(spec, traceOf(spec.id));
     const check = checkProject(bundle);

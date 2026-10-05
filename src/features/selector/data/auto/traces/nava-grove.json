@@ -1,0 +1,22 @@
+{
+  "image": "https://img.singmap.com/upload/broke/367c376feb684b5b9361fbfe0defa451/4a25b483869c44f38fad81c15c945c4f/siteplanImg/20250620/Site_Plan_1.png",
+  "widthPx": 1600,
+  "heightPx": 914,
+  "pxPerM": 4.37,
+  "northDeg": 0,
+  "crop": [500, 60, 1600, 830],
+  "blocks": [
+    { "block": "Block 38", "core": [1224, 593], "stacks": {
+      "01": [1207, 618], "02": [1169, 621], "03": [1155, 566], "04": [1207, 561],
+      "05": [1236, 561], "06": [1275, 568], "07": [1277, 619], "08": [1239, 618] } },
+    { "block": "Block 40", "core": [909, 542], "stacks": {
+      "09": [899, 574], "10": [866, 582], "11": [842, 532], "12": [881, 519],
+      "13": [916, 511], "14": [964, 505], "15": [972, 560], "16": [930, 566] } },
+    { "block": "Block 42", "core": [1046, 289], "stacks": {
+      "17": [1053, 258], "18": [1089, 246], "19": [1119, 285], "20": [1069, 309],
+      "21": [1036, 322], "22": [988, 330], "23": [986, 270], "24": [1022, 268] } }
+  ],
+  "stackPositions": "labelled",
+  "checked": "2026-10-05",
+  "notes": "Scale bar 50 m = 219 px (0 at x 276, 50 M at x 495); north point straight up. Block and stack numbers are printed on the plan."
+}

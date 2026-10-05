@@ -7,12 +7,16 @@ src/features/selector/data/auto/traces/<slug>.json (see docs/tracing-site-plans.
       prints the blocks and stacks from the unit list.
   python3 scripts/trace/trace_tools.py zoom <slug> <image-index> x0 y0 x1 y1
       A gridded close-up of one area of a site plan (in original pixels).
+  python3 scripts/trace/trace_tools.py scale <slug> x1,y1 x2,y2 x3,y3 ...
+      Plan scale (px per metre) from the site boundary traced as a polygon
+      (original pixels) and the site area the developer publishes.
   python3 scripts/trace/trace_tools.py check <slug>
       Validates the trace file against the unit list and draws it over the
       plan (.trace/<slug>/check.jpg) to compare by eye.
 """
 
 import json
+import math
 import re
 import sys
 import urllib.parse
@@ -106,6 +110,29 @@ def zoom(slug, idx, x0, y0, x1, y1):
     print(path.relative_to(ROOT))
 
 
+def site_area_m2(s):
+    a = s["facts"].get("siteArea") or ""
+    m = re.search(r"([\d,]+(?:\.\d+)?)\s*(sq\s*ft|sqft|sf|sq\s*m|sqm|m2|m²)", a, re.I)
+    if not m:
+        return None
+    v = float(m.group(1).replace(",", ""))
+    return v / 10.7639 if "f" in m.group(2).lower() else v
+
+
+def polygon_area(pts):
+    return abs(sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(pts, pts[1:] + pts[:1]))) / 2
+
+
+def scale(slug, pts):
+    s = spec(slug)
+    area = site_area_m2(s)
+    if not area:
+        print(f"No usable site area for this project (API gives {s['facts'].get('siteArea')!r})")
+        return
+    px = polygon_area(pts)
+    print(f"site area {area:,.0f} m² (API: {s['facts']['siteArea']}); boundary {px:,.0f} px² -> pxPerM {math.sqrt(px / area):.3f}")
+
+
 def check(slug):
     s = spec(slug)
     t = json.loads((AUTO / "traces" / f"{slug}.json").read_text())
@@ -158,8 +185,21 @@ def check(slug):
         L = t["pxPerM"] * 50
         d.line([(20, im.height - 30), (20 + L, im.height - 30)], fill=(255, 0, 0, 255), width=5)
         d.text((24, im.height - 60), "50 m at traced scale", fill=(255, 0, 0, 255), font=f)
+        if t.get("siteBoundary"):
+            d.line([tuple(p) for p in t["siteBoundary"] + t["siteBoundary"][:1]], fill=(0, 200, 120, 255), width=4)
+            area = site_area_m2(s)
+            if area:
+                implied = math.sqrt(polygon_area(t["siteBoundary"]) / area)
+                if abs(implied - t["pxPerM"]) / implied > 0.03:
+                    errors.append(f"pxPerM {t['pxPerM']} differs from the site-area scale {implied:.3f}")
+        if t.get("northDeg") is None:
+            d.text((im.width - 260, 40), "no north point", fill=(255, 0, 0, 255), font=f)
+            scale_w = min(1.0, 1600 / max(im.size))
+            im.resize((round(im.width * scale_w), round(im.height * scale_w))).save(work / "check.jpg", quality=85)
+            print(f".trace/{slug}/check.jpg")
+            print("OK" if not errors else "\n".join(errors))
+            return
         # north arrow from the trace
-        import math
         a = math.radians(-t["northDeg"])
         x0, y0 = im.width - 60, 80
         d.line([(x0, y0), (x0 + 45 * math.sin(a), y0 - 45 * math.cos(a))], fill=(255, 0, 0, 255), width=5)
@@ -176,5 +216,7 @@ if __name__ == "__main__":
         prep(a[0])
     elif cmd == "zoom":
         zoom(a[0], int(a[1]), *map(int, a[2:6]))
+    elif cmd == "scale":
+        scale(a[0], [tuple(map(float, p.split(","))) for p in a[1:]])
     elif cmd == "check":
         check(a[0])

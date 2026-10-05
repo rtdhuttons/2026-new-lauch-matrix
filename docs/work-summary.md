@@ -11,7 +11,26 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0n. Latest: The Serra Residences, and the full new launches map (5 Oct)
+## 0o. Latest: a mini site for every project on the map (5 Oct)
+
+- Every project still selling or upcoming on the new launches map now has
+  its own guide on the website (/projects/<name>), with the same eight tabs
+  as Thomson Reserve, linked from the map's cards and listed on the home
+  page.
+- Built automatically from the Huttons New Launch API: every unit
+  (36,800 across 124 projects) with availability and published prices,
+  floor plans, site plans and public renders (shown straight from Huttons'
+  image server), MRT walking distance, primary schools within 2.5 km
+  measured on OneMap, and the nearest projects with the same bedroom types.
+- Site plans traced for the 3D view: blocks and stacks placed on the
+  developer's plan at its scale and north point, as for Thomson Reserve.
+  Projects not yet traced show a schematic layout, and their facings and
+  sun are marked as not known yet rather than guessed.
+- Where a project's prices aren't released, illustrative prices come from
+  the nearest projects' published prices, labelled as estimates.
+- The daily update refreshes all of them.
+
+## 0n. The Serra Residences, and the full new launches map (5 Oct)
 
 - The Serra Residences (7 Bassein Road, Novena; Far East Organization;
   freehold; 133 units in one 28-storey tower; launch 17 Oct 2026): its own

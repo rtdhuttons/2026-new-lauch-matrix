@@ -1,0 +1,167 @@
+{
+ "image": "https://img.singmap.com/upload/broke/f66152f7012949a7b9500e668467fad2/5862d7b906c54440828e1269d19bf2fc/siteplanImg/20240527/Site Plan.png",
+ "widthPx": 1197,
+ "heightPx": 2491,
+ "pxPerM": 3.2,
+ "scaleFrom": "scale bar",
+ "northDeg": 90,
+ "crop": [
+  42,
+  988,
+  1167,
+  1448
+ ],
+ "blocks": [
+  {
+   "block": "Blk 78",
+   "core": [
+    258,
+    1275
+   ],
+   "stacks": {
+    "21": [
+     247,
+     1310
+    ],
+    "22": [
+     210,
+     1295
+    ],
+    "23": [
+     229,
+     1268
+    ],
+    "24": [
+     247,
+     1249
+    ],
+    "25": [
+     276,
+     1225
+    ],
+    "26": [
+     294,
+     1261
+    ],
+    "27": [
+     310,
+     1286
+    ],
+    "28": [
+     268,
+     1300
+    ]
+   }
+  },
+  {
+   "block": "Blk 76",
+   "core": [
+    449,
+    1275
+   ],
+   "stacks": {
+    "13": [
+     445,
+     1296
+    ],
+    "14": [
+     397,
+     1287
+    ],
+    "15": [
+     415,
+     1261
+    ],
+    "16": [
+     432,
+     1226
+    ],
+    "17": [
+     462,
+     1249
+    ],
+    "18": [
+     479,
+     1267
+    ],
+    "19": [
+     497,
+     1293
+    ],
+    "20": [
+     461,
+     1310
+    ]
+   }
+  },
+  {
+   "block": "Blk 74",
+   "core": [
+    716,
+    1260
+   ],
+   "stacks": {
+    "07": [
+     715,
+     1285
+    ],
+    "08": [
+     674,
+     1271
+    ],
+    "09": [
+     696,
+     1241
+    ],
+    "10": [
+     725,
+     1218
+    ],
+    "11": [
+     746,
+     1241
+    ],
+    "12": [
+     764,
+     1265
+    ]
+   }
+  },
+  {
+   "block": "Blk 72",
+   "core": [
+    893,
+    1260
+   ],
+   "stacks": {
+    "01": [
+     842,
+     1267
+    ],
+    "02": [
+     861,
+     1240
+    ],
+    "03": [
+     883,
+     1220
+    ],
+    "04": [
+     911,
+     1241
+    ],
+    "05": [
+     935,
+     1272
+    ],
+    "06": [
+     892,
+     1285
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "1st storey plan. Scale bar 20 m = 64.5 px (0 at x 1062, 20 m at x 1127; small, low-resolution image); the tennis court's baselines (x 970 to 1045, 23.77 m) give 3.18 px/m, which agrees; north point aims left (270° clockwise from plan up). Stack numbers are printed small on each unit; block cores at the printed block labels."
+}

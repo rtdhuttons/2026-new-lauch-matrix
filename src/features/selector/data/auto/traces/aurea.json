@@ -1,0 +1,14 @@
+{
+ "image": "https://img.singmap.com/upload/broke/2bb941dfc39445998b241147df411af3/c2cf5c2178c5433fb6eb56cbe2dfbb3d/siteplanImg/20250310/Site_Plan.png",
+ "widthPx": 1600,
+ "heightPx": 2675,
+ "pxPerM": 14.76,
+ "northDeg": 139,
+ "crop": [790, 150, 1495, 865],
+ "blocks": [
+  { "block": "Aurea", "core": [1150, 590] }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "Traced on the Level 3 facilities plan (top panel). Scale bar 12 m = 177 px (0 at x 853, 12 m at x 1030); the 25 m lap pool measures about 25 m at this scale. North point about 139° anticlockwise from plan up (it points down and to the left). One tower; the core is placed at the central service core. Stack numbers are not printed, so stacks are arranged round the core."
+}

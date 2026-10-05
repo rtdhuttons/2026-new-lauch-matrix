@@ -1,0 +1,116 @@
+{
+ "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/23a0bd1f430c4d55a8bf6fd39fb177b8/siteplanImg/20241213/Site_Plan_1.png",
+ "widthPx": 1600,
+ "heightPx": 2262,
+ "pxPerM": 7.967,
+ "northDeg": 0,
+ "crop": [
+  90,
+  760,
+  1600,
+  2262
+ ],
+ "blocks": [
+  {
+   "block": "Block 10",
+   "core": [
+    454,
+    1257
+   ],
+   "stacks": {
+    "01": [
+     410,
+     1318
+    ],
+    "02": [
+     313,
+     1306
+    ],
+    "03": [
+     354,
+     1199
+    ],
+    "04": [
+     422,
+     1184
+    ],
+    "05": [
+     482,
+     1198
+    ],
+    "06": [
+     578,
+     1199
+    ],
+    "07": [
+     660,
+     1206
+    ],
+    "08": [
+     644,
+     1318
+    ],
+    "09": [
+     564,
+     1304
+    ],
+    "10": [
+     483,
+     1315
+    ]
+   }
+  },
+  {
+   "block": "Block 12",
+   "core": [
+    798,
+    1795
+   ],
+   "stacks": {
+    "11": [
+     845,
+     1732
+    ],
+    "12": [
+     960,
+     1739
+    ],
+    "13": [
+     907,
+     1845
+    ],
+    "14": [
+     837,
+     1878
+    ],
+    "15": [
+     773,
+     1849
+    ],
+    "16": [
+     677,
+     1852
+    ],
+    "17": [
+     581,
+     1840
+    ],
+    "18": [
+     604,
+     1725
+    ],
+    "19": [
+     703,
+     1744
+    ],
+    "20": [
+     772,
+     1739
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 30 m = 239 px (0 at x 1167, 30 m at x 1406; 10 m ticks about 80 px apart); north point straight up. Block and stack numbers are printed on the plan; cores at the 'BLK 10' and 'BLK 12' labels."
+}

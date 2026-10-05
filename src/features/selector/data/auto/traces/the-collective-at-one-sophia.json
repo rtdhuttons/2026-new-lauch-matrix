@@ -1,0 +1,125 @@
+{
+ "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/03c7e19648714d9b88e7002ba6d4c0ec/siteplanImg/20241129/Site_Plan_2.png",
+ "widthPx": 1600,
+ "heightPx": 1972,
+ "pxPerM": 9.9,
+ "scaleFrom": "scale bar",
+ "northDeg": 22,
+ "crop": [
+  302,
+  990,
+  1600,
+  1972
+ ],
+ "blocks": [
+  {
+   "block": "1A",
+   "core": [
+    721,
+    1367
+   ],
+   "stacks": {
+    "21": [
+     652,
+     1307
+    ],
+    "22": [
+     760,
+     1310
+    ],
+    "23": [
+     831,
+     1310
+    ],
+    "24": [
+     835,
+     1432
+    ],
+    "25": [
+     768,
+     1433
+    ],
+    "26": [
+     691,
+     1434
+    ],
+    "27": [
+     611,
+     1434
+    ],
+    "28": [
+     545,
+     1443
+    ],
+    "29": [
+     527,
+     1307
+    ],
+    "30": [
+     602,
+     1307
+    ]
+   }
+  },
+  {
+   "block": "1B",
+   "core": [
+    719,
+    1674
+   ],
+   "stacks": {
+    "31": [
+     652,
+     1614
+    ],
+    "32": [
+     705,
+     1615
+    ],
+    "33": [
+     761,
+     1617
+    ],
+    "34": [
+     826,
+     1617
+    ],
+    "35": [
+     853,
+     1715
+    ],
+    "36": [
+     719,
+     1738
+    ],
+    "37": [
+     677,
+     1755
+    ],
+    "38": [
+     634,
+     1754
+    ],
+    "39": [
+     592,
+     1748
+    ],
+    "40": [
+     544,
+     1738
+    ],
+    "41": [
+     543,
+     1614
+    ],
+    "42": [
+     598,
+     1614
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "3rd storey plan (lower panel). Scale bar 10 m = 99 px (0 at x 1354, 10 m at x 1453); north point 22° anticlockwise from plan up. Stack numbers are printed on the plan; block cores at the printed '1A/1B Sophia Road' labels."
+}

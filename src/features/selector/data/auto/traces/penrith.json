@@ -1,0 +1,19 @@
+{
+  "image": "https://img.singmap.com/upload/broke/4a789c5dccda41b099ee2b217508d541/31378b5622d24478bc68a07ddc399c65/siteplanImg/20250929/Site_Plan_1.png",
+  "widthPx": 1600,
+  "heightPx": 1387,
+  "pxPerM": 5.86,
+  "northDeg": 280,
+  "crop": [55, 60, 1000, 480],
+  "blocks": [
+    { "block": "Blk 70", "core": [806, 285], "stacks": {
+      "01": [764, 274], "02": [771, 221], "03": [842, 211],
+      "04": [847, 290], "05": [846, 348], "06": [763, 306] } },
+    { "block": "Blk 72", "core": [272, 270], "stacks": {
+      "07": [232, 247], "08": [232, 217], "09": [308, 218],
+      "10": [315, 280], "11": [315, 324], "12": [232, 306] } }
+  ],
+  "stackPositions": "labelled",
+  "checked": "2026-10-05",
+  "notes": "Scale bar 40 m = 234.5 px (0 at x 668.5, 40 m at x 903); north point about 80° clockwise from plan up (points right). Block and stack numbers are printed on the 1st-storey plan (upper panel)."
+}

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { featuredProjects } from "@/features/selector/data/projects";
+import { featuredProjects, liveProjects } from "@/features/selector/data/projects";
 
 export default function Home() {
   return (
@@ -52,6 +52,26 @@ export default function Home() {
             </div>
           </Link>
         ))}
+
+        <section aria-labelledby="all-projects" className="mt-16">
+          <h2 id="all-projects" className="font-display text-3xl font-extrabold tracking-tight">Every project on the map</h2>
+          <p className="mt-2 max-w-[62ch] text-canopy/80">
+            Each has its own guide with the same tabs: every unit, floor plans, prices where released, schools, nearby projects and a payment estimate.
+          </p>
+          <ul className="mt-6 grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+            {liveProjects
+              .filter((p) => !p.featured)
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((p) => (
+                <li key={p.id} className="min-w-0">
+                  <Link href={`/projects/${p.id}`} className="flex items-baseline justify-between gap-3 border-b border-canopy/10 py-2 hover:text-reservoir">
+                    <span className="truncate font-display-normal font-semibold">{p.name}</span>
+                    <span className="shrink-0 font-display-normal text-sm text-stone">{p.card.eyebrow.split(" · ").pop()}</span>
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        </section>
       </main>
       <SiteFooter />
     </>

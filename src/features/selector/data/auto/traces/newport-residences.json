@@ -1,0 +1,80 @@
+{
+ "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/89abbcafcb6d4b85a543d4131a5148fb/siteplanImg/20251106/Site_Plan_1.png",
+ "widthPx": 1600,
+ "heightPx": 1254,
+ "pxPerM": 3.3,
+ "scaleFrom": "scale bar",
+ "northDeg": 0,
+ "crop": [
+  465,
+  885,
+  990,
+  1205
+ ],
+ "blocks": [
+  {
+   "block": "Newport Residences",
+   "core": [
+    615,
+    1030
+   ],
+   "stacks": {
+    "01": [
+     579,
+     1103
+    ],
+    "02": [
+     613,
+     1082
+    ],
+    "03": [
+     636,
+     1055
+    ],
+    "04": [
+     561,
+     1068
+    ],
+    "05": [
+     567,
+     1046
+    ],
+    "06": [
+     575,
+     1010
+    ],
+    "07": [
+     584,
+     988
+    ],
+    "08": [
+     606,
+     983
+    ],
+    "09": [
+     639,
+     982
+    ],
+    "10": [
+     670,
+     981
+    ],
+    "11": [
+     687,
+     1004
+    ],
+    "12": [
+     670,
+     1021
+    ],
+    "13": [
+     648,
+     1042
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the 'L23-L33 Site Plan (Typical)' panel, the only panel with all 13 stack numbers printed (L35-L44 differs: no stack 13, 03 moves). That panel's scale bar 0/2/5/10 m = 33 px (small print, so about \u00b15%); its north point is straight up. Core placed at the middle of the tower's central lift and corridor area."
+}

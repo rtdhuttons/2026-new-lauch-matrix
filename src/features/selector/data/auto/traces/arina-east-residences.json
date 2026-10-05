@@ -1,0 +1,61 @@
+{
+ "image": "https://img.singmap.com/upload/broke/18b5304434154c31add8ac44e89f9a82/f8b877eb3d354bdfa56ef5b1b60924ca/siteplanImg/20250412/Site_Plan_1.png",
+ "widthPx": 1600,
+ "heightPx": 906,
+ "pxPerM": 5.6,
+ "scaleFrom": "scale bar",
+ "northDeg": 90,
+ "crop": [
+  0,
+  55,
+  765,
+  555
+ ],
+ "blocks": [
+  {
+   "block": "Blk 6C",
+   "core": [
+    434,
+    253
+   ],
+   "stacks": {
+    "01": [
+     397,
+     245
+    ],
+    "02": [
+     432,
+     212
+    ],
+    "03": [
+     476,
+     256
+    ],
+    "04": [
+     451,
+     293
+    ]
+   }
+  },
+  {
+   "block": "Blk 6D",
+   "core": [
+    250,
+    236
+   ],
+   "stacks": {
+    "05": [
+     226,
+     211
+    ],
+    "06": [
+     267,
+     251
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Site plan (left panel). Scale bar 0-15 m = 84 px (small print; same bar layout as the 19th-floor plan's 0/1.5/15 m bar). North point straight left (90\u00b0 anticlockwise of plan up). Stack numbers printed on the plan; block names are not printed, so stacks 01-04 are Blk 6C and 05-06 Blk 6D per the unit list. Blk 6C core at the white cross between its four units; Blk 6D core at the middle of its footprint. Bar labels are low-resolution; a rough outline of the plot against the published site area (4,367.6 m\u00b2) gives about 5.5 px/m, which agrees within about 3%."
+}

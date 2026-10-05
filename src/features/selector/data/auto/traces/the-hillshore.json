@@ -1,0 +1,15 @@
+{
+ "image": "https://img.singmap.com/upload/broke/ac3faf5162b945229e103d269be4f90d/deac97981cbc41baab577f9cf9f03f33/siteplanImg/20240223/Site Plan.png",
+ "widthPx": 1600,
+ "heightPx": 1126,
+ "pxPerM": 10.16,
+ "northDeg": 319,
+ "crop": [30, 20, 1580, 625],
+ "blocks": [
+  { "block": "Blk 290", "core": [547, 246], "stacks": { "01": [461, 184], "02": [571, 184], "03": [674, 184], "04": [692, 314], "05": [595, 305], "06": [461, 315], "07": [571, 184], "08": [674, 184], "09": [692, 314], "10": [595, 305] } },
+  { "block": "Blk 292", "core": [1175, 259], "stacks": { "11": [1028, 197], "12": [1127, 197], "13": [1211, 198], "14": [1315, 198], "15": [1329, 286], "16": [1321, 379], "17": [1028, 309], "18": [1211, 198], "19": [1315, 198], "20": [1329, 286], "21": [1321, 379] } }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 40 m = 406 px (0 at x 131, 40 at x 538); north point about 41° clockwise from plan up. Block and stack numbers are printed on the plan; pairs such as 02/07 share one position (the second number is the penthouse stack above)."
+}

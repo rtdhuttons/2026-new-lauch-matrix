@@ -1,0 +1,14 @@
+{
+ "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/41468c148b10404ba328a64ebc45abdb/siteplanImg/20241001/Site Plan 2.jpg",
+ "widthPx": 1600,
+ "heightPx": 1300,
+ "pxPerM": 11.25,
+ "northDeg": 25,
+ "crop": [0, 0, 1600, 1050],
+ "blocks": [
+  {"block": "One Sophia", "core": [1107, 493], "stacks": {"01": [1176, 325], "02": [1260, 432], "03": [1260, 531], "04": [1260, 617], "05": [1251, 725], "06": [1251, 879], "07": [939, 879], "08": [939, 696], "09": [939, 617], "10": [939, 531], "11": [939, 432], "12": [1019, 325]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "1st storey plan. Scale bar 10 m = 112.5 px (ticks 0, 2, 5, 10 m all agree); north point 25 degrees anticlockwise from plan up. The units are in the east building on Selegie Road (the floor plans' key plan; unit areas in the unit list match the 5th storey plan). Core is the office lift lobby between the two lift banks. Stack numbers are not printed on the site plan: positions are the unit labels #05-01 to #05-12 on the 5th storey plan, carried over by matching its lift core to the site plan's (about 1.06 site px per floor plan px; unit sizes then agree with the listed areas, e.g. #05-01 about 200 sqm against 205)."
+}

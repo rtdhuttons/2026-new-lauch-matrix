@@ -1,0 +1,66 @@
+{
+ "image": "https://img.singmap.com/upload/broke/18b5304434154c31add8ac44e89f9a82/01f112d7a2474e0683f8adfabe8ce9a0/siteplanImg/20260413/Site_Plan.png",
+ "widthPx": 2076,
+ "heightPx": 1368,
+ "pxPerM": 19.35,
+ "scaleFrom": "scale bar",
+ "northDeg": 28,
+ "crop": [
+  1040,
+  545,
+  2076,
+  1290
+ ],
+ "blocks": [
+  {
+   "block": "Blk 2",
+   "core": [
+    1514,
+    1098
+   ],
+   "stacks": {
+    "01": [
+     1443,
+     1082
+    ]
+   }
+  },
+  {
+   "block": "Blk 4",
+   "core": [
+    1610,
+    1096
+   ],
+   "stacks": {
+    "02": [
+     1700,
+     1064
+    ]
+   }
+  },
+  {
+   "block": "Blk 6",
+   "core": [
+    1459,
+    752
+   ],
+   "stacks": {
+    "01": [
+     1316,
+     861
+    ],
+    "02": [
+     1465,
+     876
+    ],
+    "03": [
+     1597,
+     851
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Right-hand panel (3rd and 7th floor units). Scale bar 15 m = 290 px (1:100); north point 28\u00b0 anticlockwise from plan up. Stacks at the printed unit numbers 03-01, 03-02 (conserved Blk 2 and Blk 4) and 07-01 to 07-03 (annex Blk 6). Cores: the conserved houses' shared lift (Blk 2) and stair (Blk 4); the annex lift on the north edge, read from the 2nd floor panel."
+}

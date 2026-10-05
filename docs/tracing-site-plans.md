@@ -18,13 +18,23 @@ for Thomson Reserve.
 2. Pick the image that is the site plan (usually "Site Plan"). Use
    `zoom <slug> <n> x0 y0 x1 y1` for close-ups (finer grid, original pixels).
 3. Read, in original pixels:
-   - **Scale**: the scale bar's 0 tick and its last tick; `pxPerM` = pixel
-     distance ÷ metres. If there is no scale bar, use a known size (a
-     standard tennis court is 23.77 m long; a 50 m lap pool) and say so in
-     `notes`. If neither exists, do not guess: skip the project.
+   - **Scale**, in this order of preference (`scaleFrom`):
+     1. "scale bar": the scale bar's 0 tick and its last tick; `pxPerM` =
+        pixel distance ÷ metres.
+     2. "site area": trace the site boundary (the plot's outer line) as a
+        polygon in `siteBoundary`, then run
+        `trace_tools.py scale <slug> x1,y1 x2,y2 ...` with the same points;
+        it divides the polygon's area by the site area the developer
+        publishes. Only when the whole plot is shown and its boundary is
+        clear.
+     3. "known dimension": a standard tennis court (23.77 m long) or a lap
+        pool whose length the developer states. Say which in `notes`.
+     If none of these works, do not guess: skip the project.
    - **North**: the direction the north arrow points, as degrees clockwise
      from straight up on the image. `northDeg` = 360 − that angle (so an
-     arrow leaning 31° right gives 329; leaning 12° left gives 12).
+     arrow leaning 31° right gives 329; leaning 12° left gives 12). If the
+     plan has no north point, set `"northDeg": null`: the layout is still
+     placed to scale, and the site says facings are not known.
    - **Blocks**: for every block name in the unit list (e.g. "Blk 32"), the
      centre of the block (its lift core, often where the block number is
      printed) as `core`.

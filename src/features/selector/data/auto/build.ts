@@ -76,10 +76,14 @@ export interface AutoTrace {
   image: string;
   widthPx: number;
   heightPx: number;
-  /** From the plan's scale bar. */
+  /** From the plan's scale bar, or from the site boundary and the published site area (`scaleFrom`). */
   pxPerM: number;
-  /** Bearing of the plan's "up", degrees east of true north (from its north point). */
-  northDeg: number;
+  /** How the scale was found. */
+  scaleFrom?: "scale bar" | "site area" | "known dimension";
+  /** Bearing of the plan's "up", degrees east of true north (from its north point); null when the plan has none. */
+  northDeg: number | null;
+  /** The site boundary traced on the plan, when the scale comes from the site area. */
+  siteBoundary?: [number, number][];
   blocks: {
     /** The block's name in the unit list, e.g. "Blk 32". */
     block: string;
@@ -220,6 +224,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
   const [cx0, cy0, cx1, cy1] = trace?.crop ?? [0, 0, trace?.widthPx ?? 0, trace?.heightPx ?? 0];
   const P = (x: number, y: number): Point => ({ x: (x - cx0) / pxPerM, y: (y - cy0) / pxPerM });
   const planNorth = trace?.northDeg ?? 0;
+  const northKnown = trace ? trace.northDeg !== null : false;
   const sizeFor = (sqft: number) => Math.min(14, Math.max(7, Math.sqrt((sqft / 10.764) * 1.3)));
   const blocks: Block[] = [];
   const stacks: Stack[] = [];
@@ -274,7 +279,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
       for (const u of own.filter((x) => x[1] === s)) byLayout.set(layoutIdOf(u), (byLayout.get(layoutIdOf(u)) ?? 0) + 1);
       const main = [...byLayout.entries()].sort((a, b) => b[1] - a[1])[0][0];
       const living = normaliseBearing(planBearing(core, position) + planNorth);
-      const facingKnown = !!t;
+      const facingKnown = !!t && northKnown;
       stacks.push({
         id: sid,
         blockId: id,
@@ -475,7 +480,14 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     { item: "Project facts, every unit, availability and published prices", kind: "third-party", source: "Huttons New Launch API", checked: spec.fetched, status: "verified" },
     { item: "Floor plans, site plans and renders", kind: "developer", source: "Developer's marketing material (via the Huttons New Launch API)", checked: spec.fetched, status: "verified" },
     trace
-      ? { item: "Block and stack positions and facings", kind: "calculated", source: "Traced by TRM from the developer's site plan (scale bar and north point)", checked: trace.checked, status: "estimated", ...(trace.notes ? { note: trace.notes } : {}) }
+      ? {
+          item: northKnown ? "Block and stack positions and facings" : "Block and stack positions",
+          kind: "calculated",
+          source: `Traced by TRM from the developer's site plan (scale from the ${trace.scaleFrom ?? "scale bar"}${northKnown ? ", north point" : "; the plan has no north point, so facings are not known"})`,
+          checked: trace.checked,
+          status: "estimated",
+          ...(trace.notes ? { note: trace.notes } : {}),
+        }
       : { item: "Block and stack positions", kind: "illustrative", source: "Schematic until the site plan is traced", checked: spec.fetched, status: "unknown" },
     { item: "Floor heights (level 1 4.5 m, other floors 3.15 m)", kind: "illustrative", source: "TRM assumption; not published", checked: spec.fetched, status: "assumed" },
     ...(station ? [{ item: `Walking distance to ${station.name} MRT`, kind: "third-party" as const, source: "Huttons New Launch API, nearby facilities", checked: spec.fetched, status: "estimated" as const }] : []),
@@ -490,11 +502,11 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     status: "live",
     profile: {
       name: spec.name,
-      address: f.address ? `${f.address}${f.postalCode ? `, Singapore ${f.postalCode}` : ""}` : null,
+      address: f.address ? `${f.address}${f.postalCode && /^\d{6}$/.test(f.postalCode) ? `, Singapore ${f.postalCode}` : ""}` : null,
       developer: f.developer,
       tenure: f.tenure,
       district: f.district ? `District ${Number(f.district.replace(/\D/g, ""))}${f.area ? ` (${f.area})` : ""}` : null,
-      towersSummary: `${blocks.length} block${blocks.length === 1 ? "" : "s"} of up to ${Math.max(...blocks.map((b) => b.storeys))} storeys`,
+      towersSummary: blocks.length ? `${blocks.length} block${blocks.length === 1 ? "" : "s"} of up to ${Math.max(...blocks.map((b) => b.storeys))} storeys` : null,
       nearestMrt: station0,
       expectedCompletion: f.completionDate ? { date: f.completionDate, provenance: { ...API, status: "estimated", note: "Expected completion (Huttons New Launch API)." } } : null,
       launchDate: f.launchDate ? { date: f.launchDate, provenance: API } : null,
@@ -518,7 +530,12 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     },
     dataset,
     mrtEntrance: null,
-    media: { hero: spec.mainImage ? { src: full(spec.mainImage), srcSet: "", alt: `${spec.name}. Artist's impression.` } : null, gallery },
+    media: {
+      hero: spec.mainImage
+        ? { src: full(spec.mainImage), srcSet: "", alt: `${spec.name}: the project's main image from the developer's marketing material.`, credit: "Developer's image; renders are artist's impressions" }
+        : null,
+      gallery,
+    },
     location: locationGroups.length
       ? { map: null, mapCaption: "", groups: locationGroups, provenance: { ...DEV, note: "As the developer lists them; distances and times not measured by TRM." } }
       : null,
@@ -538,6 +555,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     sources,
     gaps: [
       ...(trace ? [] : ["Site plan tracing: the 3D model is schematic until TRM traces the developer's site plan, so stack positions and facings are not known."]),
+      ...(trace && !northKnown ? ["Facings: the developer's site plan has no north point, so the direction each unit faces and its sun are not known yet."] : []),
       ...(trace?.stackPositions === "arranged" ? ["Stack positions round each block are arranged by TRM; the exact side of the block each stack faces is not confirmed."] : []),
       ...(priced === 0 ? ["Prices: the developer's price list has not been published."] : []),
       "Views over the neighbours: not assessed.",

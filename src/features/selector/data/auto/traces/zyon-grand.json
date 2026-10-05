@@ -1,0 +1,15 @@
+{
+ "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/a92578afb30f481ea19b4bf48fffb96b/siteplanImg/20250923/Site_Plan_1.jpg",
+ "widthPx": 1600,
+ "heightPx": 899,
+ "pxPerM": 4.09,
+ "northDeg": 27,
+ "crop": [70, 100, 1115, 780],
+ "blocks": [
+  {"block": "Block 3", "core": [307, 357], "stacks": {"01": [347, 369], "02": [278, 387], "03": [245, 345], "04": [285, 325], "05": [314, 319], "06": [354, 311]}},
+  {"block": "Block 5", "core": [607, 420], "stacks": {"07": [643, 433], "08": [577, 446], "09": [552, 393], "10": [599, 389], "11": [616, 390], "12": [664, 393]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 40 m = 163.75 px (0 at x 878, 40 m at x 1041.75); north point 27 degrees anticlockwise from plan up. Block and stack numbers are printed on the plan (Upper 1st storey)."
+}

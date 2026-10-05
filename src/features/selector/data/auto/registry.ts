@@ -38,7 +38,7 @@ export const autoListings: AutoListing[] = [
     "area": "Clementi / Upper Bukit Timah",
     "summary": "158 units · 99 Years · D21",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/00a420908c8249778e11c7d2259afb18/imgs/20240830/7c3b1ed93cd54e8297e14c44214c58fc.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "amberwood-at-holland",
@@ -47,7 +47,7 @@ export const autoListings: AutoListing[] = [
     "area": "Tanglin / Holland",
     "summary": "212 units · 99 Years · D10",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/a1bec73dbfd74619848faf3e0c5090c9/imgs/20260813/edc3db0b9dff4361b9586fe1bf34c11d.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "arc-380",
@@ -74,7 +74,7 @@ export const autoListings: AutoListing[] = [
     "area": "East Coast / Marine Parade",
     "summary": "107 units · Freehold · D15",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/f8b877eb3d354bdfa56ef5b1b60924ca/imgs/20240919/7007c7ee02674b2c92fa39f9ce57cd00.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "artisan-8",
@@ -92,7 +92,7 @@ export const autoListings: AutoListing[] = [
     "area": "East Coast / Marine Parade",
     "summary": "39 units · Freehold · D15",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/d0cc32d4726b49e395146ed9c349dcdf/imgs/20260817/05ccdc51bd30446b9c5012118e111c8e.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "aurea",
@@ -101,7 +101,7 @@ export const autoListings: AutoListing[] = [
     "area": "Beach Road / Bugis / Rochor",
     "summary": "188 units · 99 Years · D07",
     "image": "https://img.singmap.com/upload/broke/2bb941dfc39445998b241147df411af3/c2cf5c2178c5433fb6eb56cbe2dfbb3d/imgs/20250310/f5a9ad9a6c6044ba95358713592b8b3a.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "bagnall-haus",
@@ -110,7 +110,7 @@ export const autoListings: AutoListing[] = [
     "area": "Bedok / Upper East Coast",
     "summary": "113 units · Freehold · D16",
     "image": "https://img.singmap.com/upload/broke/e08e357f9f884accb9c10bc4de0c8c3a/d628a74456874b778432799fd9e53517/imgs/20241118/e8c0eb6c817d4c9ca6c0d535451f9ba2.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "bedok-rise-gls",
@@ -137,7 +137,7 @@ export const autoListings: AutoListing[] = [
     "area": "Buona Vista / West Coast",
     "summary": "358 units · 99 Years · D05",
     "image": "https://img.singmap.com/upload/broke/de0b7f8e27dc4ad0a99ac8a53c792778/2546baa1d7364ff1b2024aa98c49a248/imgs/20250314/c9b50793f8c1413c80f9023a7c1d11be.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "canberra-crescent-residences",
@@ -146,7 +146,7 @@ export const autoListings: AutoListing[] = [
     "area": "Sembawang / Yishun",
     "summary": "376 units · 99 years · D27",
     "image": "https://img.singmap.com/upload/broke/ccebe384b5234eec8b78e66325fa7c43/697564dce09a4511a8d56e739ecdaabd/imgs/20250619/052d47077927438893cefc3828f64721.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "canninghill-piers",
@@ -209,7 +209,7 @@ export const autoListings: AutoListing[] = [
     "area": "Hougang / Punggol / Sengkang",
     "summary": "916 units · 99 Years · D19",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/eccc7150c2254954a2371b9655eb459c/imgs/20240929/2a00a5437f3e4912a60a1b3fb12cbc75.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "citrine-foodland",
@@ -236,7 +236,7 @@ export const autoListings: AutoListing[] = [
     "area": "Loyang / Changi",
     "summary": "748 units · 99 years · D17",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/60dab94999134e819496275b30b239aa/imgs/20251117/4fcc4ebc0fb446f5aac1c0e2509c25e6.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "ct-foodnex",
@@ -272,7 +272,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "20 units · Freehold · D09",
     "image": "https://img.singmap.com/upload/broke/18b5304434154c31add8ac44e89f9a82/01f112d7a2474e0683f8adfabe8ce9a0/imgs/20260409/f487baaba78c4322af98b391afb817ed.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "dunearn-house",
@@ -281,7 +281,7 @@ export const autoListings: AutoListing[] = [
     "area": "Newton / Novena",
     "summary": "380 units · 99 Years · D11",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/700527d89a91474a8887269b36cb1642/imgs/20260703/1e55386c09b74ccf8b5e2e1259ce0f5d.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "eden-residences-capitol",
@@ -299,7 +299,7 @@ export const autoListings: AutoListing[] = [
     "area": "Buona Vista / West Coast",
     "summary": "501 units · 99 Years · D05",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/88a853a0ae6443749b7e5f957b8e6480/imgs/20241206/bfd506307b5f4f8b9180c6a0156af646.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "faber-residence",
@@ -308,7 +308,7 @@ export const autoListings: AutoListing[] = [
     "area": "Buona Vista / West Coast",
     "summary": "399 units · 99 years · D05",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/946c32a7bc3c43f6b1df4513a33d371e/imgs/20250919/58ea0426fe534b1bb6d527cbd11981c8.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "forett-at-bukit-timah",
@@ -317,7 +317,7 @@ export const autoListings: AutoListing[] = [
     "area": "Clementi / Upper Bukit Timah",
     "summary": "635 units · Freehold · D21",
     "image": "https://img.singmap.com/upload/broke/de0b7f8e27dc4ad0a99ac8a53c792778/3c4e53308b2c48d0bca49a3984e36eaa/imgs/edb55fa8ec5b488ba990fde93557ec4e.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "gate",
@@ -335,7 +335,7 @@ export const autoListings: AutoListing[] = [
     "area": "Eunos / Geylang / Paya Lebar",
     "summary": "24 units · Freehold · D14",
     "image": "https://img.singmap.com/upload/broke/a9a01cbb4f6f4db1abb85b4c1b314e0e/33e2df04dc4b4e3c8bb0d6c780ffdc89/imgs/20230107/5450d41271004bb6935f59ea178c16cd.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "gourmet-xchange",
@@ -353,7 +353,7 @@ export const autoListings: AutoListing[] = [
     "area": "East Coast / Marine Parade",
     "summary": "1,008 units · 99 Years · D15",
     "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/1430cfcb8f9c4302860203c0f370a169/imgs/20230627/f80f22615fe14629bb8eade4a1907730.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "grange-1866",
@@ -389,7 +389,7 @@ export const autoListings: AutoListing[] = [
     "area": "Buona Vista / West Coast",
     "summary": "327 units · 99 years · D05",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/e80c8fc512304bd7b7969fcf96b00048/imgs/20260401/b109bc2dee40468881810364679b5b71.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "j-den",
@@ -407,7 +407,7 @@ export const autoListings: AutoListing[] = [
     "area": "Hougang / Punggol / Sengkang",
     "summary": "21 units · 999 Years · D19",
     "image": "https://img.singmap.com/upload/broke/5cb3b4b34ffc47d8915a2daa367dbc70/b70f2395f54e4b6b8f8c7d546dd52f21/imgs/20240403/cc6452f50829469aa3cd5053bf43960f.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "kallang-riverside",
@@ -425,7 +425,7 @@ export const autoListings: AutoListing[] = [
     "area": "Loyang / Changi",
     "summary": "276 units · Freehold · D17",
     "image": "https://img.singmap.com/upload/broke/2ee6265311894f32b0d5dbf26a647c41/ad0b6595310b4a0e9bcf1811adab01d1/imgs/20240612/543f1a0a6ecb405282703d54a9e97008.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "keystone-mandai",
@@ -443,7 +443,7 @@ export const autoListings: AutoListing[] = [
     "area": "Hougang / Punggol / Sengkang",
     "summary": "34 units · Freehold · D19",
     "image": "https://img.singmap.com/upload/broke/fa3c623bfa964b5fbf83c76dd87deb57/74375cc798c642e991b052bb63b41961/imgs/20221114/2ca8f8d984a74359804321f9260f7124.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "lentor-gardens-residences",
@@ -452,7 +452,7 @@ export const autoListings: AutoListing[] = [
     "area": "Mandai / Upper Thomson",
     "summary": "499 units · 99 Years · D26",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/02a030d8f3ca4ed1b2093e94e3b31115/imgs/20260430/8ece4bbe5c3c4541ab1c5fb4ef0eeeed.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "lentoria",
@@ -479,7 +479,7 @@ export const autoListings: AutoListing[] = [
     "area": "Boon Lay / Jurong / Tuas",
     "summary": "570 units · 99 Years · D22",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/adf9b59f73ba40cc85938836a28d4037/imgs/20260807/47821877cc854ff58fa76a5624cb4bf1.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "lucida",
@@ -515,7 +515,7 @@ export const autoListings: AutoListing[] = [
     "area": "East Coast / Marine Parade",
     "summary": "226 units · Freehold · D15",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/83b9b826f1f0445ca23b38813aea6358/imgs/20241128/f516103acfe04d6190bfe85b1cecdcfa.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "midtown-bay",
@@ -542,7 +542,7 @@ export const autoListings: AutoListing[] = [
     "area": "Bukit Batok / Bukit Panjang",
     "summary": "540 units · 99 Years · D23",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/030fee210b074a86a512f1f6cfaf62b6/imgs/20251108/e438272f45064341a4f894fe9af71b3c.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "nava-grove",
@@ -551,7 +551,7 @@ export const autoListings: AutoListing[] = [
     "area": "Clementi / Upper Bukit Timah",
     "summary": "552 units · 99 Years · D21",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/4a25b483869c44f38fad81c15c945c4f/imgs/20241017/9e1f674dc7a14b9ab2ea1a020534a676.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "newport-residences",
@@ -560,7 +560,7 @@ export const autoListings: AutoListing[] = [
     "area": "Chinatown / Tanjong Pagar",
     "summary": "246 units · Freehold · D02",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/89abbcafcb6d4b85a543d4131a5148fb/imgs/20251106/bc7b96e8909e447280f74beb594c2d88.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "nim-collection",
@@ -578,7 +578,7 @@ export const autoListings: AutoListing[] = [
     "area": "Sembawang / Yishun",
     "summary": "616 units · 99 Years · D27",
     "image": "https://img.singmap.com/upload/broke/0e98949df752401f984325fa8911a1af/e2f59c122d1b47af8d9a734fc79fa467/imgs/20220307/45cbc14feeeb4212ba02b775cc0af0ef.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "norwood-grand",
@@ -587,7 +587,7 @@ export const autoListings: AutoListing[] = [
     "area": "Admiralty / Woodlands",
     "summary": "348 units · 99 Years · D25",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/3afb1fde3a244b79bc85e5f39d888ab4/imgs/20240826/fb7960664b6b4d51b6fdec4a1bce82d6.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "ocho",
@@ -614,7 +614,7 @@ export const autoListings: AutoListing[] = [
     "area": "Boat Quay / Raffles Place",
     "summary": "937 units · 99 Years · D01",
     "image": "https://img.singmap.com/upload/broke/d4009c115bc14e3298551010fb11dba6/b1d78cceab4d4515a1ec7969ccda74b8/imgs/20250303/bee7d6a3e7c84017930069d475174a3e.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "one-sophia",
@@ -623,7 +623,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "122 units · 99 Years · D09",
     "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/41468c148b10404ba328a64ebc45abdb/imgs/20240906/6b68e928432c439789f206e8bb52c2f7.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "parksuites",
@@ -632,7 +632,7 @@ export const autoListings: AutoListing[] = [
     "area": "Tanglin / Holland",
     "summary": "119 units · 99 Years · D10",
     "image": "https://img.singmap.com/upload/broke/2bb941dfc39445998b241147df411af3/cd4698ee608646f28762fcb8bf3b6e42/imgs/20230307/7fde2381bdd840a3b597824807376312.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "parktown-residence",
@@ -641,7 +641,7 @@ export const autoListings: AutoListing[] = [
     "area": "Pasir Ris / Tampines",
     "summary": "1,193 units · 99 Years · D18",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/af5940a962684cb1ac366e1535d1b7a0/imgs/20250111/ee0da83607514e8ebe10eec760db931f.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "penrith",
@@ -650,7 +650,7 @@ export const autoListings: AutoListing[] = [
     "area": "Alexandra / Commonwealth",
     "summary": "462 units · 99 years · D03",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/31378b5622d24478bc68a07ddc399c65/imgs/20250917/1d07508fc3144717911295aac2ef3160.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "pinery-residences",
@@ -659,7 +659,7 @@ export const autoListings: AutoListing[] = [
     "area": "Pasir Ris / Tampines",
     "summary": "588 units · 99 years · D18",
     "image": "https://img.singmap.com/upload/broke/da3d9f7796fb41409a7febecd684da42/eaf892dde8d345e7b8beea79e9851184/imgs/20260129/256c4cbbc8bf46a2b4494455d2dcbd4c.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "promenade-peak",
@@ -668,7 +668,7 @@ export const autoListings: AutoListing[] = [
     "area": "Alexandra / Commonwealth",
     "summary": "596 units · 99 years · D03",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/1917872113dc425797ca4239311a6ee3/imgs/20250627/b747cb1080d7429f89d3a408ff65fc39.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "reignwood-hamilton-scotts",
@@ -704,7 +704,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "455 units · 99 years · D09",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/2bf756a1de0c47808e164704cb191232/imgs/20260130/bc15ac9299964dbb909ba61fa33d2a2c.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "seascape",
@@ -749,7 +749,7 @@ export const autoListings: AutoListing[] = [
     "area": "Sembawang / Yishun",
     "summary": "420 units · 99 Years · D27",
     "image": "https://img.singmap.com/upload/broke/2f604efc567047edb5e7e92d5ec0666b/a49e407ce61345b2b1d462221494bb62/imgs/20230323/fe897f9936624fbab9781ce833a11fff.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "skywaters-residences",
@@ -785,7 +785,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "41 units · Leasehold · D09",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/eadec74ff2a84a8eb85de08de5bb4664/imgs/20260223/0b5fd734407f4f39ab67f368a9c3be35.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "sophia-regency",
@@ -794,7 +794,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "38 units · Freehold · D09",
     "image": "https://img.singmap.com/upload/broke/dd809d12f82a407a89d312b05a8a3117/53026e42201248c4a7746947767deb5e/imgs/20221014/49b4ad87515a46068b759ed2c2319df1.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "sora",
@@ -803,7 +803,7 @@ export const autoListings: AutoListing[] = [
     "area": "Boon Lay / Jurong / Tuas",
     "summary": "440 units · 99 Years · D22",
     "image": "https://img.singmap.com/upload/broke/f66152f7012949a7b9500e668467fad2/5862d7b906c54440828e1269d19bf2fc/imgs/20231019/f97c2bc0c8954186a8b9eceebcc72906.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "space-nova",
@@ -821,7 +821,7 @@ export const autoListings: AutoListing[] = [
     "area": "Mandai / Upper Thomson",
     "summary": "941 units · 99 years · D26",
     "image": "https://img.singmap.com/upload/broke/4a789c5dccda41b099ee2b217508d541/997843e71ffa45d08e3f20e2a0fd96ed/imgs/20250804/03032ba31f714c01b9f502c9e82267a2.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "terra-hill",
@@ -830,7 +830,7 @@ export const autoListings: AutoListing[] = [
     "area": "Buona Vista / West Coast",
     "summary": "270 units · Freehold · D05",
     "image": "https://img.singmap.com/upload/broke/da3d9f7796fb41409a7febecd684da42/655c7d587a7943a2b95bed4d0b4bf182/imgs/20221223/e85177a9de134b69b91ef8899a861c28.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-arcady-at-boon-keng",
@@ -848,7 +848,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "367 units · 99 Years · D09",
     "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/03c7e19648714d9b88e7002ba6d4c0ec/imgs/20241016/37c357a920e345eaaba00a55e6b7861a.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-giverny-residences",
@@ -884,7 +884,7 @@ export const autoListings: AutoListing[] = [
     "area": "Buona Vista / West Coast",
     "summary": "59 units · Freehold · D05",
     "image": "https://img.singmap.com/upload/broke/ac3faf5162b945229e103d269be4f90d/deac97981cbc41baab577f9cf9f03f33/imgs/20240104/6712037a788c4ebc972403e51c10d351.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-line-tanjong-rhu",
@@ -911,7 +911,7 @@ export const autoListings: AutoListing[] = [
     "area": "Bukit Batok / Bukit Panjang",
     "summary": "408 units · 99 Years · D23",
     "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/29c864ff55404605890dfbee32692362/imgs/20230609/28291b9573124443abe630ca9725816d.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-oceanfront-sentosa-cove",
@@ -938,7 +938,7 @@ export const autoListings: AutoListing[] = [
     "area": "Balestier / Toa Payoh",
     "summary": "777 units · 99 Years · D12",
     "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/23a0bd1f430c4d55a8bf6fd39fb177b8/imgs/20241203/ecc7353679bd4680971126663042e15a.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-ranz",
@@ -974,7 +974,7 @@ export const autoListings: AutoListing[] = [
     "area": "Orchard / River Valley",
     "summary": "348 units · 999 years · D09",
     "image": "https://img.singmap.com/upload/broke/6533cd747aa945afba657c83e2ed2d9b/6e92774ddc714ac293689aa98e405609/imgs/20250524/e284dd6780864e5b98ed355674128ac2.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-sen",
@@ -983,7 +983,7 @@ export const autoListings: AutoListing[] = [
     "area": "Clementi / Upper Bukit Timah",
     "summary": "347 units · 99 years · D21",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/70b9d30f47f5447da1d5c4252439fd26/imgs/20250904/d31383adbc7b4dc49c5cbfaed464f758.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "the-shorefront",
@@ -1064,7 +1064,7 @@ export const autoListings: AutoListing[] = [
     "area": "Bedok / Upper East Coast",
     "summary": "515 units · 99 Years · D16",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/cf7d4684ea39448697222b2a7d7aeab6/imgs/20260214/7d56259747ab41ff9a6f9ebd3816e03f.jpeg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "verde-joo-chiat",
@@ -1073,7 +1073,7 @@ export const autoListings: AutoListing[] = [
     "area": "East Coast / Marine Parade",
     "summary": "18 units · Freehold · D15",
     "image": "https://img.singmap.com/upload/broke/ae48bd89462943ac9dcb38c1b9092765/ebe493a28ec14ba6b966faa7476fa25f/imgs/20260408/acfababf367445e79b55b38415f4ad80.png?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "villas-greenbank-park",
@@ -1127,7 +1127,7 @@ export const autoListings: AutoListing[] = [
     "area": "Alexandra / Commonwealth",
     "summary": "706 units · 99 years · D03",
     "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/a92578afb30f481ea19b4bf48fffb96b/imgs/20250725/5de223a007e84aecb23c0f283ca26c22.jpeg?quality=50",
-    "traced": false
+    "traced": true
   }
 ];
 
@@ -1261,5 +1261,57 @@ export const autoSpecLoaders: Record<string, () => Promise<{ default: unknown }>
 
 /** Loads TRM's tracing of the project's site plan, where there is one. */
 export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }>> = {
+  "8-bt": () => import("./traces/8-bt.json"),
+  "amberwood-at-holland": () => import("./traces/amberwood-at-holland.json"),
+  "arina-east-residences": () => import("./traces/arina-east-residences.json"),
+  "atlassia": () => import("./traces/atlassia.json"),
+  "aurea": () => import("./traces/aurea.json"),
+  "bagnall-haus": () => import("./traces/bagnall-haus.json"),
+  "bloomsbury-residences": () => import("./traces/bloomsbury-residences.json"),
+  "canberra-crescent-residences": () => import("./traces/canberra-crescent-residences.json"),
+  "chuan-park": () => import("./traces/chuan-park.json"),
+  "coastal-cabana": () => import("./traces/coastal-cabana.json"),
+  "duet-emily": () => import("./traces/duet-emily.json"),
+  "dunearn-house": () => import("./traces/dunearn-house.json"),
+  "elta": () => import("./traces/elta.json"),
+  "faber-residence": () => import("./traces/faber-residence.json"),
+  "forett-at-bukit-timah": () => import("./traces/forett-at-bukit-timah.json"),
+  "gems-ville": () => import("./traces/gems-ville.json"),
+  "grand-dunman": () => import("./traces/grand-dunman.json"),
+  "hudson-place-residences": () => import("./traces/hudson-place-residences.json"),
+  "jansen-house": () => import("./traces/jansen-house.json"),
+  "kassia": () => import("./traces/kassia.json"),
+  "kovan-jewel": () => import("./traces/kovan-jewel.json"),
+  "lentor-gardens-residences": () => import("./traces/lentor-gardens-residences.json"),
   "lentoria": () => import("./traces/lentoria.json"),
+  "lucerne-grand": () => import("./traces/lucerne-grand.json"),
+  "meyer-blue": () => import("./traces/meyer-blue.json"),
+  "narra-residences": () => import("./traces/narra-residences.json"),
+  "nava-grove": () => import("./traces/nava-grove.json"),
+  "newport-residences": () => import("./traces/newport-residences.json"),
+  "north-gaia": () => import("./traces/north-gaia.json"),
+  "norwood-grand": () => import("./traces/norwood-grand.json"),
+  "one-marina-gardens": () => import("./traces/one-marina-gardens.json"),
+  "one-sophia": () => import("./traces/one-sophia.json"),
+  "parksuites": () => import("./traces/parksuites.json"),
+  "parktown-residence": () => import("./traces/parktown-residence.json"),
+  "penrith": () => import("./traces/penrith.json"),
+  "pinery-residences": () => import("./traces/pinery-residences.json"),
+  "promenade-peak": () => import("./traces/promenade-peak.json"),
+  "river-modern": () => import("./traces/river-modern.json"),
+  "skies-miltonia": () => import("./traces/skies-miltonia.json"),
+  "sophia-meadow": () => import("./traces/sophia-meadow.json"),
+  "sophia-regency": () => import("./traces/sophia-regency.json"),
+  "sora": () => import("./traces/sora.json"),
+  "springleaf-residence": () => import("./traces/springleaf-residence.json"),
+  "terra-hill": () => import("./traces/terra-hill.json"),
+  "the-collective-at-one-sophia": () => import("./traces/the-collective-at-one-sophia.json"),
+  "the-hillshore": () => import("./traces/the-hillshore.json"),
+  "the-myst": () => import("./traces/the-myst.json"),
+  "the-orie": () => import("./traces/the-orie.json"),
+  "the-robertson-opus": () => import("./traces/the-robertson-opus.json"),
+  "the-sen": () => import("./traces/the-sen.json"),
+  "vela-bay": () => import("./traces/vela-bay.json"),
+  "verde-joo-chiat": () => import("./traces/verde-joo-chiat.json"),
+  "zyon-grand": () => import("./traces/zyon-grand.json"),
 };

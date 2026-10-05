@@ -1,0 +1,25 @@
+{
+ "image": "https://img.singmap.com/upload/broke/5cb3b4b34ffc47d8915a2daa367dbc70/b70f2395f54e4b6b8f8c7d546dd52f21/siteplanImg/20240406/Site Plan 1.png",
+ "widthPx": 1600,
+ "heightPx": 869,
+ "pxPerM": 16.56,
+ "northDeg": 320,
+ "crop": [
+  67,
+  68,
+  1257,
+  742
+ ],
+ "blocks": [
+  {
+   "block": "Jansen House",
+   "core": [
+    477,
+    437
+   ]
+  }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 25 m = 414 px (0 at x 118.5, 25M at x 532.5); north point 40° clockwise from plan up. Core at the passenger lifts (key 2). Stack numbers are not printed on the site plan, so stacks are arranged round the core."
+}

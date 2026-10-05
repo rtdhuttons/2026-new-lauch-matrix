@@ -1,0 +1,14 @@
+{
+ "image": "https://img.singmap.com/upload/broke/ae48bd89462943ac9dcb38c1b9092765/ebe493a28ec14ba6b966faa7476fa25f/siteplanImg/20260408/Site_Plan.png",
+ "widthPx": 825,
+ "heightPx": 1068,
+ "pxPerM": 14.15,
+ "northDeg": 180,
+ "crop": [55, 150, 410, 950],
+ "blocks": [
+  {"block": "Verde Joo Chiat", "core": [204, 640], "stacks": {"01": [289, 483], "02": [293, 736], "03": [171, 736], "04": [183, 483]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 4 m = 56.6 px (0 at x 98, 4 m at x 154.6; ticks every 14.2 px; a parked car measures about 4.5 m at this scale). North point points straight down the plan (N printed below it). Core is the central lift (B, PL2). Unit numbers 1-4 are printed on the plan."
+}

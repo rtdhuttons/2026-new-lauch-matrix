@@ -1,0 +1,16 @@
+{
+  "image": "https://img.singmap.com/upload/broke/fa3c623bfa964b5fbf83c76dd87deb57/74375cc798c642e991b052bb63b41961/siteplanImg/20221114/Site Plan.png",
+  "widthPx": 1167,
+  "heightPx": 1649,
+  "pxPerM": 15.7,
+  "northDeg": 140,
+  "crop": [0, 100, 1110, 1250],
+  "blocks": [
+    { "block": "Kovan Jewel", "core": [569, 562], "stacks": {
+      "01": [614, 491], "02": [724, 491], "03": [660, 713], "04": [552, 713],
+      "05": [423, 713], "06": [313, 713], "07": [413, 491], "08": [523, 491] } }
+  ],
+  "stackPositions": "labelled",
+  "checked": "2026-10-05",
+  "notes": "Scale bar 20 m = 314 px (0 at x 63, 20 m at x 377; plan scale 1:500); north point about 220° clockwise from plan up (points down-left). Stack numbers 1-8 are printed on the plan; core is the lift lobby between stacks 8 and 1."
+}

@@ -1,0 +1,86 @@
+{
+ "image": "https://img.singmap.com/upload/broke/b5ed6101f3c441e1b6204ed90032ede6/d0cc32d4726b49e395146ed9c349dcdf/siteplanImg/20250725/Site_Plan_1.png",
+ "widthPx": 1600,
+ "heightPx": 2177,
+ "pxPerM": 15.75,
+ "northDeg": 270,
+ "crop": [
+  0,
+  736,
+  1262,
+  1430
+ ],
+ "blocks": [
+  {
+   "block": "Apartments",
+   "core": [
+    419,
+    1007
+   ],
+   "stacks": {
+    "1": [
+     186,
+     956
+    ],
+    "2": [
+     341,
+     956
+    ],
+    "3": [
+     584,
+     962
+    ],
+    "4": [
+     743,
+     962
+    ],
+    "5": [
+     957,
+     1148
+    ],
+    "6": [
+     831,
+     1148
+    ],
+    "7": [
+     743,
+     1148
+    ],
+    "8": [
+     659,
+     1148
+    ],
+    "9": [
+     574,
+     1148
+    ],
+    "10": [
+     489,
+     1148
+    ],
+    "11": [
+     404,
+     1148
+    ],
+    "12": [
+     321,
+     1148
+    ],
+    "13": [
+     234,
+     1148
+    ]
+   }
+  },
+  {
+   "block": "Commercial",
+   "core": [
+    600,
+    1180
+   ]
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the 2nd Storey Plan (middle panel), where all 13 stack numbers are printed; on levels 3 to 5 stacks 01-06 sit along the Service Road side (Typical Storey Plan). Scale bar 10 m = 157.5 px (x 1021 to 1178); the north point is a triangle pointing to the right of the plan (90° clockwise from plan up). Commercial (shops and restaurants on level 1, 1st Storey Plan) is placed at the middle of the Joo Chiat Place frontage; Apartments core at the residential lift."
+}

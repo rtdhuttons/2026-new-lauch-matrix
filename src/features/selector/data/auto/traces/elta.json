@@ -1,0 +1,93 @@
+{
+ "image": "https://img.singmap.com/upload/broke/367c376feb684b5b9361fbfe0defa451/88a853a0ae6443749b7e5f957b8e6480/siteplanImg/20250110/Site_Plan.png",
+ "widthPx": 1223,
+ "heightPx": 1913,
+ "pxPerM": 6.1,
+ "scaleFrom": "scale bar",
+ "northDeg": 45,
+ "crop": [
+  0,
+  0,
+  1223,
+  1100
+ ],
+ "blocks": [
+  {
+   "block": "Block 10",
+   "core": [
+    752,
+    555
+   ],
+   "stacks": {
+    "01": [
+     705,
+     624
+    ],
+    "02": [
+     702,
+     530
+    ],
+    "03": [
+     759,
+     505
+    ],
+    "04": [
+     807,
+     484
+    ],
+    "05": [
+     837,
+     571
+    ],
+    "06": [
+     788,
+     590
+    ]
+   }
+  },
+  {
+   "block": "Block 12",
+   "core": [
+    448,
+    563
+   ],
+   "stacks": {
+    "07": [
+     423,
+     595
+    ],
+    "08": [
+     360,
+     584
+    ],
+    "09": [
+     378,
+     496
+    ],
+    "10": [
+     424,
+     511
+    ],
+    "11": [
+     466,
+     518
+    ],
+    "12": [
+     525,
+     533
+    ],
+    "13": [
+     529,
+     621
+    ],
+    "14": [
+     466,
+     606
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 20 m = 122 px (0 at x 842, 20 m at x 964; the bar's unlabelled end is not used); the 50 m lap pool measures about 48 m at this scale. North point leans 45 degrees left of plan up. Stack and block numbers are printed on the plan."
+}

@@ -1,0 +1,108 @@
+{
+ "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/54aec0cc3a7a4a058e10fe7e21a44c17/siteplanImg/20260114/Site_Plan_1.png",
+ "widthPx": 4014,
+ "heightPx": 1895,
+ "pxPerM": 10.06,
+ "scaleFrom": "scale bar",
+ "northDeg": 95,
+ "crop": [
+  80,
+  1380,
+  1300,
+  1810
+ ],
+ "blocks": [
+  {
+   "block": "TMW Maxwell",
+   "core": [
+    932,
+    1560
+   ],
+   "stacks": {
+    "01": [
+     981,
+     1446
+    ],
+    "02": [
+     1035,
+     1446
+    ],
+    "03": [
+     1079,
+     1446
+    ],
+    "04": [
+     1156,
+     1446
+    ],
+    "05": [
+     1171,
+     1575
+    ],
+    "06": [
+     1093,
+     1575
+    ],
+    "07": [
+     1044,
+     1575
+    ],
+    "08": [
+     992,
+     1575
+    ],
+    "09": [
+     881,
+     1575
+    ],
+    "10": [
+     834,
+     1575
+    ],
+    "11": [
+     787,
+     1575
+    ],
+    "12": [
+     741,
+     1575
+    ],
+    "13": [
+     694,
+     1575
+    ],
+    "14": [
+     647,
+     1575
+    ],
+    "15": [
+     597,
+     1446
+    ],
+    "16": [
+     643,
+     1446
+    ],
+    "17": [
+     689,
+     1446
+    ],
+    "18": [
+     734,
+     1446
+    ],
+    "19": [
+     781,
+     1446
+    ],
+    "20": [
+     911,
+     1446
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the 4th storey site plan (lower left panel), where stack numbers are printed. Scale bar 20 m = 201 px (0 at x 1078, 20 m at x 1280); north point points to plan left, about 5 degrees below horizontal. Core is the widened lift lobby in the corridor."
+}

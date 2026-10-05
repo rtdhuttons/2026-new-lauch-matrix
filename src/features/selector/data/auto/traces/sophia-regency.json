@@ -1,0 +1,60 @@
+{
+ "image": "https://img.singmap.com/upload/broke/dd809d12f82a407a89d312b05a8a3117/53026e42201248c4a7746947767deb5e/siteplanImg/20221014/Site Plan.png",
+ "widthPx": 1600,
+ "heightPx": 1129,
+ "pxPerM": 22.2,
+ "scaleFrom": "scale bar",
+ "northDeg": 40,
+ "crop": [
+  570,
+  0,
+  1600,
+  1129
+ ],
+ "blocks": [
+  {
+   "block": "105 Sophia Road",
+   "core": [
+    1165,
+    615
+   ],
+   "stacks": {
+    "01": [
+     839,
+     455
+    ],
+    "02": [
+     967,
+     458
+    ],
+    "03": [
+     1105,
+     461
+    ],
+    "04": [
+     1231,
+     463
+    ],
+    "05": [
+     1391,
+     465
+    ],
+    "06": [
+     1407,
+     698
+    ],
+    "07": [
+     1337,
+     852
+    ],
+    "08": [
+     1190,
+     735
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 10 m = 222 px (0 at x 690, 10 m at x 912); north point leans 40 degrees left of plan up. The main plan shows the roof; stack positions are the stack numbers printed on the plan's unit distribution inset (same orientation, its own 10 m bar = 88 px), carried onto the main plan by matching the building outline (about 2.48x, checked against the pool ends to within 0.5 m). Core is the centre of the common corridor."
+}

@@ -1,0 +1,53 @@
+{
+ "image": "https://img.singmap.com/upload/broke/5999208594424323b957c1cb2e1d2052/70b9d30f47f5447da1d5c4252439fd26/siteplanImg/20251011/Site_Plan.png",
+ "widthPx": 4087,
+ "heightPx": 2526,
+ "pxPerM": 6.21,
+ "northDeg": 338,
+ "crop": [
+  1500,
+  1100,
+  2750,
+  2060
+ ],
+ "blocks": [
+  {
+   "block": "Blk 222",
+   "core": [
+    1781,
+    1410
+   ]
+  },
+  {
+   "block": "Blk 224",
+   "core": [
+    2130,
+    1353
+   ]
+  },
+  {
+   "block": "Blk 226",
+   "core": [
+    2379,
+    1306
+   ]
+  },
+  {
+   "block": "Blk 228",
+   "core": [
+    2354,
+    1613
+   ]
+  },
+  {
+   "block": "Blk 230",
+   "core": [
+    1986,
+    1727
+   ]
+  }
+ ],
+ "stackPositions": "arranged",
+ "checked": "2026-10-05",
+ "notes": "Traced on the Level 2 plan (centre panel). Scale bar 30 m = 186 px (0 at x 2528, 30m at x 2714); north point 22° clockwise from plan up. Blocks are drawn as outlines without stack numbers, so stacks are arranged round each block."
+}

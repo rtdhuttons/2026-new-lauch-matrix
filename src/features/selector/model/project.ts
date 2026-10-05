@@ -58,6 +58,8 @@ export interface HeroImage {
   src: string;
   srcSet: string;
   alt: string;
+  /** Caption in the corner; "Artist's impression" unless the image may not be a render. */
+  credit?: string;
 }
 
 export interface GalleryImage {

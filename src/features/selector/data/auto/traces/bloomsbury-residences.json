@@ -1,0 +1,16 @@
+{
+ "image": "https://img.singmap.com/upload/broke/de0b7f8e27dc4ad0a99ac8a53c792778/2546baa1d7364ff1b2024aa98c49a248/siteplanImg/20250328/Site_Plan_3.jpg",
+ "widthPx": 1600,
+ "heightPx": 1431,
+ "pxPerM": 5.04,
+ "northDeg": 36,
+ "crop": [0, 800, 1100, 1431],
+ "blocks": [
+  {"block": "Blk 61", "core": [312, 1285], "stacks": {"01": [386, 1321], "02": [335, 1319], "03": [300, 1322], "04": [256, 1320], "05": [239, 1245], "06": [290, 1244], "07": [333, 1243], "08": [385, 1246]}},
+  {"block": "Blk 63", "core": [220, 1070], "stacks": {"09": [256, 1104], "10": [187, 1099], "11": [184, 1036], "12": [258, 1037]}},
+  {"block": "Blk 65", "core": [605, 1285], "stacks": {"13": [664, 1321], "14": [622, 1322], "15": [579, 1320], "16": [530, 1320], "17": [527, 1244], "18": [585, 1243], "19": [625, 1245], "20": [680, 1245]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the lower (larger) plan, which prints block and stack numbers. Its scale comes from the upper plan on the same sheet: scale bar 50 m = 194.5 px there (3.89 px/m, confirmed by the tennis court 92.5 px = 23.77 m); the same court measures 119.75 px on the lower plan, giving 5.04 px/m. North point 36 degrees anticlockwise from plan up (same on both plans and the unit distribution chart)."
+}

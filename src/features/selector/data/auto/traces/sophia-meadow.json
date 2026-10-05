@@ -1,0 +1,63 @@
+{
+ "image": "https://img.singmap.com/upload/broke/9948608f644b42d3ab506b0e41bfe3f5/eadec74ff2a84a8eb85de08de5bb4664/siteplanImg/20260302/Site_Plan_2.png",
+ "widthPx": 3596,
+ "heightPx": 2303,
+ "pxPerM": 21.36,
+ "northDeg": 38,
+ "crop": [
+  2200,
+  60,
+  3150,
+  1230
+ ],
+ "blocks": [
+  {
+   "block": "Sophia Meadow",
+   "core": [
+    2734,
+    482
+   ],
+   "stacks": {
+    "02": [
+     2588,
+     297
+    ],
+    "01": [
+     2581,
+     412
+    ],
+    "09": [
+     2588,
+     537
+    ],
+    "08": [
+     2574,
+     653
+    ],
+    "03": [
+     2874,
+     277
+    ],
+    "04": [
+     2874,
+     404
+    ],
+    "05": [
+     2880,
+     537
+    ],
+    "06": [
+     2874,
+     645
+    ],
+    "07": [
+     2879,
+     782
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Traced on the 2nd-5th storey plan (upper right), where all nine unit numbers are printed. Scale bar 10 m = 214 px (x 3293 to 3507; the 1st storey bar agrees); north point 38 deg anticlockwise from plan up. Core at the lift lobby."
+}

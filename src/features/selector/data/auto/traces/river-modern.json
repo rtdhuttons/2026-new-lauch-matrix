@@ -1,0 +1,15 @@
+{
+ "image": "https://img.singmap.com/upload/broke/4a789c5dccda41b099ee2b217508d541/2bf756a1de0c47808e164704cb191232/siteplanImg/20260204/Site_Plan_1.png",
+ "widthPx": 3042,
+ "heightPx": 3046,
+ "pxPerM": 9.78,
+ "northDeg": 0,
+ "crop": [0, 0, 3042, 1980],
+ "blocks": [
+  {"block": "Tower 5", "core": [2254, 818], "stacks": {"01": [2422, 849], "02": [2329, 880], "03": [2188, 900], "04": [2137, 782], "05": [2205, 771], "06": [2311, 758]}},
+  {"block": "Tower 7", "core": [1445, 705], "stacks": {"07": [1596, 700], "08": [1491, 747], "09": [1414, 778], "10": [1319, 801], "11": [1369, 648], "12": [1453, 613], "13": [1521, 585]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "Scale bar 50 m = 489 px (0 at x 200, 50 m at x 689); north point straight up. Stack numbers are printed on the plan; tower numbers are not, so each core is placed at the shared corridor between its stacks."
+}

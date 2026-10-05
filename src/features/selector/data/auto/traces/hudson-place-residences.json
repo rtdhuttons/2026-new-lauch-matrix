@@ -1,0 +1,109 @@
+{
+ "image": "https://img.singmap.com/upload/broke/de0b7f8e27dc4ad0a99ac8a53c792778/e80c8fc512304bd7b7969fcf96b00048/siteplanImg/20260407/Site_Plan.png",
+ "widthPx": 1687,
+ "heightPx": 810,
+ "pxPerM": 5.5,
+ "scaleFrom": "known dimension",
+ "northDeg": 39,
+ "crop": [
+  200,
+  70,
+  1010,
+  670
+ ],
+ "blocks": [
+  {
+   "block": "Blk 18",
+   "core": [
+    719,
+    542
+   ],
+   "stacks": {
+    "01": [
+     742,
+     499
+    ],
+    "02": [
+     799,
+     502
+    ],
+    "03": [
+     796,
+     570
+    ],
+    "04": [
+     740,
+     577
+    ],
+    "05": [
+     697,
+     579
+    ],
+    "06": [
+     642,
+     583
+    ],
+    "07": [
+     640,
+     505
+    ],
+    "08": [
+     695,
+     503
+    ]
+   }
+  },
+  {
+   "block": "Blk 20",
+   "core": [
+    502,
+    249
+   ],
+   "stacks": {
+    "09": [
+     482,
+     284
+    ],
+    "10": [
+     436,
+     286
+    ],
+    "11": [
+     380,
+     292
+    ],
+    "12": [
+     380,
+     214
+    ],
+    "13": [
+     436,
+     207
+    ],
+    "14": [
+     482,
+     205
+    ],
+    "15": [
+     530,
+     205
+    ],
+    "16": [
+     596,
+     204
+    ],
+    "17": [
+     592,
+     290
+    ],
+    "18": [
+     529,
+     281
+    ]
+   }
+  }
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "No scale bar. Scale from known sizes: the tennis court is 129 px long (23.77 m, 5.44 px/m) and 60.5 px wide (10.97 m, 5.52 px/m), and the legend's 50m Main Pool is 277 px long (5.54 px/m); 5.5 px/m used. North point about 39\u00b0 anticlockwise from plan up. Stack numbers are printed on the plan."
+}
