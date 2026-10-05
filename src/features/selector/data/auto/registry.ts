@@ -362,7 +362,7 @@ export const autoListings: AutoListing[] = [
     "area": "Tanglin / Holland",
     "summary": "60 units · Freehold · D10",
     "image": "https://img.singmap.com/upload/broke/3cf67b55b38146f3ae0cb7c5c62248b8/9e6984905b7540529ae6a9e4e1e959a1/imgs/8e4e16a04ffd47228bdf6ec0923aa826.jpg?quality=50",
-    "traced": false
+    "traced": true
   },
   {
     "id": "harrison-food-building",
@@ -1279,6 +1279,7 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "forett-at-bukit-timah": () => import("./traces/forett-at-bukit-timah.json"),
   "gems-ville": () => import("./traces/gems-ville.json"),
   "grand-dunman": () => import("./traces/grand-dunman.json"),
+  "grange-1866": () => import("./traces/grange-1866.json"),
   "hudson-place-residences": () => import("./traces/hudson-place-residences.json"),
   "jansen-house": () => import("./traces/jansen-house.json"),
   "kassia": () => import("./traces/kassia.json"),

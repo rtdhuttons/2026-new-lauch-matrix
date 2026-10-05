@@ -1,0 +1,16 @@
+{
+ "image": "https://img.singmap.com/upload/broke/3cf67b55b38146f3ae0cb7c5c62248b8/9e6984905b7540529ae6a9e4e1e959a1/siteplanImg/7e42a60a8d98465b839aab517340dcce.jpg",
+ "widthPx": 1373,
+ "heightPx": 2245,
+ "pxPerM": 23.53,
+ "scaleFrom": "site area",
+ "northDeg": 90,
+ "crop": [60, 650, 1373, 2245],
+ "siteBoundary": [[185, 790], [370, 745], [997, 980], [1037, 1375], [1095, 1800], [1136, 2060], [973, 2124], [650, 2030], [400, 2005], [185, 2000]],
+ "blocks": [
+  {"block": "Grange 1866", "core": [675, 1402], "stacks": {"01": [779, 1571], "02": [542, 1558], "03": [559, 1246], "04": [811, 1318]}}
+ ],
+ "stackPositions": "labelled",
+ "checked": "2026-10-05",
+ "notes": "No scale bar. Scale from the published site area (1,888.30 m²) over the plot boundary (1,045,700 px²) gives 23.53 px/m. The boundary wall is drawn on the north-east, east and south (the gap on the south-east is the driveway entrance); on the west no wall is drawn, so the boundary is taken where the render stops and the misted surroundings start (x about 185). Taking it at the inner edge of the boundary planting (x about 240) would give about 22.7 px/m, 4% smaller. Rough check: stack 02 (2-bedroom, about 66 m²) measures about 8 x 8.5 m at this scale. North point points straight left (west on the image), so plan up is east. Stack numbers 01-04 are printed on the plan; core at the lift lobby between them."
+}

@@ -292,6 +292,8 @@ export interface Gate {
   name: string;
   position: Point;
   opening: string;
+  /** False for a stand-in point (e.g. the site centre when gates aren't traced), not drawn on the plan. */
+  onPlan?: boolean;
 }
 
 export interface InternalRoute {

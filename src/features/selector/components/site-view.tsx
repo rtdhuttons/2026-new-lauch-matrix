@@ -315,7 +315,7 @@ export function SiteView({
               sun={sun}
               resetSignal={resetSignal}
               onAzimuth={setAzimuth}
-              gates={ds.gates.map((g) => {
+              gates={ds.gates.filter((g) => g.onPlan !== false).map((g) => {
                 // Sit each gate label just outside the site so it never covers a facility pin.
                 const cx = ds.project.siteBounds.width / 2;
                 const cy = ds.project.siteBounds.height / 2;

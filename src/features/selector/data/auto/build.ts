@@ -340,7 +340,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
   const centre: Point = blocks.length
     ? { x: blocks.reduce((a, b) => a + b.centre.x, 0) / blocks.length, y: blocks.reduce((a, b) => a + b.centre.y, 0) / blocks.length }
     : { x: 0, y: 0 };
-  const gates: Gate[] = station ? [{ id: "site", name: "Site centre", position: centre, opening: "Entrance positions are not traced yet" }] : [];
+  const gates: Gate[] = station ? [{ id: "site", name: "Site centre", position: centre, opening: "Entrance positions are not traced yet", onPlan: false }] : [];
   const internalRoutes: InternalRoute[] = station
     ? blocks.map((b) => ({
         blockId: b.id,
