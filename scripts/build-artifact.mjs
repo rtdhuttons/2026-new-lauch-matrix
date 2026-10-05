@@ -25,6 +25,8 @@ mkdirSync(out, { recursive: true });
 execFileSync("python3", ["scripts/artifact/embed_assets.py", JSON.stringify(cfg.embed), assetsFile], { stdio: "inherit" });
 
 const defines = Object.fromEntries(Object.entries(cfg.defines).map(([k, v]) => [`process.env.${k}`, JSON.stringify(v)]));
+// Lets shared code leave out what only works on the website (e.g. Google's 3D city).
+defines["process.env.NEXT_PUBLIC_SINGLE_PAGE"] = JSON.stringify("1");
 for (const f of [cfg.planImage, cfg.planMask]) if (f) defines[`process.env.${f.env}`] = JSON.stringify(inline(f));
 
 const js = await build({

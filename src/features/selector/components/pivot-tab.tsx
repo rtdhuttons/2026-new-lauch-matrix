@@ -14,7 +14,8 @@ import { annualisedSpread, averageScore, entryPsfSteps, exitProjection, PIVOT_CA
 import { BarChart, ChartCard, LineChart, SERIES } from "./charts";
 import { NotSupplied } from "./tabs";
 import { EstimateTag } from "./unit-summary";
-import { AmountInput, card, Disclosure } from "./ui";
+import { card, Disclosure } from "./ui";
+import { AmountInput } from "./amount-input";
 
 const psf = (n: number) => `$${Math.round(n).toLocaleString("en-SG")} psf`;
 export interface PivotUnit {

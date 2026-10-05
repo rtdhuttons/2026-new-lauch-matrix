@@ -89,7 +89,8 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
 ## 3. Where things are
 
 - `src/app/` — pages: `page.tsx` (home, lists live projects), `map/page.tsx`
-  (the new launches map),
+  (the new launches map), `city-3d/page.tsx` (Thomson Reserve in Google's 3D
+  city),
   `projects/[slug]/page.tsx` (each project), `selector/page.tsx` (old
   Thomson Reserve address, kept for shared links).
 - `src/components/` — site header, footer, register form.
@@ -190,6 +191,20 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   `sync-catalogue.py` refreshes the map's catalogue; `pull-project.py
   "Name" slug` pulls a new project's units, floor plans, site plans and
   public images as its starting kit (docs/adding-a-project.md).
+- `src/features/city3d/city-3d.tsx` — CesiumJS (loaded from jsDelivr, or
+  `NEXT_PUBLIC_CESIUM_BASE`) with Google Photorealistic 3D Tiles
+  (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`; Map Tiles API, billing on, key limited
+  to the site's address). Places `public/thomson-reserve/3d/towers.glb` from
+  `placement.json`, samples the road height for its base, clips Google's scan
+  of the plot, sun and shadows by date and time, fly-in, and tapping a stack
+  opens `/projects/thomson-reserve?stack=<id>`. Without a key it falls back
+  to OpenStreetMap. Website only: the single-page build can't load outside
+  map data (`NEXT_PUBLIC_SINGLE_PAGE` hides the link there).
+- `scripts/3d/site-outline.py` (site outline from the plan mask, for
+  clipping) and `scripts/3d/export-glb.mts` (`npx tsx`; the selector's massing
+  to GLB in an east-north-up frame, one mesh per stack, plus placement.json).
+  Re-run both after changing blocks or stacks. CesiumJS needs
+  `forwardAxis: Axis.X` for this model, or it turns it to face east.
 - `scripts/ura/sync-transactions.py` — URA sales (five years) and rents (four
   quarters) of condos and apartments within 2 km of every map project.
   Needs `URA_ACCESS_KEY` (free registration with URA); `svy21.py` converts
@@ -221,7 +236,7 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   to 100. Distinctive features are not scored (removed at TRM's request).
 - Every page with figures carries the standard disclaimer
   (`NumbersDisclaimer` in `ui.tsx`). Dollar amounts the visitor types use
-  `AmountInput`, which shows thousands separators (1,803,000).
+  `AmountInput` (`amount-input.tsx`), which shows thousands separators (1,803,000).
 - Label every render "Artist's impression".
 - Do not commit developer PDFs. Never publish the project bank account details
   in the factsheet.

@@ -143,6 +143,7 @@ export const thomsonReserve: ProjectBundle = {
   mrtEntrance: thomsonReserveMrtExit,
   media: {
     hero: heroImage,
+    city3d: "/city-3d",
     gallery,
     tabPhotos: {
       units: pick("poolside-homes.jpg"),

@@ -171,6 +171,13 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
       setShortlist(saved.shortlist.filter((id) => ix.unit(id)).slice(0, MAX_SHORTLIST));
       /* eslint-enable react-hooks/set-state-in-effect */
     }
+    // "?stack=25" (from the 3D city view) opens that stack.
+    const linked = new URLSearchParams(window.location.search).get("stack");
+    if (linked && ix.ds.stacks.some((s) => s.id === linked)) {
+      const levels = ix.levelsForStack(linked);
+      setStackId(linked);
+      setLevel(levels[Math.floor(levels.length / 2)] ?? levels[0]);
+    }
     setRestored(true); // marks the restore done, so saving starts on the next render
     const follow = () => {
       const t = tabFromHash(window.location.hash);
@@ -448,6 +455,11 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
         <div {...panel("project")}>
           <TabIntro tab="project" />
           <section id="explore" aria-label="Site view" className="scroll-mt-24">
+            {project.media.city3d && process.env.NEXT_PUBLIC_SINGLE_PAGE !== "1" && (
+              <a href={project.media.city3d} className={`${btnSecondary} mb-3 inline-block px-4 py-2`}>
+                See {project.profile.name} in Google&apos;s 3D city
+              </a>
+            )}
             <p className="mb-3 font-display-normal text-sm text-canopy/75">
               Tap any unit to see its details. Units that don&apos;t match your filters are faded ({matching.length.toLocaleString("en-SG")} of{" "}
               {priced.units.length.toLocaleString("en-SG")} match).{" "}

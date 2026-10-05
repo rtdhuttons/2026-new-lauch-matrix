@@ -282,6 +282,8 @@ export interface ProjectBundle {
     gallery: GalleryImage[];
     /** A photo for the numbers-heavy tabs, to break up the figures. */
     tabPhotos?: Partial<Record<"units" | "schools" | "investor" | "alternatives" | "pivot" | "upgrading", GalleryImage>>;
+    /** The website's page showing the towers in Google's 3D city, if any (not in the single-page build). */
+    city3d?: string;
   };
   location: LocationInfo | null;
   pricing: PricingInfo;

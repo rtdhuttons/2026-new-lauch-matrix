@@ -11,7 +11,18 @@ first complete project and the template for future developments. Work done
 
 ---
 
-## 0j. Latest: new launches map and data pipeline (5 Oct)
+## 0k. Latest: Thomson Reserve in Google's 3D city (5 Oct)
+
+- New page /city-3d: the towers (from the selector's own model, coloured by
+  unit type) placed on the site in CesiumJS with Google's Photorealistic 3D
+  Tiles, Google's old scan of the plot cut out, sun and shadows for any date
+  and time, a fly-in, and tapping a tower opens that stack in the selector.
+- Needs a Google Maps Platform key (Map Tiles API) on the website as
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY; without it the towers show on a flat map.
+  It works on the website, not on the claude.ai page, which blocks outside
+  map data.
+
+## 0j. New launches map and data pipeline (5 Oct)
 
 - New launches map (/map, and its own shareable page): every Huttons project
   on a map of Singapore with MRT stations; filter by bedrooms, budget and

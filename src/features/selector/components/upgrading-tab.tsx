@@ -12,7 +12,8 @@ import type { SellingInputs } from "../lib/selling";
 import { EMPTY_SELLING_INPUTS, estimateProceeds, ILLUSTRATIVE_SELLING_EXAMPLE, sameSellingInputs } from "../lib/selling";
 import type { ContactMethod, ValuationState } from "../lib/valuation";
 import { ChartCard, Waterfall } from "./charts";
-import { AmountInput, btnPrimary, btnSecondary, btnText, card, Disclosure } from "./ui";
+import { btnPrimary, btnSecondary, btnText, card, Disclosure } from "./ui";
+import { AmountInput } from "./amount-input";
 
 const sgd = (n: number) => `${n < 0 ? "−" : ""}S$${Math.abs(Math.round(n)).toLocaleString("en-SG")}`;
 const input = "mt-1.5 block w-full min-w-0 rounded-lg border border-canopy/25 bg-paper px-3 py-2 font-display-normal text-base";

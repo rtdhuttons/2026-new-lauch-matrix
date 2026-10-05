@@ -15,7 +15,8 @@ import type { RentSummary } from "../lib/rentals";
 import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../lib/rentals";
 import { NotSupplied } from "./tabs";
 import { BarChart, ChartCard, fmtMoney } from "./charts";
-import { AmountInput, card, Disclosure } from "./ui";
+import { card, Disclosure } from "./ui";
+import { AmountInput } from "./amount-input";
 
 const monthText = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-SG", { month: "short", year: "numeric", timeZone: "UTC" });
