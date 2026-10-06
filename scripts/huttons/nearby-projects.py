@@ -9,12 +9,16 @@ Reads the map's catalogue (src/features/catalogue/data/huttons-catalogue.ts,
 from sync-catalogue.py), so it needs no API keys and makes no requests; run
 sync-catalogue.py first to refresh prices and units left.
 
-The rule: projects on the map (still selling, or not launched yet), nearest
+The rule: projects on the map (launched 2020 or later, and still selling or
+not launched yet), nearest
 first by straight-line distance between the map positions, that sell a
 bedroom type this project also has, with units of that type still available
 (or the project not launched yet). Four are kept. Only the shared bedroom
 types are listed, each with its lowest price, the price per sq ft of that
 unit, the range of price per sq ft across the available units, and units left.
+A project with no unit types released yet is compared on every bedroom type;
+one with units but no bedroom types (shops, offices, factories, landed homes)
+gets no alternatives.
 
 Writes, for a project with its own folder (src/features/selector/data/<slug>/),
 <slug>/nearby-projects.ts, and copies each nearby project's saved photo
@@ -30,6 +34,9 @@ import shutil
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+import client  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 CATALOGUE = ROOT / "src/features/catalogue/data/huttons-catalogue.ts"
 DATA = ROOT / "src/features/selector/data"
@@ -37,8 +44,8 @@ SPECS = DATA / "auto/specs"
 HAND_BUILT = {"thomson-reserve", "the-serra-residences"}
 COUNT = 4
 RULE = (
-    "The four nearest projects on the new launches map, by straight-line distance between map positions, "
-    "that still have units for sale (or have not launched yet) in a bedroom type this project also offers."
+    "The four nearest projects on the new launches map (launched 2020 or later), by straight-line distance between "
+    "map positions, that still have units for sale (or have not launched yet) in a bedroom type this project also offers."
 )
 
 CJK = re.compile(r"[⺀-鿿豈-﫿＀-￯]+")
@@ -62,18 +69,22 @@ def load():
     t = CATALOGUE.read_text()
     fetched = re.search(r'fetched: "(\d{4}-\d{2}-\d{2})"', t).group(1)
     rows = [json.loads(line.strip().rstrip(",")) for line in t.splitlines() if line.strip().startswith('{"id"')]
-    on_map = [r for r in rows if (r["launchDate"] or "") > fetched or r["unitsLeft"] is None or r["unitsLeft"] > 0]
+    on_map = [r for r in rows if client.on_map(r, fetched)]
     return fetched, on_map
 
 
 def nearest(me, on_map, fetched):
     mine = {t["bedrooms"] for t in me["unitTypes"]}
+    # Not released yet (no unit types, no units): any bedroom type. Projects
+    # with units but no bedroom types (shops, offices, factories, landed
+    # homes) get none.
+    any_type = not mine and me["unitsLeft"] is None
     out = []
     for o in on_map:
         if o["id"] == me["id"] or o["lat"] is None or me["lat"] is None:
             continue
         upcoming = (o["launchDate"] or "") > fetched
-        shared = [t for t in o["unitTypes"] if t["bedrooms"] in mine and (upcoming or (t["unitsLeft"] or 0) > 0)]
+        shared = [t for t in o["unitTypes"] if (any_type or t["bedrooms"] in mine) and (upcoming or (t["unitsLeft"] or 0) > 0)]
         if shared:
             out.append((metres((me["lat"], me["lon"]), (o["lat"], o["lon"])) / 1000, o, shared))
     out.sort(key=lambda x: x[0])
@@ -81,7 +92,8 @@ def nearest(me, on_map, fetched):
     for km, o, shared in out[:COUNT]:
         slug = slugify(clean_name(o["name"]))
         spec = SPECS / f"{slug}.json"
-        mrt = json.loads(spec.read_text())["mrt"][:1] if spec.exists() else []
+        other = json.loads(spec.read_text()) if spec.exists() else {}
+        mrt = other.get("mrt", [])[:1]
         near.append({
             "id": o["id"],
             "slug": slug,
@@ -96,7 +108,7 @@ def nearest(me, on_map, fetched):
             "completion": o["completionDate"],
             "launchDate": o["launchDate"],
             "mrt": mrt[0] if mrt else None,
-            "image": None,
+            "image": other.get("mainImage"),
             "unitTypes": [
                 {
                     "bedrooms": t["bedrooms"],
@@ -115,8 +127,11 @@ def nearest(me, on_map, fetched):
 
 def write_hand_built(slug, near, fetched):
     images = ROOT / "public" / slug / "images"
+    for old in images.glob("nearby-*.jpg"):
+        old.unlink()
     for n in near:
         photo = ROOT / "public/catalogue" / f"{n['id']}.jpg"
+        n["image"] = None  # the single page can only show photos saved in the repo
         if photo.exists():
             name = f"nearby-{n['slug']}.jpg"
             shutil.copyfile(photo, images / name)
@@ -134,9 +149,6 @@ def write_hand_built(slug, near, fetched):
 def write_auto(slug, near):
     path = SPECS / f"{slug}.json"
     spec = json.loads(path.read_text())
-    for n in near:
-        other = SPECS / f"{n['slug']}.json"
-        n["image"] = json.loads(other.read_text())["mainImage"] if other.exists() else None
     spec["nearby"] = near
     path.write_text(json.dumps(spec, ensure_ascii=False, separators=(",", ":")))
 

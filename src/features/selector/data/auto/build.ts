@@ -20,6 +20,7 @@ import type {
 } from "../../model/project";
 import type { Block, Dataset, ExternalRoute, Gate, InternalRoute, Layout, Point, Provenance, Stack, Unit, UnitStatus } from "../../model/types";
 import { distance, normaliseBearing } from "../../lib/geometry";
+import { nearbyAlternatives, type NearbyProject } from "../nearby";
 
 /** [block, stack, floor, floor plan, area sq ft, bedrooms, bathrooms, type, availability, list price, nett price] */
 export type AutoUnit = [string, string, number, string, number, number | null, number | null, string | null, UnitStatus, number | null, number | null];
@@ -57,17 +58,8 @@ export interface AutoSpec {
   images: { title: string | null; img: string }[];
   mrt: { name: string; metres: number; minutes: number | null }[];
   schools: { name: string; metres: number }[];
-  nearby: {
-    name: string;
-    km: number;
-    developer: string | null;
-    tenure: string | null;
-    totalUnits: number | null;
-    completion: string | null;
-    launchDate: string | null;
-    segment: string | null;
-    unitTypes: { bedrooms: number; type: string; sizeSqft: { min: number; max: number } | null; fromPrice: number | null; unitsLeft: number | null }[];
-  }[];
+  /** The four nearest map projects (scripts/huttons/nearby-projects.py). */
+  nearby: NearbyProject[];
 }
 
 /** TRM's tracing of the developer's site plan, in the image's pixels. */
@@ -424,7 +416,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
   // nearest projects' cheapest available units, plus $15 a floor.
   const priced = units.filter((u) => u.price !== null).length;
   const nearbyPsf = spec.nearby.flatMap((n) => n.unitTypes.filter((t) => t.fromPrice && t.sizeSqft).map((t) => t.fromPrice! / ((t.sizeSqft!.min + t.sizeSqft!.max) / 2)));
-  const basePsf = priced === 0 && nearbyPsf.length >= 3 ? Math.round(median(nearbyPsf)! / 10) * 10 : null;
+  const basePsf = units.length > 0 && priced === 0 && nearbyPsf.length >= 3 ? Math.round(median(nearbyPsf)! / 10) * 10 : null;
   const nearbyNames = spec.nearby.filter((n) => n.unitTypes.some((t) => t.fromPrice)).map((n) => n.name);
 
   const station0 = station ? `${station.name} MRT` : null;
@@ -457,24 +449,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     ...(i === 0 && s.metres <= 1000 ? { highlighted: true } : {}),
   }));
 
-  const myBeds = new Set(layouts.map((l) => l.bedrooms).filter((b): b is number => b !== null));
-  const alternatives: AlternativeProject[] = spec.nearby.map((n) => ({
-    name: n.name,
-    tag: `${n.km < 1 ? `${Math.round(n.km * 1000)} m` : `${n.km.toFixed(1)} km`} away`,
-    why: `One of the nearest projects on the map with ${[...new Set(n.unitTypes.map((t) => t.bedrooms))].filter((b) => myBeds.has(b)).sort().join(", ")}-bedroom units${n.launchDate && n.launchDate > spec.fetched ? `, launching ${n.launchDate}` : ""}.`,
-    bestFor: null,
-    developer: n.developer,
-    nearestMrt: null,
-    totalUnits: n.totalUnits,
-    tenure: n.tenure,
-    completion: n.completion ? n.completion.slice(0, 4) : null,
-    image: null,
-    unitTypes: n.unitTypes,
-    factsSource: { source: "Huttons New Launch API", checked: spec.fetched },
-    priceBasis: "Lowest price among the units still available",
-    provenance: { ...API, note: "Lowest price and units left from the developers' sales listings. Availability changes daily." },
-    kind: "third-party",
-  }));
+  const alternatives: AlternativeProject[] = nearbyAlternatives(spec.nearby, { fetched: spec.fetched, imageSrc: (n) => n.image ?? null });
 
   const sources: SourceRecord[] = [
     { item: "Project facts, every unit, availability and published prices", kind: "third-party", source: "Huttons New Launch API", checked: spec.fetched, status: "verified" },
@@ -492,7 +467,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     { item: "Floor heights (level 1 4.5 m, other floors 3.15 m)", kind: "illustrative", source: "TRM assumption; not published", checked: spec.fetched, status: "assumed" },
     ...(station ? [{ item: `Walking distance to ${station.name} MRT`, kind: "third-party" as const, source: "Huttons New Launch API, nearby facilities", checked: spec.fetched, status: "estimated" as const }] : []),
     { item: "Primary school distances", kind: "official", source: "SLA OneMap address search", checked: spec.fetched, status: "verified", note: "From the project's map position to each school's address point." },
-    { item: "Nearby projects to compare", kind: "third-party", source: "Huttons New Launch API", checked: spec.fetched, status: "verified" },
+    { item: "Alternative projects: the four nearest on the new launches map (launched 2020 or later) still selling a bedroom type this project offers", kind: "third-party", source: "Huttons New Launch API (the map's catalogue)", checked: spec.fetched, status: "verified" },
     ...(basePsf ? [{ item: `Illustrative prices: $${basePsf.toLocaleString("en-SG")} psf at level ${Math.min(...units.map((u) => u.level))} plus $15 psf a floor`, kind: "illustrative" as const, source: `TRM estimate from the cheapest available units at ${nearbyNames.join(", ")} (Huttons New Launch API)`, checked: spec.fetched, status: "assumed" as const }] : []),
   ];
 

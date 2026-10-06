@@ -95,6 +95,19 @@ def today():
     return datetime.now(SGT).strftime("%Y-%m-%d")
 
 
+# Projects launched before this year are left off the map and the project
+# list, even with units left (src/features/catalogue/lib.ts FIRST_LAUNCH_YEAR).
+FIRST_LAUNCH_YEAR = 2020
+
+
+def on_map(row, today):
+    """On the new launches map: launched FIRST_LAUNCH_YEAR or later, and upcoming or with units left."""
+    launch = row.get("launchDate") or ""
+    if launch and int(launch[:4]) < FIRST_LAUNCH_YEAR:
+        return False
+    return launch > today or row.get("unitsLeft") is None or row["unitsLeft"] > 0
+
+
 def slugify(name):
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 

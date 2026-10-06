@@ -7,47 +7,8 @@ import type { NearbySync } from "../nearby";
 export const nearbySync: NearbySync = {
   "source": "Huttons New Launch API",
   "fetched": "2026-10-05",
-  "rule": "The four nearest projects on the new launches map, by straight-line distance between map positions, that still have units for sale (or have not launched yet) in a bedroom type this project also offers.",
+  "rule": "The four nearest projects on the new launches map (launched 2020 or later), by straight-line distance between map positions, that still have units for sale (or have not launched yet) in a bedroom type this project also offers.",
   "projects": [
-    {
-      "id": "2e12d01c73fc4def9f4926f3221cae27",
-      "slug": "lucida",
-      "name": "Lucida",
-      "km": 1.03,
-      "district": "D11",
-      "address": "2 Suffolk Rd",
-      "segment": "CCR",
-      "developer": "Novelty Organisation Pte Ltd",
-      "tenure": "Freehold",
-      "totalUnits": 62,
-      "completion": "2011-12-31",
-      "launchDate": "2008-02-28",
-      "mrt": {
-        "name": "Novena",
-        "metres": 1130,
-        "minutes": 17
-      },
-      "image": "nearby-lucida.jpg",
-      "unitTypes": [
-        {
-          "bedrooms": 4,
-          "type": "4BR",
-          "sizeSqft": {
-            "min": 3854,
-            "max": 4176
-          },
-          "fromPrice": 6750000,
-          "fromPsf": 1616,
-          "psfRange": {
-            "min": 1616,
-            "max": 1616,
-            "avg": 1616,
-            "units": 1
-          },
-          "unitsLeft": 1
-        }
-      ]
-    },
     {
       "id": "828a0cc539e54e7e90dcaee7e5c1f995",
       "slug": "the-ranz",
@@ -195,64 +156,130 @@ export const nearbySync: NearbySync = {
       ]
     },
     {
-      "id": "2944874e9285475194bd3209b67643be",
-      "slug": "reignwood-hamilton-scotts",
-      "name": "Reignwood Hamilton Scotts",
-      "km": 1.87,
-      "district": "D09",
-      "address": "37 Scotts Rd",
-      "segment": "CCR",
-      "developer": "Sardinia Properties Pte Ltd",
-      "tenure": "Freehold",
-      "totalUnits": 56,
-      "completion": "2012-06-30",
-      "launchDate": "2008-08-08",
+      "id": "23a0bd1f430c4d55a8bf6fd39fb177b8",
+      "slug": "the-orie",
+      "name": "The Orie",
+      "km": 1.89,
+      "district": "D12",
+      "address": "10 , 12 Lorong 1 Toa Payoh\n",
+      "segment": "RCR",
+      "developer": "TRANSCEND RESIDENTIAL (TOA PAYOH) PTE. LTD",
+      "tenure": "99 Years",
+      "totalUnits": 777,
+      "completion": "2028-06-30",
+      "launchDate": "2025-01-18",
       "mrt": {
-        "name": "Newton",
-        "metres": 298,
-        "minutes": 5
+        "name": "Braddell",
+        "metres": 761,
+        "minutes": 11
       },
-      "image": "nearby-reignwood-hamilton-scotts.jpg",
+      "image": "nearby-the-orie.jpg",
       "unitTypes": [
         {
           "bedrooms": 3,
-          "type": "3BR",
+          "type": "3BR Dual Key",
           "sizeSqft": {
-            "min": 2756,
-            "max": 2756
+            "min": 1130,
+            "max": 1130
           },
-          "fromPrice": 10038000,
-          "fromPsf": 3642,
+          "fromPrice": 3024000,
+          "fromPsf": 2676,
           "psfRange": {
-            "min": 3642,
-            "max": 3780,
-            "avg": 3714,
-            "units": 3
+            "min": 2676,
+            "max": 2744,
+            "avg": 2703,
+            "units": 6
+          },
+          "unitsLeft": 6
+        }
+      ]
+    },
+    {
+      "id": "01f112d7a2474e0683f8adfabe8ce9a0",
+      "slug": "duet-emily",
+      "name": "Duet @ Emily",
+      "km": 2.11,
+      "district": "D09",
+      "address": "2,4,6 Mount Emily Road",
+      "segment": "CCR",
+      "developer": "ZACD PROPERTY PTE. LTD.",
+      "tenure": "Freehold",
+      "totalUnits": 20,
+      "completion": "2028-12-31",
+      "launchDate": "2026-06-27",
+      "mrt": {
+        "name": "Rochor",
+        "metres": 534,
+        "minutes": 8
+      },
+      "image": "nearby-duet-emily.jpg",
+      "unitTypes": [
+        {
+          "bedrooms": 2,
+          "type": "2BR Executive",
+          "sizeSqft": {
+            "min": 549,
+            "max": 549
+          },
+          "fromPrice": 1401000,
+          "fromPsf": 2552,
+          "psfRange": {
+            "min": 2552,
+            "max": 2867,
+            "avg": 2757,
+            "units": 4
           },
           "unitsLeft": 4
         },
         {
-          "bedrooms": 3,
-          "type": "Junior Penthouse",
+          "bedrooms": 2,
+          "type": "2BR Deluxe",
           "sizeSqft": {
-            "min": 3229,
-            "max": 3229
+            "min": 667,
+            "max": 678
           },
-          "fromPrice": null,
-          "fromPsf": null,
-          "psfRange": null,
-          "unitsLeft": 1
+          "fromPrice": 1726000,
+          "fromPsf": 2546,
+          "psfRange": {
+            "min": 2546,
+            "max": 2780,
+            "avg": 2701,
+            "units": 4
+          },
+          "unitsLeft": 4
         },
         {
-          "bedrooms": 5,
-          "type": "Penthouse",
+          "bedrooms": 2,
+          "type": "2BR Premium",
           "sizeSqft": {
-            "min": 6975,
-            "max": 6975
+            "min": 667,
+            "max": 850
           },
-          "fromPrice": null,
-          "fromPsf": null,
-          "psfRange": null,
+          "fromPrice": 1812000,
+          "fromPsf": 2717,
+          "psfRange": {
+            "min": 2717,
+            "max": 2748,
+            "avg": 2732,
+            "units": 2
+          },
+          "unitsLeft": 2
+        },
+        {
+          "bedrooms": 2,
+          "type": "2BR Loft",
+          "sizeSqft": {
+            "min": 936,
+            "max": 1335
+          },
+          "fromPrice": 2468000,
+          "fromPsf": 2637,
+          "psfRange": {
+            "min": 2568,
+            "max": 2637,
+            "avg": 2602,
+            "units": 2
+          },
           "unitsLeft": 2
         }
       ]

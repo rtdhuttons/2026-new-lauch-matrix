@@ -57,8 +57,8 @@ export interface Recommendation extends Nearby<CatalogueProject> {
 }
 
 /**
- * Other projects a buyer of `p` could also consider: within the radius, with
- * units left and at least one bedroom type in common, nearest first. Prices
+ * Other projects a buyer of `p` could also consider: on the map, within the
+ * radius, with at least one bedroom type in common, nearest first. Prices
  * refresh with every catalogue sync.
  */
 export function recommendNearby(p: CatalogueProject, all: CatalogueProject[], today: string, radiusKm = 3, limit = 6): Recommendation[] {
@@ -80,7 +80,7 @@ export function recommendNearby(p: CatalogueProject, all: CatalogueProject[], to
         .join(" · ");
       return { item, km: d, sharedFrom, sharedBedrooms: shared, reason, status };
     })
-    .filter((r) => r.status !== "sold-out" && (mine.size === 0 || r.sharedBedrooms.length > 0))
+    .filter((r) => onMap(r.item, today) && (mine.size === 0 || r.sharedBedrooms.length > 0))
     .slice(0, limit);
 }
 
@@ -143,17 +143,25 @@ export function latestPsf(m: MarketProject): MarketYear | null {
   return [...m.sales].sort((a, b) => b.year - a.year)[0] ?? null;
 }
 
+/** How map projects are matched to their guides' links: the name, lower case, letters and digits only. */
+export const linkKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
 export const money = (n: number) => `$${Math.round(n).toLocaleString("en-SG")}`;
 export const pct = (r: number) => `${(r * 100).toFixed(2)}%`;
 
+/** Projects launched before this year are left off the map and the project list, even with units left. */
+export const FIRST_LAUNCH_YEAR = 2020;
+const launchedRecently = (p: CatalogueProject) => !p.launchDate || Number(p.launchDate.slice(0, 4)) >= FIRST_LAUNCH_YEAR;
+
 /**
  * On the map: launching later, or no units released yet (upcoming), or
- * launched with units still for sale (new launch). Sold-out projects are not shown.
+ * launched with units still for sale (new launch). Sold-out projects, and
+ * projects launched before FIRST_LAUNCH_YEAR, are not shown.
  */
 export type MapKind = "new" | "upcoming";
 export const mapKind = (p: CatalogueProject, today: string): MapKind =>
   (p.launchDate && p.launchDate > today) || p.unitsLeft === null ? "upcoming" : "new";
-export const onMap = (p: CatalogueProject, today: string) => projectStatus(p, today) !== "sold-out";
+export const onMap = (p: CatalogueProject, today: string) => launchedRecently(p) && projectStatus(p, today) !== "sold-out";
 
 export interface PriceRow {
   bedrooms: number;

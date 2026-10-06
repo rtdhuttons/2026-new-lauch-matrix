@@ -20,8 +20,8 @@ src/features/selector/data/auto/specs/<slug>.json with:
              nearby facilities)
   schools    primary schools within 2.5 km, straight line from the project's
              map position on OneMap address points (needs www.onemap.gov.sg)
-  nearby     the nearest other projects on the map with a bedroom type in
-             common, units left and their lowest prices
+  nearby     the four nearest other projects on the map with a bedroom type
+             in common still for sale, and their prices (nearby-projects.py)
 Then regenerates src/features/selector/data/auto/registry.ts.
 
 Projects with their own hand-built folder (Thomson Reserve, The Serra
@@ -41,6 +41,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 import client  # noqa: E402
+
+import importlib.util  # noqa: E402
+
+_spec = importlib.util.spec_from_file_location("nearby_projects", Path(__file__).parent / "nearby-projects.py")
+nearby_projects = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(nearby_projects)
 
 ROOT = Path(os.environ.get("TRM_ROOT") or Path(__file__).resolve().parents[2])
 CATALOGUE = ROOT / "src/features/catalogue/data/huttons-catalogue.ts"
@@ -153,41 +159,6 @@ def mrt_list(listing):
     return sorted(stations.values(), key=lambda s: s["metres"])[:4]
 
 
-def nearby(row, rows, today):
-    """The nearest other projects on the map with a bedroom type in common and units left."""
-    mine = {t["bedrooms"] for t in row["unitTypes"]}
-    out = []
-    for o in rows:
-        if o["id"] == row["id"] or not (o["lat"] and row["lat"]):
-            continue
-        upcoming = (o["launchDate"] or "") > today
-        if not upcoming and not (o["unitsLeft"] or 0) > 0:
-            continue
-        shared = [t for t in o["unitTypes"] if t["bedrooms"] in mine]
-        if not shared:
-            continue
-        km = metres((row["lat"], row["lon"]), (o["lat"], o["lon"])) / 1000
-        out.append((km, o, shared))
-    out.sort(key=lambda x: x[0])
-    return [
-        {
-            "name": clean_name(o["name"]),
-            "km": round(km, 2),
-            "developer": o["developer"],
-            "tenure": o["tenure"],
-            "totalUnits": o["totalUnits"],
-            "completion": o["completionDate"],
-            "launchDate": o["launchDate"],
-            "segment": o["segment"],
-            "unitTypes": [
-                {"bedrooms": t["bedrooms"], "type": t["type"], "sizeSqft": t["sizeSqft"], "fromPrice": t["fromPrice"], "unitsLeft": t["unitsLeft"]}
-                for t in shared
-            ],
-        }
-        for km, o, shared in out[:4]
-    ]
-
-
 def text(v):
     import base64
     import html
@@ -283,7 +254,7 @@ def spec_for(row, listing, schools, rows, fetched):
         "images": images,
         "mrt": mrt_list(listing),
         "schools": school_rows[:14],
-        "nearby": nearby(row, rows, fetched),
+        "nearby": nearby_projects.nearest(row, rows, fetched),
     }
 
 
@@ -329,7 +300,7 @@ def main(names):
     t = CATALOGUE.read_text()
     rows = [json.loads(line.strip().rstrip(",")) for line in t.splitlines() if line.strip().startswith('{"id"')]
     fetched = client.today()
-    on_map = [r for r in rows if (r["launchDate"] or "") > fetched or r["unitsLeft"] is None or r["unitsLeft"] > 0]
+    on_map = [r for r in rows if client.on_map(r, fetched)]
     todo = [r for r in on_map if client.slugify(clean_name(r["name"])) not in HAND_BUILT]
     if names:
         want = {client.slugify(clean_name(n)) for n in names}
@@ -345,6 +316,14 @@ def main(names):
             continue
         (SPECS / f"{spec['id']}.json").write_text(json.dumps(spec, ensure_ascii=False, separators=(",", ":")))
         print(f"[{i}/{len(todo)}] {spec['name']}: {len(spec['units'])} units, {len(spec['floorPlans'])} plans, {len(spec['sitePlans'])} site plans")
+    if not names:
+        # Projects that have left the map (sold out, or launched before
+        # client.FIRST_LAUNCH_YEAR) lose their mini site; traces are kept.
+        keep = {client.slugify(clean_name(r["name"])) for r in on_map}
+        for f in SPECS.glob("*.json"):
+            if f.stem not in keep:
+                f.unlink()
+                print(f"{f.stem}: no longer on the map; mini site removed")
     write_registry()
 
 

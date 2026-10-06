@@ -1,6 +1,7 @@
 "use client";
 
 import ProjectsMapEntry from "./entry";
+import { linkKey } from "./lib";
 
 // Published guides, linked from the map in the single-page build.
 const LINKS: Record<string, string> = {
@@ -9,5 +10,5 @@ const LINKS: Record<string, string> = {
 };
 
 export default function ProjectsMapArtifact() {
-  return <ProjectsMapEntry links={LINKS} />;
+  return <ProjectsMapEntry links={Object.fromEntries(Object.entries(LINKS).map(([name, url]) => [linkKey(name), url]))} />;
 }

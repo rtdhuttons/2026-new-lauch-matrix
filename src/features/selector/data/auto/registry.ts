@@ -23,15 +23,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "26-newton",
-    "name": "26 Newton",
-    "district": "D11",
-    "area": "Newton / Novena",
-    "summary": "180 units · Freehold · D11",
-    "image": "https://img.singmap.com/upload/broke/19541e9bb12d48e7a172283c3f52008f/3a4782498bdd46bfaf5a31d2a6c02776/imgs/20241209/b6d1a28e7f564dacb9fe336220fc4364.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "8-bt",
     "name": "8@BT",
     "district": "D21",
@@ -48,15 +39,6 @@ export const autoListings: AutoListing[] = [
     "summary": "212 units · 99 Years · D10",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/a1bec73dbfd74619848faf3e0c5090c9/imgs/20260813/edc3db0b9dff4361b9586fe1bf34c11d.png?quality=50",
     "traced": true
-  },
-  {
-    "id": "arc-380",
-    "name": "ARC 380",
-    "district": "D08",
-    "area": "Farrer Park / Serangoon Road",
-    "summary": "154 units · Freehold · D08",
-    "image": "https://img.singmap.com/upload/broke/43f80b9550a14e999f55c9913445741e/b1d3d9c5b6624a59aa8158137c26f94f/imgs/20260205/065821f5f44e4e2eb32b627004ce0f13.jpg?quality=50",
-    "traced": false
   },
   {
     "id": "ardor-residence",
@@ -167,24 +149,6 @@ export const autoListings: AutoListing[] = [
     "traced": false
   },
   {
-    "id": "cecil-place",
-    "name": "CECIL PLACE",
-    "district": "D01",
-    "area": "Boat Quay / Raffles Place",
-    "summary": "28 units · Freehold · D01",
-    "image": "https://img.singmap.com/upload/broke/a5684cb2db2442fdb1984b2d690173e3/e409b14a685243cb85d6e07214f46b31/imgs/20250714/b403dbd79bad465a97a3f804c94d84c4.png?quality=50",
-    "traced": false
-  },
-  {
-    "id": "centrium-square",
-    "name": "Centrium Square",
-    "district": "D08",
-    "area": "Farrer Park / Serangoon Road",
-    "summary": "145 units · Freehold · D08",
-    "image": "https://img.singmap.com/upload/broke/43f80b9550a14e999f55c9913445741e/885368e74a04434e9b3b946641dcbc34/imgs/6c5b98b165a0448d9335fac8a9bfa1af.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "chancery-hill-collection",
     "name": "Chancery Hill Collection",
     "district": "D11",
@@ -282,15 +246,6 @@ export const autoListings: AutoListing[] = [
     "summary": "380 units · 99 Years · D11",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/700527d89a91474a8887269b36cb1642/imgs/20260703/1e55386c09b74ccf8b5e2e1259ce0f5d.jpeg?quality=50",
     "traced": true
-  },
-  {
-    "id": "eden-residences-capitol",
-    "name": "Eden Residences Capitol",
-    "district": "D06",
-    "area": "City Hall / Clarke Quay",
-    "summary": "39 units · 99 Years · D06",
-    "image": "https://img.singmap.com/upload/broke/249a12907cb94581bbf2093c1efdbb27/72abedb363474234814fc92c4fd2ea90/imgs/a0de07f1e999498a834d26e29096ede1.jpg?quality=50",
-    "traced": false
   },
   {
     "id": "elta",
@@ -410,15 +365,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "kallang-riverside",
-    "name": "Kallang Riverside",
-    "district": "D12",
-    "area": "Balestier / Toa Payoh",
-    "summary": "212 units · Freehold · D12",
-    "image": "https://img.singmap.com/upload/broke/879d04297f8b45e399cae3b85a504ea2/7b9785ffd7f24586a922236b9df4c34d/imgs/7b9785ffd7f24586a922236b9df4c34d.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "kassia",
     "name": "Kassia",
     "district": "D17",
@@ -464,15 +410,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "lloyd-sixtyfive",
-    "name": "Lloyd SixtyFive",
-    "district": "D09",
-    "area": "Orchard / River Valley",
-    "summary": "76 units · Freehold · D09",
-    "image": "https://img.singmap.com/upload/broke/c16b84966acc46c6ba69dc2a6291d711/7c16f58f4e8f4474b1e37f70bb57b236/imgs/7c16f58f4e8f4474b1e37f70bb57b236.jpg?quality=50",
-    "traced": true
-  },
-  {
     "id": "lucerne-grand",
     "name": "Lucerne Grand",
     "district": "D22",
@@ -482,48 +419,12 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "lucida",
-    "name": "Lucida",
-    "district": "D11",
-    "area": "Newton / Novena",
-    "summary": "2 units · Freehold · D11",
-    "image": "https://img.singmap.com/upload/broke/19541e9bb12d48e7a172283c3f52008f/2e12d01c73fc4def9f4926f3221cae27/imgs/20240910/b80881efb0af40548ba4f31ca4109fa8.jpg?quality=50",
-    "traced": false
-  },
-  {
-    "id": "lucky-plaza",
-    "name": "Lucky Plaza",
-    "district": "D09",
-    "area": "Orchard / River Valley",
-    "summary": "9 units · Freehold · D09",
-    "image": "https://img.singmap.com/upload/broke/2bb941dfc39445998b241147df411af3/7cc8e11b4fa94ab0b26f9ee46133142f/imgs/20260109/a87790adf1cf419aa2bacc6e70d7a08b.jpg?quality=50",
-    "traced": false
-  },
-  {
-    "id": "lumiere",
-    "name": "Lumiere",
-    "district": "D02",
-    "area": "Chinatown / Tanjong Pagar",
-    "summary": "43 units · 99 Years · D02",
-    "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/cfe2e06d0bbf4406ae9b7a2a31ee5385/imgs/20241023/b14161502b2a4b53975a308c356c6462.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "meyer-blue",
     "name": "Meyer Blue",
     "district": "D15",
     "area": "East Coast / Marine Parade",
     "summary": "226 units · Freehold · D15",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/83b9b826f1f0445ca23b38813aea6358/imgs/20241128/f516103acfe04d6190bfe85b1cecdcfa.jpeg?quality=50",
-    "traced": true
-  },
-  {
-    "id": "midtown-bay",
-    "name": "Midtown Bay",
-    "district": "D07",
-    "area": "Beach Road / Bugis / Rochor",
-    "summary": "219 units · 99 Years · D07",
-    "image": "https://img.singmap.com/upload/broke/4a789c5dccda41b099ee2b217508d541/0988f8aa42bf469c83868349e1b637b7/imgs/2010e12088ae4b8691521cfc5d4c7e69.jpeg?quality=50",
     "traced": true
   },
   {
@@ -561,15 +462,6 @@ export const autoListings: AutoListing[] = [
     "summary": "246 units · Freehold · D02",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/89abbcafcb6d4b85a543d4131a5148fb/imgs/20251106/bc7b96e8909e447280f74beb594c2d88.png?quality=50",
     "traced": true
-  },
-  {
-    "id": "nim-collection",
-    "name": "Nim Collection",
-    "district": "D28",
-    "area": "Seletar / Yio Chu Kang",
-    "summary": "98 units · 99 Years · D28",
-    "image": "https://img.singmap.com/upload/broke/c16b84966acc46c6ba69dc2a6291d711/3d1b906a55a44e178b34efb02f6dd867/imgs/3d1b906a55a44e178b34efb02f6dd867.jpg?quality=50",
-    "traced": false
   },
   {
     "id": "north-gaia",
@@ -626,15 +518,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "parksuites",
-    "name": "Parksuites",
-    "district": "D10",
-    "area": "Tanglin / Holland",
-    "summary": "119 units · 99 Years · D10",
-    "image": "https://img.singmap.com/upload/broke/2bb941dfc39445998b241147df411af3/cd4698ee608646f28762fcb8bf3b6e42/imgs/20230307/7fde2381bdd840a3b597824807376312.jpg?quality=50",
-    "traced": true
-  },
-  {
     "id": "parktown-residence",
     "name": "Parktown Residence",
     "district": "D18",
@@ -671,24 +554,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "reignwood-hamilton-scotts",
-    "name": "Reignwood Hamilton Scotts",
-    "district": "D09",
-    "area": "Orchard / River Valley",
-    "summary": "56 units · Freehold · D09",
-    "image": "https://img.singmap.com/upload/broke/ab4ad26debec4daaba2fee51c73c0abc/2944874e9285475194bd3209b67643be/imgs/86d6c38f9c5f47fdbebd8147573cd69e.jpg?quality=50",
-    "traced": true
-  },
-  {
-    "id": "residences-at-emerald-hill",
-    "name": "Residences at Emerald Hill",
-    "district": "D09",
-    "area": "Orchard / River Valley",
-    "summary": "25 units · Freehold · D09",
-    "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/3775da0bb0cb4f758d728c5515860644/imgs/20260702/8da7a202248540729a81f79ccf5b65d8.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "river-green",
     "name": "River Green",
     "district": "D09",
@@ -707,30 +572,12 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "seascape",
-    "name": "Seascape",
-    "district": "D04",
-    "area": "Harbourfront / Telok Blangah",
-    "summary": "151 units · 99 Years · D04",
-    "image": "https://img.singmap.com/upload/broke/50a486660105417e9ee3f8520112dde7/b68fe53049f5471f9340b8c9d946f7a8/imgs/583a78b84f814aa28c43c97d9c90a060.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "sembawang-road-gls",
     "name": "Sembawang Road GLS",
     "district": "D27",
     "area": "Sembawang / Yishun",
     "summary": "99 Years · D27",
     "image": "https://img.singmap.com/upload/broke/a4a25c1bd1664eaab4140041c330f202/f62ad7ec239241fa8a8bd10dacaf8291/imgs/20251030/9fa2d318a79d485aac033284fbad6c87.png?quality=50",
-    "traced": false
-  },
-  {
-    "id": "shoppes-ascent-456",
-    "name": "Shoppes @ Ascent 456",
-    "district": "D12",
-    "area": "Balestier / Toa Payoh",
-    "summary": "16 units · Freehold · D12",
-    "image": "https://img.singmap.com/upload/broke/a28fa9fe9ec34cc8a3bd019edf8d4c1e/daa27bcdbfc54e32a8886066a449af7b/imgs/20240926/5ae1ca6e1e4747e8b805dc2d8deecaa2.jpg?quality=50",
     "traced": false
   },
   {
@@ -741,15 +588,6 @@ export const autoListings: AutoListing[] = [
     "summary": "12 units · 99 years · D16",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/1ab69a57c2d44e8da17b31af8888315c/imgs/20260316/734c3c04647442b7ab265305c8770b0a.jpg?quality=50",
     "traced": false
-  },
-  {
-    "id": "skies-miltonia",
-    "name": "Skies Miltonia",
-    "district": "D27",
-    "area": "Sembawang / Yishun",
-    "summary": "420 units · 99 Years · D27",
-    "image": "https://img.singmap.com/upload/broke/2f604efc567047edb5e7e92d5ec0666b/a49e407ce61345b2b1d462221494bb62/imgs/20230323/fe897f9936624fbab9781ce833a11fff.png?quality=50",
-    "traced": true
   },
   {
     "id": "skywaters-residences",
@@ -869,15 +707,6 @@ export const autoListings: AutoListing[] = [
     "traced": false
   },
   {
-    "id": "the-green-collection",
-    "name": "The Green Collection",
-    "district": "D04",
-    "area": "Harbourfront / Telok Blangah",
-    "summary": "20 units · 99 Years · D04",
-    "image": "https://img.singmap.com/upload/broke/2f6c41d76fa44d1a9a0f2796f8504375/27eb97b4b94e47ce8e709d22fe8d4f2c/imgs/20240621/00f136ff45264329bca7605bef671be1.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "the-hillshore",
     "name": "The Hillshore",
     "district": "D05",
@@ -887,24 +716,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "the-line-tanjong-rhu",
-    "name": "The Line @ Tanjong Rhu",
-    "district": "D15",
-    "area": "East Coast / Marine Parade",
-    "summary": "130 units · Freehold · D15",
-    "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/607755ee5f6d4ffebbb1d9d1fbcc252d/imgs/607755ee5f6d4ffebbb1d9d1fbcc252d.jpg?quality=50",
-    "traced": true
-  },
-  {
-    "id": "the-lumos",
-    "name": "The Lumos",
-    "district": "D09",
-    "area": "Orchard / River Valley",
-    "summary": "53 units · Freehold · D09",
-    "image": "https://img.singmap.com/upload/broke/fa501c4de3a442878cbc4edd6c90cac4/93910c6ae0e449deada6955c5874aafa/imgs/93910c6ae0e449deada6955c5874aafa.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "the-myst",
     "name": "The Myst",
     "district": "D23",
@@ -912,24 +723,6 @@ export const autoListings: AutoListing[] = [
     "summary": "408 units · 99 Years · D23",
     "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/29c864ff55404605890dfbee32692362/imgs/20230609/28291b9573124443abe630ca9725816d.jpeg?quality=50",
     "traced": true
-  },
-  {
-    "id": "the-oceanfront-sentosa-cove",
-    "name": "The Oceanfront @ Sentosa Cove",
-    "district": "D04",
-    "area": "Harbourfront / Telok Blangah",
-    "summary": "1 units · 99 Years · D04",
-    "image": "https://img.singmap.com/upload/broke/c7cc0e4a3aaf449497f82cd2c97c59d4/307f403e5f6c401eae5c0d1d34c7bebf/imgs/20240513/6230b4e7e49c446588481f658f383262.jpeg?quality=50",
-    "traced": true
-  },
-  {
-    "id": "the-oliv",
-    "name": "The Oliv",
-    "district": "D10",
-    "area": "Tanglin / Holland",
-    "summary": "8 units · Freehold · D10",
-    "image": "https://img.singmap.com/upload/broke/90800fcf94e3445ba99eb38b7d726efd/7032341ad23d4aceb62ded1ea87a166c/imgs/f2bd8647e32f455ea9d91f41d1051b60.jpg?quality=50",
-    "traced": false
   },
   {
     "id": "the-orie",
@@ -956,15 +749,6 @@ export const autoListings: AutoListing[] = [
     "area": "Harbourfront / Telok Blangah",
     "summary": "228 units · 99 Years · D04",
     "image": "https://img.singmap.com/upload/broke/5e29cd22a7d64d27ba9c41e94e68c2d6/661aa8688a254e52a53146a28d5820fe/imgs/20230203/3ff029e575e24b318f0fec3306418557.jpeg?quality=50",
-    "traced": true
-  },
-  {
-    "id": "the-ritz-carlton",
-    "name": "The Ritz-Carlton",
-    "district": "D09",
-    "area": "Orchard / River Valley",
-    "summary": "57 units · Freehold · D09",
-    "image": "https://img.singmap.com/upload/broke/5ee44bd31df24df9afd2d37cb2c05ef1/84c852f5e4334c808facaf3560bb387a/imgs/29f2ab81007a4911ba8ff25b48a35404.jpg?quality=50",
     "traced": true
   },
   {
@@ -995,15 +779,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "the-venue-shoppes",
-    "name": "The Venue Shoppes",
-    "district": "D13",
-    "area": "Macpherson / Potong Pasir",
-    "summary": "10 units · 99 Years · D13",
-    "image": "https://img.singmap.com/upload/broke/2029c11d79004b5e915809fbd6e19f7b/39a218d20187411db9c54d949edd17cd/imgs/20240828/199f2c94ea154d7e8a72f735fc742c97.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "tmw-maxwell",
     "name": "TMW Maxwell",
     "district": "D02",
@@ -1011,24 +786,6 @@ export const autoListings: AutoListing[] = [
     "summary": "324 units · 99 Years · D02",
     "image": "https://img.singmap.com/upload/broke/70c2bd829c564c96a51d0ee8656dc810/54aec0cc3a7a4a058e10fe7e21a44c17/imgs/20230705/88bea06d50e34dcbbf77d135d09a0ddf.jpeg?quality=50",
     "traced": true
-  },
-  {
-    "id": "trio",
-    "name": "TRIO",
-    "district": "D08",
-    "area": "Farrer Park / Serangoon Road",
-    "summary": "15 units · Freehold · D08",
-    "image": "https://img.singmap.com/upload/broke/9630042326f643958aac4861dff8609b/aa70f67a979540b591df8451d924b6f3/imgs/cc239db3422f44ba97242df39532e748.jpg?quality=50",
-    "traced": true
-  },
-  {
-    "id": "turquoise",
-    "name": "Turquoise",
-    "district": "D04",
-    "area": "Harbourfront / Telok Blangah",
-    "summary": "91 units · 99 Years · D04",
-    "image": "https://img.singmap.com/upload/broke/50a486660105417e9ee3f8520112dde7/5ebd57bddd8545a2b059cc42a3361642/imgs/309c50f1002949db92cd4e033e426aa5.jpg?quality=50",
-    "traced": false
   },
   {
     "id": "union-square-residences",
@@ -1047,15 +804,6 @@ export const autoListings: AutoListing[] = [
     "summary": "301 units · 99 Years · D10",
     "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/7cf72256c81743dfba3986a927ef79e6/imgs/20260612/72885e48f62f4ad3bfe57218eac3c2d3.jpeg?quality=50",
     "traced": true
-  },
-  {
-    "id": "v-on-shenton",
-    "name": "V on Shenton .",
-    "district": "D01",
-    "area": "Boat Quay / Raffles Place",
-    "summary": "510 units · 99 Years · D01",
-    "image": "https://img.singmap.com/upload/broke/d7d56ddcef4d4883acc0a31cbbd72e81/76e1d90c9c7d4ed3959ceb2f29b98858/imgs/76e1d90c9c7d4ed3959ceb2f29b98858.jpg?quality=50",
-    "traced": false
   },
   {
     "id": "vela-bay",
@@ -1103,15 +851,6 @@ export const autoListings: AutoListing[] = [
     "traced": true
   },
   {
-    "id": "west-connect-building",
-    "name": "West Connect Building",
-    "district": "D22",
-    "area": "Boon Lay / Jurong / Tuas",
-    "summary": "384 units · 30 Years · D22",
-    "image": "https://img.singmap.com/upload/broke/d379d488126c4abf9505367876588b57/c3b3b7b232e744c79e1e00a2a9b37eb1/imgs/c3b3b7b232e744c79e1e00a2a9b37eb1.jpg?quality=50",
-    "traced": false
-  },
-  {
     "id": "wynwood-grand",
     "name": "Wynwood Grand",
     "district": "D25",
@@ -1134,10 +873,8 @@ export const autoListings: AutoListing[] = [
 /** Loads one project's data file on demand. */
 export const autoSpecLoaders: Record<string, () => Promise<{ default: unknown }>> = {
   "21-anderson": () => import("./specs/21-anderson.json"),
-  "26-newton": () => import("./specs/26-newton.json"),
   "8-bt": () => import("./specs/8-bt.json"),
   "amberwood-at-holland": () => import("./specs/amberwood-at-holland.json"),
-  "arc-380": () => import("./specs/arc-380.json"),
   "ardor-residence": () => import("./specs/ardor-residence.json"),
   "arina-east-residences": () => import("./specs/arina-east-residences.json"),
   "artisan-8": () => import("./specs/artisan-8.json"),
@@ -1150,8 +887,6 @@ export const autoSpecLoaders: Record<string, () => Promise<{ default: unknown }>
   "canberra-crescent-residences": () => import("./specs/canberra-crescent-residences.json"),
   "canninghill-piers": () => import("./specs/canninghill-piers.json"),
   "cape-royale": () => import("./specs/cape-royale.json"),
-  "cecil-place": () => import("./specs/cecil-place.json"),
-  "centrium-square": () => import("./specs/centrium-square.json"),
   "chancery-hill-collection": () => import("./specs/chancery-hill-collection.json"),
   "chencharu-close-gls": () => import("./specs/chencharu-close-gls.json"),
   "chuan-park": () => import("./specs/chuan-park.json"),
@@ -1163,7 +898,6 @@ export const autoSpecLoaders: Record<string, () => Promise<{ default: unknown }>
   "dairy-farm-walk-gls": () => import("./specs/dairy-farm-walk-gls.json"),
   "duet-emily": () => import("./specs/duet-emily.json"),
   "dunearn-house": () => import("./specs/dunearn-house.json"),
-  "eden-residences-capitol": () => import("./specs/eden-residences-capitol.json"),
   "elta": () => import("./specs/elta.json"),
   "faber-residence": () => import("./specs/faber-residence.json"),
   "forett-at-bukit-timah": () => import("./specs/forett-at-bukit-timah.json"),
@@ -1177,44 +911,31 @@ export const autoSpecLoaders: Record<string, () => Promise<{ default: unknown }>
   "hudson-place-residences": () => import("./specs/hudson-place-residences.json"),
   "j-den": () => import("./specs/j-den.json"),
   "jansen-house": () => import("./specs/jansen-house.json"),
-  "kallang-riverside": () => import("./specs/kallang-riverside.json"),
   "kassia": () => import("./specs/kassia.json"),
   "keystone-mandai": () => import("./specs/keystone-mandai.json"),
   "kovan-jewel": () => import("./specs/kovan-jewel.json"),
   "lentor-gardens-residences": () => import("./specs/lentor-gardens-residences.json"),
   "lentoria": () => import("./specs/lentoria.json"),
-  "lloyd-sixtyfive": () => import("./specs/lloyd-sixtyfive.json"),
   "lucerne-grand": () => import("./specs/lucerne-grand.json"),
-  "lucida": () => import("./specs/lucida.json"),
-  "lucky-plaza": () => import("./specs/lucky-plaza.json"),
-  "lumiere": () => import("./specs/lumiere.json"),
   "meyer-blue": () => import("./specs/meyer-blue.json"),
-  "midtown-bay": () => import("./specs/midtown-bay.json"),
   "miltonia-close": () => import("./specs/miltonia-close.json"),
   "narra-residences": () => import("./specs/narra-residences.json"),
   "nava-grove": () => import("./specs/nava-grove.json"),
   "newport-residences": () => import("./specs/newport-residences.json"),
-  "nim-collection": () => import("./specs/nim-collection.json"),
   "north-gaia": () => import("./specs/north-gaia.json"),
   "norwood-grand": () => import("./specs/norwood-grand.json"),
   "ocho": () => import("./specs/ocho.json"),
   "one-chuan-grove": () => import("./specs/one-chuan-grove.json"),
   "one-marina-gardens": () => import("./specs/one-marina-gardens.json"),
   "one-sophia": () => import("./specs/one-sophia.json"),
-  "parksuites": () => import("./specs/parksuites.json"),
   "parktown-residence": () => import("./specs/parktown-residence.json"),
   "penrith": () => import("./specs/penrith.json"),
   "pinery-residences": () => import("./specs/pinery-residences.json"),
   "promenade-peak": () => import("./specs/promenade-peak.json"),
-  "reignwood-hamilton-scotts": () => import("./specs/reignwood-hamilton-scotts.json"),
-  "residences-at-emerald-hill": () => import("./specs/residences-at-emerald-hill.json"),
   "river-green": () => import("./specs/river-green.json"),
   "river-modern": () => import("./specs/river-modern.json"),
-  "seascape": () => import("./specs/seascape.json"),
   "sembawang-road-gls": () => import("./specs/sembawang-road-gls.json"),
-  "shoppes-ascent-456": () => import("./specs/shoppes-ascent-456.json"),
   "shoppes-sky-eden": () => import("./specs/shoppes-sky-eden.json"),
-  "skies-miltonia": () => import("./specs/skies-miltonia.json"),
   "skywaters-residences": () => import("./specs/skywaters-residences.json"),
   "smart-food-mandai": () => import("./specs/smart-food-mandai.json"),
   "solano-grand": () => import("./specs/solano-grand.json"),
@@ -1228,33 +949,22 @@ export const autoSpecLoaders: Record<string, () => Promise<{ default: unknown }>
   "the-collective-at-one-sophia": () => import("./specs/the-collective-at-one-sophia.json"),
   "the-giverny-residences": () => import("./specs/the-giverny-residences.json"),
   "the-golden-mile": () => import("./specs/the-golden-mile.json"),
-  "the-green-collection": () => import("./specs/the-green-collection.json"),
   "the-hillshore": () => import("./specs/the-hillshore.json"),
-  "the-line-tanjong-rhu": () => import("./specs/the-line-tanjong-rhu.json"),
-  "the-lumos": () => import("./specs/the-lumos.json"),
   "the-myst": () => import("./specs/the-myst.json"),
-  "the-oceanfront-sentosa-cove": () => import("./specs/the-oceanfront-sentosa-cove.json"),
-  "the-oliv": () => import("./specs/the-oliv.json"),
   "the-orie": () => import("./specs/the-orie.json"),
   "the-ranz": () => import("./specs/the-ranz.json"),
   "the-residences-at-w-singapore-sentosa-cove": () => import("./specs/the-residences-at-w-singapore-sentosa-cove.json"),
-  "the-ritz-carlton": () => import("./specs/the-ritz-carlton.json"),
   "the-robertson-opus": () => import("./specs/the-robertson-opus.json"),
   "the-sen": () => import("./specs/the-sen.json"),
   "the-shorefront": () => import("./specs/the-shorefront.json"),
-  "the-venue-shoppes": () => import("./specs/the-venue-shoppes.json"),
   "tmw-maxwell": () => import("./specs/tmw-maxwell.json"),
-  "trio": () => import("./specs/trio.json"),
-  "turquoise": () => import("./specs/turquoise.json"),
   "union-square-residences": () => import("./specs/union-square-residences.json"),
   "upperhouse-at-orchard-boulevard": () => import("./specs/upperhouse-at-orchard-boulevard.json"),
-  "v-on-shenton": () => import("./specs/v-on-shenton.json"),
   "vela-bay": () => import("./specs/vela-bay.json"),
   "verde-joo-chiat": () => import("./specs/verde-joo-chiat.json"),
   "villas-greenbank-park": () => import("./specs/villas-greenbank-park.json"),
   "villas-old-tampines-road": () => import("./specs/villas-old-tampines-road.json"),
   "w-residences-marina-view-singapore": () => import("./specs/w-residences-marina-view-singapore.json"),
-  "west-connect-building": () => import("./specs/west-connect-building.json"),
   "wynwood-grand": () => import("./specs/wynwood-grand.json"),
   "zyon-grand": () => import("./specs/zyon-grand.json"),
 };
@@ -1290,10 +1000,8 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "kovan-jewel": () => import("./traces/kovan-jewel.json"),
   "lentor-gardens-residences": () => import("./traces/lentor-gardens-residences.json"),
   "lentoria": () => import("./traces/lentoria.json"),
-  "lloyd-sixtyfive": () => import("./traces/lloyd-sixtyfive.json"),
   "lucerne-grand": () => import("./traces/lucerne-grand.json"),
   "meyer-blue": () => import("./traces/meyer-blue.json"),
-  "midtown-bay": () => import("./traces/midtown-bay.json"),
   "narra-residences": () => import("./traces/narra-residences.json"),
   "nava-grove": () => import("./traces/nava-grove.json"),
   "newport-residences": () => import("./traces/newport-residences.json"),
@@ -1301,15 +1009,12 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "norwood-grand": () => import("./traces/norwood-grand.json"),
   "one-marina-gardens": () => import("./traces/one-marina-gardens.json"),
   "one-sophia": () => import("./traces/one-sophia.json"),
-  "parksuites": () => import("./traces/parksuites.json"),
   "parktown-residence": () => import("./traces/parktown-residence.json"),
   "penrith": () => import("./traces/penrith.json"),
   "pinery-residences": () => import("./traces/pinery-residences.json"),
   "promenade-peak": () => import("./traces/promenade-peak.json"),
-  "reignwood-hamilton-scotts": () => import("./traces/reignwood-hamilton-scotts.json"),
   "river-green": () => import("./traces/river-green.json"),
   "river-modern": () => import("./traces/river-modern.json"),
-  "skies-miltonia": () => import("./traces/skies-miltonia.json"),
   "sophia-meadow": () => import("./traces/sophia-meadow.json"),
   "sophia-regency": () => import("./traces/sophia-regency.json"),
   "sora": () => import("./traces/sora.json"),
@@ -1319,17 +1024,13 @@ export const autoTraceLoaders: Record<string, () => Promise<{ default: unknown }
   "the-arcady-at-boon-keng": () => import("./traces/the-arcady-at-boon-keng.json"),
   "the-collective-at-one-sophia": () => import("./traces/the-collective-at-one-sophia.json"),
   "the-hillshore": () => import("./traces/the-hillshore.json"),
-  "the-line-tanjong-rhu": () => import("./traces/the-line-tanjong-rhu.json"),
   "the-myst": () => import("./traces/the-myst.json"),
-  "the-oceanfront-sentosa-cove": () => import("./traces/the-oceanfront-sentosa-cove.json"),
   "the-orie": () => import("./traces/the-orie.json"),
   "the-residences-at-w-singapore-sentosa-cove": () => import("./traces/the-residences-at-w-singapore-sentosa-cove.json"),
-  "the-ritz-carlton": () => import("./traces/the-ritz-carlton.json"),
   "the-robertson-opus": () => import("./traces/the-robertson-opus.json"),
   "the-sen": () => import("./traces/the-sen.json"),
   "the-shorefront": () => import("./traces/the-shorefront.json"),
   "tmw-maxwell": () => import("./traces/tmw-maxwell.json"),
-  "trio": () => import("./traces/trio.json"),
   "union-square-residences": () => import("./traces/union-square-residences.json"),
   "upperhouse-at-orchard-boulevard": () => import("./traces/upperhouse-at-orchard-boulevard.json"),
   "vela-bay": () => import("./traces/vela-bay.json"),

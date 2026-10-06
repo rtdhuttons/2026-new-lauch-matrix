@@ -8,8 +8,8 @@ unit at a new launch. Thomson Reserve (1–11 Bright Hill Drive, 1,268 units,
 development is added as a project bundle without changing the shared code.
 The Serra Residences (7 Bassein Road, 133 units, one 28-storey tower) is the
 second, built from the Huttons New Launch API pull (`pull-project.py`).
-Every other project on the new launches map (124 on 5 Oct 2026) has a mini
-site built automatically from one data file per project
+Every other project on the new launches map (95 on 5 Oct 2026; projects
+launched before 2020 are left off the map and the list) has a mini site built automatically from one data file per project
 (`scripts/huttons/build-sites.py` → `data/auto/`), with the same eight tabs.
 
 Every project has the same eight tabs, in this order: Project & 3D Site,
@@ -89,6 +89,7 @@ python3 scripts/huttons/sync-catalogue.py
 python3 scripts/huttons/sync-project.py "Thomson Reserve" src/features/selector/data/thomson-reserve/huttons-units.ts
 python3 scripts/huttons/sync-project.py "The Serra Residences" src/features/selector/data/the-serra-residences/huttons-units.ts
 python3 scripts/huttons/build-sites.py   # every other map project's mini site data (about 25 minutes)
+python3 scripts/huttons/nearby-projects.py --all   # each project's four nearest alternatives (seconds, no API)
 python3 scripts/ura/sync-transactions.py
 ```
 
@@ -161,7 +162,10 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   on the map still selling (or not yet launched) a bedroom type the project
   offers, by straight line between map positions, with each shared type's
   lowest price, psf, psf range and units left. Thomson Reserve keeps TRM's
-  own comparison (`alternatives.ts`).
+  own comparison (`alternatives.ts`). A project not released yet (no unit
+  types) is compared on every bedroom type; shops, offices, factories and
+  landed-only projects get none. The automatic mini sites use the same
+  list (`nearby` in their spec).
 - `src/features/selector/data/auto/` — the automatic mini sites:
   `specs/<slug>.json` (one per project, from `scripts/huttons/build-sites.py`:
   every unit, floor plan and site plan image addresses on Huttons' image
@@ -192,7 +196,7 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   major roads on a `#EAF2F5` sea; floating region filter that fits the map;
   grouped zoom and reset (44px targets); labels placed without collisions by
   `placeLabels` (regions and neighbourhoods at the overview, district numbers
-  as you zoom in); compact navy markers for New launch and Upcoming (no units released counts as Upcoming; sold-out projects and resale are not shown)
+  as you zoom in); compact navy markers for New launch and Upcoming (no units released counts as Upcoming; sold-out projects, resale and projects launched before 2020 are not shown: `FIRST_LAUNCH_YEAR` in `lib.ts`, `client.on_map` in the scripts)
   with count bubbles; district hover/tap card with region shares and listing
   count; compact project card with photo (`data/images.ts`); a "Price
   heatmap" view with its own legend when average psf is available),

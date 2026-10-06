@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { catalogue, market } from "../data";
-import { fromPrice, km, projectCagr, projectStatus, psfTrendCagr, recommendNearby, within } from "../lib";
+import { fromPrice, km, onMap, projectCagr, projectStatus, psfTrendCagr, recommendNearby, within } from "../lib";
 import type { CatalogueProject } from "../model";
 
 const tr = catalogue.projects.find((p) => p.name === "Thomson Reserve")!;
@@ -33,6 +33,17 @@ describe("recommendations", () => {
     }
     // Nearest first.
     for (let i = 1; i < recs.length; i++) expect(recs[i].km).toBeGreaterThanOrEqual(recs[i - 1].km);
+  });
+
+  it("leaves projects launched before 2020 off the map, even with units left", () => {
+    const today = "2026-10-05";
+    const lucida = catalogue.projects.find((p) => p.name === "Lucida")!;
+    expect(lucida.unitsLeft).toBeGreaterThan(0);
+    expect(onMap(lucida, today)).toBe(false);
+    expect(onMap({ ...lucida, launchDate: "2020-01-01" }, today)).toBe(true);
+    expect(catalogue.projects.filter((p) => onMap(p, today))).toHaveLength(97);
+    const recs = recommendNearby(tr, catalogue.projects, today, 5, 50);
+    expect(recs.every((r) => onMap(r.item, today))).toBe(true);
   });
 
   it("knows a project launching later is upcoming", () => {

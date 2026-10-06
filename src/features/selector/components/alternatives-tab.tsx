@@ -297,7 +297,7 @@ export function AlternativesTab({
         <h3 id="alt-projects" className="font-display text-xl font-extrabold">The alternatives</h3>
         <p className="mt-1 text-[0.9375rem] text-canopy/75">
           {byDistance
-            ? `The ${alternatives.length} nearest projects on the new launches map still selling the bedroom types ${projectName} offers, nearest first. Distances are straight lines between the projects' map positions.`
+            ? `The ${alternatives.length} nearest projects on the new launches map still selling ${ownTypes.length ? `the bedroom types ${projectName} offers` : "homes"}, nearest first. Distances are straight lines between the projects' map positions.`
             : "Each plays a different role. None is the best for everyone: it depends on what matters to you."}
         </p>
         <ul className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">

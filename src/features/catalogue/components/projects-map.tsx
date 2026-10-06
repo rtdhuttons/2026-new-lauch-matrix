@@ -29,6 +29,7 @@ import {
   latestPsf,
   located,
   mapKind,
+  FIRST_LAUNCH_YEAR,
   onMap,
   money,
   pct,
@@ -291,7 +292,7 @@ export function ProjectsMap({
       <p className="mt-2 font-display-normal text-sm text-stone">
         Projects and prices: {catalogue.source}, {catalogue.fetched}.
         {catalogue.seed && " Showing the projects already loaded for Thomson Reserve; the full list loads with the daily update."}
-        {projects.length > listed && ` ${projects.length - listed} sold-out projects are not shown.`}
+        {projects.length > listed && ` ${projects.length - listed} projects that are sold out or launched before ${FIRST_LAUNCH_YEAR} are not shown.`}
       </p>
 
       {/* Search filters */}

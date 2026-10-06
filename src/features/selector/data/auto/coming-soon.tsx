@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { AlternativesTab } from "../../components/alternatives-tab";
 import { ProjectHero } from "../../components/project-hero";
 import { card, NumbersDisclaimer } from "../../components/ui";
 import type { ProjectBundle } from "../../model/project";
 import type { AutoSpec } from "./build";
 
 const km = (m: number) => (m < 1000 ? `${m.toLocaleString("en-SG")} m` : `${(m / 1000).toFixed(1)} km`);
-const money = (n: number) => `$${n.toLocaleString("en-SG")}`;
 
 /** A project whose units aren't released yet: what is known now, and what comes at launch. */
 export function ComingSoon({ spec, project }: { spec: AutoSpec; project: ProjectBundle }) {
@@ -89,23 +89,11 @@ export function ComingSoon({ spec, project }: { spec: AutoSpec; project: Project
           </section>
         </div>
 
-        {spec.nearby.length > 0 && (
-          <section className="mt-8" aria-labelledby="nearby">
+        {project.alternatives.length > 0 && (
+          <section className="mt-10" aria-labelledby="nearby">
             <h2 id="nearby" className="font-display text-[22px] font-extrabold leading-tight">Nearby projects to compare</h2>
-            <ul className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {spec.nearby.map((n) => {
-                const prices = n.unitTypes.map((t) => t.fromPrice).filter((p): p is number => p !== null);
-                return (
-                  <li key={n.name} className={`${card} p-4`}>
-                    <p className="font-display-normal font-semibold">{n.name}</p>
-                    <p className="text-sm text-canopy/75">
-                      {n.km < 1 ? `${Math.round(n.km * 1000)} m` : `${n.km.toFixed(1)} km`} away{n.tenure ? ` · ${n.tenure}` : ""}
-                    </p>
-                    <p className="mt-2 font-display-normal text-[15px]">{prices.length ? `From ${money(Math.min(...prices))}` : "Prices not released"}</p>
-                  </li>
-                );
-              })}
-            </ul>
+            <p className="mt-1 mb-5 text-[0.9375rem] text-canopy/75">What the nearest projects on the map are selling now, while this project&apos;s prices are not released.</p>
+            <AlternativesTab alternatives={project.alternatives} projectName={project.profile.name} ownTypes={[]} selected={null} ownPriceNote={null} />
           </section>
         )}
 
