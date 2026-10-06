@@ -2,18 +2,18 @@
 map, from URA's Data Service (eservice.ura.gov.sg).
 
 Usage:
-  python3 scripts/ura/sync-transactions.py              # within 2 km
-  python3 scripts/ura/sync-transactions.py --radius 1.5
+  python3 scripts/ura/sync-transactions.py              # within 1.5 km (the map's radius)
+  python3 scripts/ura/sync-transactions.py --radius 2
 
 Needs URA_ACCESS_KEY in the environment (free; register at
 https://eservice.ura.gov.sg/maps/api/reg.html). Reads the project positions
 from src/features/catalogue/data/huttons-catalogue.ts, keeps the
 condominiums, apartments and executive condominiums within the radius of any
-of them, and writes src/features/catalogue/data/ura-market.ts with, for each
+of the projects on the map, and writes src/features/catalogue/data/ura-market.ts with, for each
 development:
   - sales by year: number, median price per sq ft, new sales, sub-sales and
     resales (URA's last five years of caveats)
-  - the most recent sales (up to 40 in the last two years)
+  - the most recent sales (up to 15 in the last two years; the map shows 15)
   - rents over the last four quarters by number of bedrooms: number, median
     monthly rent and median rent per sq ft (from the middle of URA's area band)
 Set URA_FIXTURES=dir to answer calls from saved JSON instead of the network.
@@ -55,16 +55,20 @@ def call(path, **params):
     if path != "insertNewToken/v1":
         headers["Token"] = call.token
     url = f"{BASE}/{path}" + ("?" + urllib.parse.urlencode(params) if params else "")
-    for i in range(4):
+    for i in range(6):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=120) as r:
-                d = json.load(r)
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=300) as r:
+                raw = r.read()
+            try:
+                d = json.loads(raw.decode("utf-8"))
+            except UnicodeDecodeError:  # a few project names are sent in Windows-1252
+                d = json.loads(raw.decode("cp1252", errors="replace"))
             if d.get("Status") == "Success":
                 return d
             last = d.get("Message")
         except (OSError, ValueError) as e:
             last = str(e)
-        time.sleep(2 ** i)
+        time.sleep(10 * (i + 1))  # URA answers 403 when called too quickly
     raise SystemExit(f"URA {params.get('service', path)}: {last}")
 
 
@@ -76,12 +80,16 @@ def km(a, b):
 
 
 def catalogue_points():
+    """Map positions of the projects on the new launches map (client.on_map)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "huttons"))
+    import client
+    fetched = re.search(r'fetched: "(\d{4}-\d{2}-\d{2})"', CATALOGUE.read_text()).group(1)
     pts = []
     for line in CATALOGUE.read_text().splitlines():
         line = line.strip().rstrip(",")
         if line.startswith('{"id"'):
             p = json.loads(line)
-            if p.get("lat") and p.get("lon"):
+            if p.get("lat") and p.get("lon") and client.on_map(p, fetched):
                 pts.append((p["lat"], p["lon"]))
     if not pts:
         raise SystemExit(f"No projects with a map position in {CATALOGUE}; run sync-catalogue.py first.")
@@ -177,7 +185,7 @@ def main(radius):
         row["sales"] = [{"year": y, "count": len(v), "medianPsf": round(statistics.median(s["psf"] for s in v)),
                          "newSale": sum(s["type"] == "new" for s in v), "subSale": sum(s["type"] == "sub" for s in v),
                          "resale": sum(s["type"] == "resale" for s in v)} for y, v in sorted(years.items())]
-        recent = sorted((s for s in sales if s["month"] >= cutoff), key=lambda s: s["month"], reverse=True)[:40]
+        recent = sorted((s for s in sales if s["month"] >= cutoff), key=lambda s: s["month"], reverse=True)[:15]
         row["recentSales"] = [[s["month"], s["type"], s["floor"], s["areaSqft"], s["price"], s["psf"]] for s in recent]
         by_beds = {}
         for r in rents:
@@ -215,4 +223,4 @@ export const uraMarket: MarketData = {{
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    main(float(a[a.index("--radius") + 1]) if "--radius" in a else 2.0)
+    main(float(a[a.index("--radius") + 1]) if "--radius" in a else 1.5)  # the map shows 1.5 km

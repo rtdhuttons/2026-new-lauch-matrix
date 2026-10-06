@@ -3,8 +3,10 @@
 // The comparable project(s) TRM chose for a project's resale and rental
 // records: why, a side-by-side of the facts, and whether the records are in yet.
 
+import { useState } from "react";
 import type { ComparableChoice as Choice } from "../model/project";
 import { stillBuilding } from "../data/comparables/choice";
+import { ComparableRecords } from "./comparable-records";
 import { card } from "./ui";
 
 const distance = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`);
@@ -15,11 +17,15 @@ const district = (d: string | null) => (d ? `District ${Number(d.replace(/\D/g, 
 export function ComparableChoice({ choice, projectName }: { choice: Choice; projectName: string }) {
   const names = choice.comparables.map((c) => c.name);
   const building = choice.comparables.filter((c) => stillBuilding(c, choice.asAt));
+  const records = choice.records ?? [];
+  const withRecords = choice.comparables.map((c, i) => ({ c, r: records[i] ?? null })).filter((x) => x.r);
+  const [shown, setShown] = useState(0);
+  const current = withRecords[Math.min(shown, withRecords.length - 1)];
   const rows: { trait: string; values: (string | null)[]; subject: string | null }[] = [
     { trait: "Distance from " + projectName, values: choice.comparables.map((c) => (c.km !== null ? distance(c.km) : null)), subject: "—" },
     { trait: "Address", values: choice.comparables.map((c) => c.address), subject: null },
     { trait: "District", values: choice.comparables.map((c) => district(c.district)), subject: district(choice.subject.district) },
-    { trait: "Tenure", values: choice.comparables.map((c) => c.huttons?.tenure ?? null), subject: choice.subject.tenure },
+    { trait: "Tenure", values: choice.comparables.map((c, i) => c.huttons?.tenure ?? records[i]?.tenure ?? null), subject: choice.subject.tenure },
     { trait: "Units", values: choice.comparables.map((c) => c.huttons?.totalUnits?.toLocaleString("en-SG") ?? null), subject: choice.subject.totalUnits?.toLocaleString("en-SG") ?? null },
     {
       trait: "Completion",
@@ -81,6 +87,30 @@ export function ComparableChoice({ choice, projectName }: { choice: Choice; proj
         </table>
       </div>
 
+      {current && choice.recordsSource && (
+        <div className="mt-6 border-t border-canopy/10 pt-5">
+          <h5 className="font-display text-lg font-extrabold">What homes at {withRecords.length > 1 ? "these projects" : current.c.name} sell and rent for</h5>
+          {withRecords.length > 1 && (
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Comparable project">
+              {withRecords.map((x, i) => (
+                <button
+                  key={x.c.name}
+                  type="button"
+                  aria-pressed={current === x}
+                  onClick={() => setShown(i)}
+                  className={`rounded-full px-4 py-2 font-display-normal text-sm font-semibold ${current === x ? "bg-canopy text-mist" : "border border-canopy/20 bg-paper text-canopy/80"}`}
+                >
+                  {x.c.name}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="mt-4">
+            <ComparableRecords record={current.r!} fetched={choice.recordsSource.fetched} salesWindow={choice.recordsSource.salesWindow} />
+          </div>
+        </div>
+      )}
+
       {!choice.recordsLoaded && (
         <p className="mt-4 text-sm text-canopy/80">
           <span className="font-semibold">Resale and rental records:</span> not loaded yet. {possessive(names.join(" and "))} past resales (with profit by floor) and
@@ -88,9 +118,9 @@ export function ComparableChoice({ choice, projectName }: { choice: Choice; proj
         </p>
       )}
       <p className="mt-3 text-xs text-stone">
-        Chosen by TRM{choice.trmNote ? ` (“${choice.trmNote.trim()}”)` : ""}. Profit counts and years built are TRM&apos;s own review, not yet checked against URA&apos;s
-        records. Distances are straight lines on OneMap to the comparable&apos;s nearest address point. Units, tenure and completion from the Huttons New Launch
-        API where the project is listed there (otherwise “Not known yet” until URA&apos;s records are loaded); checked {choice.asAt}.
+        Chosen by TRM{choice.trmNote ? ` (“${choice.trmNote.trim()}”)` : ""}. Profit counts and years built are TRM&apos;s own review of matched purchase and
+        sale records. Distances are straight lines on OneMap to the comparable&apos;s nearest address point. Units and completion from the Huttons New Launch API
+        where the project is listed there; tenure from Huttons or URA; checked {choice.asAt}.
       </p>
     </section>
   );

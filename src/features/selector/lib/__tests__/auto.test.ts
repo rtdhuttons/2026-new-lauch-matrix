@@ -10,6 +10,8 @@ import { checkProject } from "../project-check";
 import { chosenComparables } from "../../data/comparables/chosen";
 import { chosenNotes } from "../../data/comparables/chosen-notes";
 import { stillBuilding } from "../../data/comparables/choice";
+import { uraComparables } from "../../data/comparables/ura-comparables";
+import { changeSinceLaunch, grossYield } from "../../components/comparable-records";
 
 const dir = join(__dirname, "../../data/auto");
 const specs = readdirSync(join(dir, "specs"))
@@ -86,5 +88,34 @@ describe("TRM's chosen comparables", () => {
     expect(chosenNotes["the-sen"]).toMatch(/under construction/);
     const kassia = chosenComparables.projects.find((p) => p.slug === "kassia")!;
     expect(stillBuilding(kassia.comparables[0], chosenComparables.checked)).toBe(false);
+  });
+});
+
+describe("comparables' URA records", () => {
+  it("finds every chosen comparable in URA's records", () => {
+    const names = new Set(chosenComparables.projects.flatMap((p) => p.comparables.map((c) => c.name)));
+    for (const n of names) expect(uraComparables.comparables.some((u) => u.name === n), n).toBe(true);
+    const kassia = specs.find((s) => s.id === "kassia")!;
+    const choice = buildAutoBundle(kassia, traceOf("kassia")).comparableChoice!;
+    expect(choice.recordsLoaded).toBe(true);
+    expect(choice.records?.[0]?.ura.project).toBe("PARC KOMO");
+  });
+
+  it("matches a JadeScape resale in TRM's Huttons report", () => {
+    const jade = uraComparables.comparables.find((u) => u.name === "Jadescape")!;
+    // Report: 17th floor, 904 sq ft, sold 10 Sep 2026 for $2,390,000.
+    expect(jade.recentSales.some(([m, type, floors, area, price]) => m === "2026-09" && type === "resale" && floors === "16-20" && area === 904 && price === 2_390_000)).toBe(true);
+  });
+
+  it("works out the change since launch and the gross yield only from enough records", () => {
+    const jade = uraComparables.comparables.find((u) => u.name === "Jadescape")!;
+    expect(changeSinceLaunch(jade)).toBe(Math.round((jade.resaleLast12.medianPsf! / jade.firstSale!.medianPsf - 1) * 100));
+    const y = grossYield(jade)!;
+    expect(y).toBeGreaterThan(0.02);
+    expect(y).toBeLessThan(0.05);
+    const lentor = uraComparables.comparables.find((u) => u.name === "Lentor Modern")!;
+    expect(lentor.resaleLast12.count).toBe(0);
+    expect(changeSinceLaunch(lentor)).toBeNull();
+    expect(grossYield(lentor)).toBeNull();
   });
 });

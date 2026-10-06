@@ -189,6 +189,35 @@ export interface ChosenComparables {
   projects: { slug: string; project: string; comparables: ChosenComparable[]; trmNote: string | null; distanceLimitKm: number | null }[];
 }
 
+/** One comparable's sales and rents from URA's Data Service (scripts/ura/sync-comparables.py). */
+export interface UraComparable {
+  key: string;
+  name: string;
+  ura: { project: string; street: string };
+  /** Tenure as URA records it, e.g. "99 years from 2014" or "Freehold". */
+  tenure: string | null;
+  /** Caveats lodged by year: number of new sales, sub-sales and resales, and the median price per sq ft of each. */
+  salesByYear: { year: number; new: number; sub: number; resale: number; newPsf: number | null; subPsf: number | null; resalePsf: number | null }[];
+  /** Resales over URA's five years by floor range, e.g. "06-10". */
+  resaleByFloor: { floors: string; count: number; medianPsf: number }[];
+  /** Latest 20 sales: [month, sale type, floor range, area sq ft, price]. */
+  recentSales: [string, "new" | "sub" | "resale" | "other", string | null, number, number][];
+  resaleLast12: { count: number; medianPsf: number | null };
+  /** Rental contracts in the latest four quarters by bedrooms; rent per sq ft from the middle of URA's size band. */
+  rentsByBedroom: { bedrooms: number | null; count: number; medianRent: number; medianPsf: number | null }[];
+  rentTrend: { quarter: string; count: number; medianPsf: number }[];
+  rentPeriod: string;
+  /** What first buyers paid the developer (Huttons New Launch API), where the comparable is a Huttons project. */
+  firstSale: { count: number; ofUnits: number; from: string; to: string; medianPsf: number; source: string } | null;
+}
+
+export interface UraComparables {
+  source: string;
+  fetched: string;
+  salesWindow: string;
+  comparables: UraComparable[];
+}
+
 /** The comparable project(s) shown on a project's Investor tab, with why TRM chose them. */
 export interface ComparableChoice {
   comparables: ChosenComparable[];
@@ -200,6 +229,9 @@ export interface ComparableChoice {
   subject: { tenure: string | null; totalUnits: number | null; district: string | null; completion: string | null };
   /** True once the comparable's resale and rental records are on the site. */
   recordsLoaded: boolean;
+  /** URA's records for each comparable, in the same order (null where not found). */
+  records?: (UraComparable | null)[];
+  recordsSource?: { source: string; fetched: string; salesWindow: string };
   /** Date the comparison's facts were checked (for "still under construction"). */
   asAt: string;
   provenance: Provenance;
