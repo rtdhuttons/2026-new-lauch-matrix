@@ -21,6 +21,7 @@ import type {
 import type { Block, Dataset, ExternalRoute, Gate, InternalRoute, Layout, Point, Provenance, Stack, Unit, UnitStatus } from "../../model/types";
 import { distance, normaliseBearing } from "../../lib/geometry";
 import { nearbyAlternatives, type NearbyProject } from "../nearby";
+import { comparableChoiceFor } from "../comparables/choice";
 
 /** [block, stack, floor, floor plan, area sq ft, bedrooms, bathrooms, type, availability, list price, nett price] */
 export type AutoUnit = [string, string, number, string, number, number | null, number | null, string | null, UnitStatus, number | null, number | null];
@@ -524,6 +525,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     payments: { schedule: null, scheduleProvenance: null, maintenance: null },
     schools: schools.length ? { measuredFrom: spec.name, registrationYear: null, schools, provenance: { source: "SLA OneMap address search", updated: spec.fetched, status: "verified" } } : null,
     comparables: [],
+    comparableChoice: comparableChoiceFor(spec.id, { tenure: f.tenure, totalUnits: f.totalUnits, district: f.district, completion: f.completionDate }),
     rentals: [],
     alternatives,
     pivot: { scores: null, overallStated: null, overallMethod: null, entry: null, provenance: null },

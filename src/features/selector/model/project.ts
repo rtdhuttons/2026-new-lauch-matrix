@@ -163,6 +163,48 @@ export interface ComparableEvidence {
   image: { src: string; alt: string; caption: string } | null;
 }
 
+/** A comparable project TRM chose for a project's resale and rental records (scripts/data/comparables-from-sheet.py). */
+export interface ChosenComparable {
+  name: string;
+  /** As typed in TRM's sheet, e.g. "LENTOR MODERN" (URA's spelling). */
+  sheetName: string;
+  address: string | null;
+  lat: number | null;
+  lon: number | null;
+  /** Straight line on OneMap from this project's map position to the comparable's address point. */
+  km: number | null;
+  located: "onemap" | "onemap-partial" | null;
+  /** OneMap marks the address "(U/C)": still under construction. */
+  underConstruction: boolean | null;
+  district: string | null;
+  /** Facts from the Huttons catalogue, when the comparable is a Huttons project. */
+  huttons: { tenure: string | null; totalUnits: number | null; developer: string | null; completion: string | null; district: string | null } | null;
+}
+
+export interface ChosenComparables {
+  source: string;
+  checked: string;
+  /** Date of the map catalogue the projects were matched against. */
+  catalogue: string;
+  projects: { slug: string; project: string; comparables: ChosenComparable[]; trmNote: string | null; distanceLimitKm: number | null }[];
+}
+
+/** The comparable project(s) shown on a project's Investor tab, with why TRM chose them. */
+export interface ComparableChoice {
+  comparables: ChosenComparable[];
+  /** The website's explanation of the choice, built from TRM's note. */
+  why: string;
+  /** TRM's own words from the sheet. */
+  trmNote: string | null;
+  /** This project's side of the comparison. */
+  subject: { tenure: string | null; totalUnits: number | null; district: string | null; completion: string | null };
+  /** True once the comparable's resale and rental records are on the site. */
+  recordsLoaded: boolean;
+  /** Date the comparison's facts were checked (for "still under construction"). */
+  asAt: string;
+  provenance: Provenance;
+}
+
 export interface RentalRecord {
   /** First day of the lease month, ISO date. */
   month: string;
@@ -309,6 +351,8 @@ export interface ProjectBundle {
   schools: SchoolsInfo | null;
   /** Comparison projects with resale records (historical profitability). */
   comparables: ComparableEvidence[];
+  /** TRM's chosen comparable project(s) and why, shown while (or beside) their records. */
+  comparableChoice?: ComparableChoice | null;
   rentals: RentalEvidence[];
   alternatives: AlternativeProject[];
   pivot: PivotInfo;

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AlternativesTab } from "../../components/alternatives-tab";
+import { ComparableChoice } from "../../components/comparable-choice";
 import { ProjectHero } from "../../components/project-hero";
 import { card, NumbersDisclaimer } from "../../components/ui";
 import type { ProjectBundle } from "../../model/project";
@@ -88,6 +89,13 @@ export function ComingSoon({ spec, project }: { spec: AutoSpec; project: Project
             )}
           </section>
         </div>
+
+        {project.comparableChoice && (
+          <div className="mt-10">
+            <h2 className="mb-4 font-display text-[22px] font-extrabold leading-tight">Past resales and rents nearby</h2>
+            <ComparableChoice choice={project.comparableChoice} projectName={project.profile.name} />
+          </div>
+        )}
 
         {project.alternatives.length > 0 && (
           <section className="mt-10" aria-labelledby="nearby">

@@ -25,6 +25,7 @@ import type { SellingInputs } from "../lib/selling";
 import { EMPTY_SELLING_INPUTS } from "../lib/selling";
 import { AlternativesTab } from "./alternatives-tab";
 import { AssetImg } from "./asset-image";
+import { ComparableChoice } from "./comparable-choice";
 import { CompareCards } from "./compare-cards";
 import { Comparison } from "./comparison";
 import { ExitAppeal } from "./exit-appeal";
@@ -719,6 +720,10 @@ export function ProjectApp({ project }: { project: ProjectBundle }) {
                   <FloorProfit evidence={c} subjectName={project.profile.name} />
                 </div>
               ))
+            ) : project.comparableChoice ? (
+              <div className="mt-3">
+                <ComparableChoice choice={project.comparableChoice} projectName={project.profile.name} />
+              </div>
             ) : (
               <div className="mt-3">
                 <NotSupplied title="Comparable resale records have not been added for this project." needed={["Matched purchase-and-sale records for one or more comparable projects, with why each is relevant."]} />

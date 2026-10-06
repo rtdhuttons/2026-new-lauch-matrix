@@ -7,6 +7,9 @@ import { projects } from "../../data/projects";
 import { indexDataset } from "../dataset-index";
 import { applyPriceEstimate } from "../estimate";
 import { checkProject } from "../project-check";
+import { chosenComparables } from "../../data/comparables/chosen";
+import { chosenNotes } from "../../data/comparables/chosen-notes";
+import { stillBuilding } from "../../data/comparables/choice";
 
 const dir = join(__dirname, "../../data/auto");
 const specs = readdirSync(join(dir, "specs"))
@@ -52,5 +55,36 @@ describe("automatic mini sites", () => {
       const priced = applyPriceEstimate(ds, bundle.pricing.estimate);
       expect(priced.units.some((u) => u.priceIsEstimate)).toBe(true);
     }
+  });
+});
+
+describe("TRM's chosen comparables", () => {
+  it("gives every chosen project a mini site card and a written reason", () => {
+    for (const p of chosenComparables.projects) {
+      expect(chosenNotes[p.slug], p.slug).toBeTruthy();
+      if (p.slug === "thomson-reserve") continue;
+      const spec = specs.find((s) => s.id === p.slug);
+      expect(spec, p.slug).toBeTruthy();
+      expect(buildAutoBundle(spec!, traceOf(spec!.id)).comparableChoice?.comparables.map((c) => c.name)).toEqual(p.comparables.map((c) => c.name));
+    }
+    // Only chosen projects get a card.
+    const unchosen = specs.find((s) => !chosenComparables.projects.some((p) => p.slug === s.id))!;
+    expect(buildAutoBundle(unchosen, null).comparableChoice).toBeNull();
+  });
+
+  it("quotes distances in the reasons that match OneMap's", () => {
+    for (const p of chosenComparables.projects) {
+      const quoted = [...chosenNotes[p.slug].matchAll(/about ([\d.,]+) (m|km)/g)].map((m) => (m[2] === "m" ? Number(m[1].replace(",", "")) / 1000 : Number(m[1])));
+      const actual = p.comparables.map((c) => c.km!);
+      for (const q of quoted) expect(actual.some((a) => Math.abs(a - q) <= Math.max(0.05, a * 0.1)), `${p.slug}: about ${q} km`).toBe(true);
+    }
+  });
+
+  it("says when a comparable is still being built", () => {
+    const sen = chosenComparables.projects.find((p) => p.slug === "the-sen")!;
+    expect(stillBuilding(sen.comparables[0], chosenComparables.checked)).toBe(true);
+    expect(chosenNotes["the-sen"]).toMatch(/under construction/);
+    const kassia = chosenComparables.projects.find((p) => p.slug === "kassia")!;
+    expect(stillBuilding(kassia.comparables[0], chosenComparables.checked)).toBe(false);
   });
 });
