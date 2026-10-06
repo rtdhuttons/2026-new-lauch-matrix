@@ -188,6 +188,10 @@ export interface AlternativeUnitType {
   fromPrice: number | null;
   /** Units of this type still available; null if not stated. */
   unitsLeft: number | null;
+  /** Price per sq ft of the lowest-priced unit, where the source gives it. */
+  fromPsf?: number | null;
+  /** Price per sq ft across the available, priced units, where the source gives it. */
+  psfRange?: { min: number; max: number; avg: number; units: number } | null;
 }
 
 export interface AlternativeProject {
@@ -204,6 +208,8 @@ export interface AlternativeProject {
   completion: string | null;
   image: { src: string; alt: string } | null;
   unitTypes: AlternativeUnitType[];
+  /** Straight-line distance from this project on the map, when chosen by distance. */
+  distanceKm?: number;
   /** Where the project facts (developer, units, tenure, completion) come from. */
   factsSource: { source: string; checked: string; note?: string } | null;
   /** What the prices are, e.g. "Lowest price among remaining units". */

@@ -17,6 +17,7 @@ import { card } from "./ui";
 const sgd = (n: number) => `S$${Math.round(n).toLocaleString("en-SG")}`;
 const sgdM = (n: number) => `S$${(n / 1_000_000).toFixed(3)}M`;
 const sizeText = (s: { min: number; max: number } | null) => (s ? (s.min === s.max ? s.min.toLocaleString("en-SG") : `${s.min.toLocaleString("en-SG")}–${s.max.toLocaleString("en-SG")}`) : "—");
+const psfRangeText = (r: { min: number; max: number }) => `${r.min.toLocaleString("en-SG")}–${r.max.toLocaleString("en-SG")}`;
 const leftText = (n: number | null) => (n === null ? "Not stated" : n <= 5 ? `Only ${n} left` : `${n} left`);
 
 interface Row {
@@ -27,6 +28,8 @@ interface Row {
   size: { min: number; max: number } | null;
   price: number;
   psf: number | null;
+  /** Price per sq ft across the units still available, where the source gives it. */
+  psfRange: { min: number; max: number } | null;
   left: string;
   estimate: boolean;
 }
@@ -76,6 +79,7 @@ export function AlternativesTab({
         size: { min: t.sizeSqft, max: t.sizeSqft },
         price: t.fromPrice,
         psf: Math.round(t.fromPrice / t.sizeSqft),
+        psfRange: null,
         left: "Not released",
         estimate: t.isEstimate,
       })),
@@ -89,7 +93,8 @@ export function AlternativesTab({
           type: u.type,
           size: u.sizeSqft,
           price: u.fromPrice!,
-          psf: u.sizeSqft ? Math.round(u.fromPrice! / u.sizeSqft.min) : null,
+          psf: u.fromPsf ?? (u.sizeSqft ? Math.round(u.fromPrice! / u.sizeSqft.min) : null),
+          psfRange: u.psfRange && u.psfRange.units > 1 && u.psfRange.max > u.psfRange.min ? u.psfRange : null,
           left: leftText(u.unitsLeft),
           estimate: false,
         })),
@@ -98,6 +103,8 @@ export function AlternativesTab({
     sort === "price" ? a.price - b.price : sort === "size" ? (b.size?.max ?? 0) - (a.size?.max ?? 0) : (a.psf ?? Infinity) - (b.psf ?? Infinity),
   );
   const anyEstimate = rows.some((r) => r.estimate);
+  const anyRange = rows.some((r) => r.psfRange);
+  const byDistance = alternatives.every((a) => a.distanceKm !== undefined);
   // Fixed colours by project: this project first, then the alternatives in their listed order.
   const projectColours = [projectName, ...alternatives.map((a) => a.name)].map((id, i) => ({ id, color: SERIES[i % SERIES.length] }));
   const asAt = alternatives[0].provenance.updated;
@@ -235,6 +242,7 @@ export function AlternativesTab({
                   <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm tabular-nums text-canopy/75">
                     <span>{sizeText(r.size)} sq ft</span>
                     {r.psf !== null && <span>S${r.psf.toLocaleString("en-SG")} psf</span>}
+                    {r.psfRange && <span>range S${psfRangeText(r.psfRange)} psf</span>}
                     <span>{r.left}</span>
                     {r.estimate && <EstimateTag />}
                   </p>
@@ -252,6 +260,7 @@ export function AlternativesTab({
                     <th scope="col" className="px-4 py-3 text-right font-semibold">Size (sq ft)</th>
                     <th scope="col" className="px-4 py-3 text-right font-semibold">From</th>
                     <th scope="col" className="px-4 py-3 text-right font-semibold">Per sq ft</th>
+                    {anyRange && <th scope="col" className="px-4 py-3 text-right font-semibold">Per sq ft range</th>}
                     <th scope="col" className="px-4 py-3 font-semibold">Units left</th>
                   </tr>
                 </thead>
@@ -268,6 +277,7 @@ export function AlternativesTab({
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">{r.psf !== null ? `S$${r.psf.toLocaleString("en-SG")}` : "—"}</td>
+                      {anyRange && <td className="px-4 py-3 text-right text-canopy/80">{r.psfRange ? `S$${psfRangeText(r.psfRange)}` : r.own ? "—" : r.psf !== null ? `S$${r.psf.toLocaleString("en-SG")}` : "—"}</td>}
                       <td className={`px-4 py-3 ${r.left.startsWith("Only") ? "font-semibold text-[#9b3b1c]" : ""}`}>{r.left}</td>
                     </tr>
                   ))}
@@ -285,13 +295,17 @@ export function AlternativesTab({
 
       <section aria-labelledby="alt-projects">
         <h3 id="alt-projects" className="font-display text-xl font-extrabold">The alternatives</h3>
-        <p className="mt-1 text-[0.9375rem] text-canopy/75">Each plays a different role. None is the best for everyone: it depends on what matters to you.</p>
+        <p className="mt-1 text-[0.9375rem] text-canopy/75">
+          {byDistance
+            ? `The ${alternatives.length} nearest projects on the new launches map still selling the bedroom types ${projectName} offers, nearest first. Distances are straight lines between the projects' map positions.`
+            : "Each plays a different role. None is the best for everyone: it depends on what matters to you."}
+        </p>
         <ul className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {alternatives.map((a) => {
-            const byBed = [...new Set(a.unitTypes.map((u) => u.bedrooms))].filter((b) => bedroomOptions.includes(b)).sort((x, y) => x - y).map((b) => ({
-              b,
-              from: Math.min(...a.unitTypes.filter((u) => u.bedrooms === b && u.fromPrice !== null).map((u) => u.fromPrice!)),
-            }));
+            const byBed = [...new Set(a.unitTypes.map((u) => u.bedrooms))].filter((b) => bedroomOptions.includes(b)).sort((x, y) => x - y).map((b) => {
+              const priced = a.unitTypes.filter((u) => u.bedrooms === b && u.fromPrice !== null).map((u) => u.fromPrice!);
+              return { b, from: priced.length ? Math.min(...priced) : null };
+            });
             return (
               <li key={a.name} className={`${card} flex flex-col overflow-hidden`}>
                 {a.image && (
@@ -322,7 +336,7 @@ export function AlternativesTab({
                     {byBed.map(({ b, from }) => (
                       <div key={b} className="flex justify-between gap-3">
                         <dt className="text-canopy/65">{b} bedroom{b > 1 ? "s" : ""}</dt>
-                        <dd className="font-semibold tabular-nums">from {sgdM(from)}</dd>
+                        <dd className="font-semibold tabular-nums">{from !== null ? `from ${sgdM(from)}` : "No price listed"}</dd>
                       </div>
                     ))}
                   </dl>

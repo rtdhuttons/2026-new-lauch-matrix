@@ -7,6 +7,8 @@ import type { Provenance } from "../../model/types";
 import { applyListing } from "../../lib/listing";
 import { huttonsProject } from "./huttons-project";
 import { huttonsSync } from "./huttons-units";
+import { nearbySync } from "./nearby-projects";
+import { nearbyAlternatives } from "../nearby";
 import { serraDataset, serraGaps, serraMrtEntrance } from "./index";
 
 // The API names the tower's two sections as blocks, "(L4-L16)" and
@@ -71,6 +73,7 @@ const sources: SourceRecord[] = [
   { item: "Indicative starting prices by unit type, from $3,120 psf", kind: "third-party", source: "Huttons launch flyer for The Serra Residences, information as at 2 Oct 2026", checked: "2026-10-05", status: "estimated", note: "Published while seeking indication of interest; subject to change without notice. Not the developer's price list." },
   { item: "Illustrative prices: $3,120 psf at level 4 plus $30 psf a floor", kind: "calculated", source: "TRM estimate fitted to the indicative starting prices (Huttons flyer, 2 Oct 2026)", checked: "2026-10-05", status: "estimated", note: "Each unit type's estimate at its lowest floor is within about 3% of its published starting price." },
   { item: "Land: bought for S$122 million in 2010 (former Pastoral View and 11 Bassein Road), about S$847 psf ppr", kind: "third-party", source: "The Listing Colony, 6 Aug 2026", checked: "2026-10-05", status: "estimated", note: "Not checked against an official record." },
+  { item: "Alternative projects: the four nearest on the new launches map, their unit types, prices and units left", kind: "third-party", source: "Huttons New Launch API (the map's catalogue)", checked: nearbySync.fetched, status: "verified", note: nearbySync.rule },
   { item: "Render", kind: "developer", source: "Developer's marketing image (Huttons New Launch API project image); artist's impression", checked: "2026-10-05", status: "verified" },
 ];
 
@@ -223,14 +226,17 @@ export const serraResidences: ProjectBundle = {
   },
   comparables: [],
   rentals: [],
-  alternatives: [],
+  alternatives: nearbyAlternatives(nearbySync.projects, {
+    fetched: nearbySync.fetched,
+    source: nearbySync.source,
+    imageSrc: (n) => (n.image ? `${imageBase}/${n.image}` : null),
+  }),
   pivot: { scores: null, overallStated: null, overallMethod: null, entry: null, provenance: null },
   sources,
   gaps: [
     ...serraGaps,
     "Developer's payment schedule and maintenance fee estimates.",
     "Resale and rental evidence from a comparable completed project nearby, for the Investor tab.",
-    "Alternative projects to compare, chosen by TRM.",
     "TRM's PIVOT assessment (scores and entry-price workings).",
     "More renders and the developer's location map (the API marks them internal-only, so they were not fetched).",
     "Past P1 registration results for the schools.",

@@ -29,6 +29,21 @@ import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRen
 
 describe("The Serra Residences", () => {
   const ds = serraResidences.dataset;
+
+  it("compares the four nearest map projects still selling its bedroom types", () => {
+    const alts = serraResidences.alternatives;
+    const ownBeds = new Set(ds.units.map((u) => ix.unitLayout(u).bedrooms));
+    expect(alts).toHaveLength(4);
+    const km = alts.map((a) => a.distanceKm!);
+    expect([...km].sort((a, b) => a - b)).toEqual(km);
+    expect(km[0]).toBeGreaterThan(0);
+    for (const a of alts) {
+      expect(a.name).not.toBe("The Serra Residences");
+      expect(a.unitTypes.some((t) => ownBeds.has(t.bedrooms) && (t.unitsLeft ?? 0) > 0)).toBe(true);
+      expect(a.image?.alt).toContain("Artist's impression");
+    }
+    expect(serraResidences.gaps.join(" ")).not.toContain("Alternative projects");
+  });
   const ix = indexDataset(ds);
 
   it("has every unit from the elevation chart, matched to the Huttons unit list", () => {

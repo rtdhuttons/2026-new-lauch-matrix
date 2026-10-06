@@ -152,7 +152,16 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
   tower "7"; indicative starting prices from the Huttons flyer of 2 Oct 2026
   in `pricing.startingPrices`, shown as published; illustrative $3,120 psf at
   level 4 + $30 a floor, fitted to within 3% of them; OneMap school
-  distances), `entry.tsx`. Images and plans in `public/the-serra-residences/`.
+  distances), `nearby-projects.ts` (its Alternative Projects: the four
+  nearest map projects, from `scripts/huttons/nearby-projects.py`; don't edit
+  by hand), `entry.tsx`. Images and plans in `public/the-serra-residences/`.
+- `src/features/selector/data/nearby.ts` — turns a nearby-projects list into
+  Alternative Projects cards. `scripts/huttons/nearby-projects.py <slug>|--all`
+  picks, from the map's catalogue (no API calls), the four nearest projects
+  on the map still selling (or not yet launched) a bedroom type the project
+  offers, by straight line between map positions, with each shared type's
+  lowest price, psf, psf range and units left. Thomson Reserve keeps TRM's
+  own comparison (`alternatives.ts`).
 - `src/features/selector/data/auto/` — the automatic mini sites:
   `specs/<slug>.json` (one per project, from `scripts/huttons/build-sites.py`:
   every unit, floor plan and site plan image addresses on Huttons' image
