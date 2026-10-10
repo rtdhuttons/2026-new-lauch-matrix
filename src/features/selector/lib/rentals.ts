@@ -75,3 +75,29 @@ export function rentsBySize(records: RentalRecord[]): RentSummary[] {
 export function rentsForSize(records: RentalRecord[], sqft: number): RentalRecord[] {
   return records.filter((r) => sqft >= r.areaSqft.min && sqft < r.areaSqft.max);
 }
+
+export interface RentEstimate {
+  /** Monthly rent: rent per sq ft times size, to the nearest $10. */
+  rent: number;
+  /** Median monthly rent per sq ft used, from the middle of each size band. */
+  psf: number;
+  leases: number;
+  /** "bedrooms": leases with the same bedroom count; "all": every lease (too few, or none, with that count). */
+  basis: "bedrooms" | "all";
+}
+
+/** Fewest leases with the same bedroom count for their own rent per sq ft to be used. */
+export const MIN_LEASES_FOR_BEDROOM_PSF = 5;
+
+/**
+ * A unit's indicative rent from a comparable's leases: the median rent per sq
+ * ft (same bedroom count where there are enough leases, otherwise all of
+ * them) times the unit's size.
+ */
+export function estimateRent(records: RentalRecord[], sqft: number, bedrooms: number | null): RentEstimate | null {
+  if (records.length === 0 || !(sqft > 0)) return null;
+  const same = bedrooms === null ? [] : records.filter((r) => r.bedrooms === bedrooms);
+  const pool = same.length >= MIN_LEASES_FOR_BEDROOM_PSF ? same : records;
+  const psf = median(pool.map((r) => r.monthlyRent / ((r.areaSqft.min + r.areaSqft.max) / 2)));
+  return { rent: Math.round((psf * sqft) / 10) * 10, psf, leases: pool.length, basis: pool === same ? "bedrooms" : "all" };
+}

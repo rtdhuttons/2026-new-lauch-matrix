@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The single-page build's output and its temporary files.
+    "dist-artifact/**",
   ]),
 ]);
 

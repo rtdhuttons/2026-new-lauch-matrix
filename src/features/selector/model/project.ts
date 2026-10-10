@@ -251,6 +251,11 @@ export interface RentalEvidence {
   records: RentalRecord[];
   provenance: Provenance;
   kind: SourceKind;
+  /**
+   * The rents are a comparable project's: estimate each unit's rent as its
+   * median rent per sq ft over the last 12 months times the unit's size.
+   */
+  estimateFromPsf?: boolean;
 }
 
 export interface AlternativeUnitType {

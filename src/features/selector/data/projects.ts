@@ -6,6 +6,7 @@
 import { createElement, type ComponentType } from "react";
 import type { AutoSpec, AutoTrace } from "./auto/build";
 import { autoListings, autoSpecLoaders, autoTraceLoaders } from "./auto/registry";
+import { comparableRentLoaders, comparableRentsFor, type ComparableLeases } from "./comparables/rents";
 
 export interface ProjectListing {
   id: string;
@@ -78,12 +79,19 @@ for (const a of autoListings) {
       image: a.image ? { src: a.image, alt: `${a.name}. Artist's impression.` } : null,
     },
     load: async () => {
-      const [{ AutoProjectEntry }, spec, trace] = await Promise.all([
+      const rentKey = comparableRentsFor[a.id];
+      const [{ AutoProjectEntry }, spec, trace, rents] = await Promise.all([
         import("./auto/entry"),
         autoSpecLoaders[a.id](),
         autoTraceLoaders[a.id]?.() ?? Promise.resolve(null),
+        (rentKey && comparableRentLoaders[rentKey]?.()) || Promise.resolve(null),
       ]);
-      const props = { spec: spec.default as AutoSpec, trace: (trace?.default ?? null) as AutoTrace | null };
+      const props = {
+        spec: spec.default as AutoSpec,
+        trace: (trace?.default ?? null) as AutoTrace | null,
+        // The chosen comparable's URA rental contracts, for the Investor tab's rent estimate.
+        rents: (rents?.default ?? null) as ComparableLeases | null,
+      };
       return { default: () => createElement(AutoProjectEntry, props) };
     },
     description: `Explore ${a.name} unit by unit: every stack and floor, floor plans, prices, schools, nearby projects and the payment estimate.`,

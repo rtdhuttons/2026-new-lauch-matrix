@@ -12,7 +12,7 @@ import { unitLabel } from "../lib/dataset-index";
 import type { Engine } from "../lib/engine";
 import { money } from "../lib/format";
 import type { RentSummary } from "../lib/rentals";
-import { recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../lib/rentals";
+import { estimateRent, MIN_LEASES_FOR_BEDROOM_PSF, recentRecords, rentsByBedrooms, rentsBySize, rentsForSize, summariseRents } from "../lib/rentals";
 import { NotSupplied } from "./tabs";
 import { BarChart, ChartCard, fmtMoney } from "./charts";
 import { card, Disclosure } from "./ui";
@@ -83,7 +83,11 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
   const layout = unit ? engine.ix.unitLayout(unit) : null;
   const sizeMatch = layout?.areaSqft ? rentsForSize(records, layout.areaSqft) : [];
   const sizeSummary = layout?.areaSqft ? summariseRents("Same size band", sizeMatch) : null;
-  const rent = rentInput !== "" ? Number(rentInput) : sizeSummary?.median ?? null;
+  // A comparable's rents: rent per sq ft (last 12 months) times this unit's size.
+  const last12 = recentRecords(ev.records, 12);
+  const psfEstimate = ev.estimateFromPsf && layout?.areaSqft ? estimateRent(last12, layout.areaSqft, layout.bedrooms) : null;
+  const startRent = psfEstimate?.rent ?? (sizeSummary ? Math.round(sizeSummary.median) : null);
+  const rent = rentInput !== "" ? Number(rentInput) : startRent;
   const yieldPct = rent && unit?.price ? ((rent * 12) / unit.price) * 100 : null;
 
   return (
@@ -169,15 +173,17 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
                 <span className="text-canopy/70">$</span>
                 <AmountInput
                   id="rent-input"
-                  value={rentInput !== "" ? Number(rentInput) : sizeSummary ? Math.round(sizeSummary.median) : null}
+                  value={rentInput !== "" ? Number(rentInput) : startRent}
                   onChange={(v) => setRentInput(v === null ? "" : String(v))}
                   className="w-32 rounded-lg border border-canopy/20 bg-paper px-3 py-1.5 font-display-normal"
                 />
               </div>
               <p className="mt-1 text-xs text-stone">
-                {sizeSummary
-                  ? `Starts at the median of ${sizeSummary.leases} leases in the same size band.`
-                  : "No leases in this size band; type a rent to test."}
+                {psfEstimate
+                  ? `Estimate: $${psfEstimate.psf.toFixed(2)} psf (median of ${psfEstimate.leases} ${psfEstimate.basis === "bedrooms" ? `${layout.bedrooms}-bedroom ` : ""}leases at ${ev.project} in the last 12 months) × ${layout.areaSqft.toLocaleString("en-SG")} sq ft. Type a rent to test your own.`
+                  : sizeSummary
+                    ? `Starts at the median of ${sizeSummary.leases} leases in the same size band.`
+                    : "No leases in this size band; type a rent to test."}
               </p>
             </div>
             <div>
@@ -191,6 +197,8 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
         )}
       </div>
 
+      {ev.estimateFromPsf && <RentByType evidence={ev} engine={engine} />}
+
       <NotSupplied title="Net rental income and cash flow after the loan can't be estimated yet." needed={[
         "Maintenance fee estimates from the developer.",
         "Property tax on let homes for the relevant year (IRAS rates), agent fees, repairs and insurance assumptions.",
@@ -201,5 +209,100 @@ export function RentalPotential({ evidence, engine, unit }: { evidence: Evidence
         are not estimated.
       </NotSupplied>
     </div>
+  );
+}
+
+/** Every unit type's indicative rent: the comparable's rent per sq ft times the type's size. */
+function RentByType({ evidence, engine }: { evidence: Evidence; engine: Engine }) {
+  const last12 = recentRecords(evidence.records, 12);
+  const types = new Map<string, { type: string; bedrooms: number | null; sqft: number; from: number | null; estimate: boolean; units: number }>();
+  for (const u of engine.ix.ds.units) {
+    const l = engine.ix.unitLayout(u);
+    if (!l.areaSqft) continue;
+    const key = `${l.category ?? l.name}|${l.areaSqft}`;
+    const t = types.get(key) ?? { type: l.category ?? l.name, bedrooms: l.bedrooms, sqft: l.areaSqft, from: null, estimate: false, units: 0 };
+    t.units += 1;
+    if (u.price !== null && (t.from === null || u.price < t.from)) {
+      t.from = u.price;
+      t.estimate = !!u.priceIsEstimate;
+    }
+    types.set(key, t);
+  }
+  const rows = [...types.values()]
+    .map((t) => ({ ...t, est: estimateRent(last12, t.sqft, t.bedrooms) }))
+    .filter((t) => t.est)
+    .sort((a, b) => (a.bedrooms ?? 0) - (b.bedrooms ?? 0) || a.sqft - b.sqft);
+  if (rows.length === 0) return null;
+  const anyEstimatePrice = rows.some((r) => r.estimate);
+  // Sizes actually leased at the comparable; outside them the rate per sq ft is stretched.
+  const smallest = Math.min(...last12.map((r) => r.areaSqft.min));
+  const largest = Math.max(...last12.map((r) => r.areaSqft.max));
+  const outside = (sqft: number) => sqft < smallest || sqft > largest;
+  const anyOutside = rows.some((r) => outside(r.sqft));
+  return (
+    <section className={`${card} p-5 sm:p-6`} aria-labelledby="rent-by-type">
+      <h3 id="rent-by-type" className="font-display text-lg font-extrabold">Estimated rent by unit type</h3>
+      <p className="mt-1 max-w-[72ch] text-[0.9375rem] text-canopy/80">
+        {evidence.project}&apos;s median rent per sq ft over the last 12 months, times each unit type&apos;s size. Where there are at least{" "}
+        {MIN_LEASES_FOR_BEDROOM_PSF} leases with the same number of bedrooms, their rate is used; otherwise all leases. An assumption for planning, not a
+        rent anyone has agreed.
+      </p>
+      <div className="mt-4">
+        <ChartCard title="Estimated monthly rent" subtitle="By unit type and size">
+          <BarChart
+            ariaLabel={`Estimated monthly rent by unit type, from ${evidence.project}'s rent per sq ft`}
+            format={fmtMoney}
+            bars={rows.map((r) => ({ id: `${r.type}|${r.sqft}`, label: r.type, sub: `${r.sqft.toLocaleString("en-SG")} sq ft`, value: r.est!.rent, color: "#0b7f9e" }))}
+          />
+        </ChartCard>
+      </div>
+      <div className="relative mt-4 overflow-x-auto">
+        <table className="w-full min-w-[620px] border-collapse font-display-normal text-sm tabular-nums">
+          <caption className="sr-only">Estimated rent and gross yield by unit type</caption>
+          <thead>
+            <tr className="bg-mist text-left text-xs uppercase tracking-[0.06em] text-canopy/70">
+              <th scope="col" className="px-4 py-2.5 font-semibold">Unit type</th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">Size (sq ft)</th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">Rent psf used</th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">Estimated rent</th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">Lowest price</th>
+              <th scope="col" className="px-4 py-2.5 text-right font-semibold">Gross yield</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={`${r.type}|${r.sqft}`} className="border-t border-canopy/10">
+                <th scope="row" className="px-4 py-2.5 text-left font-semibold">
+                  {r.type}
+                  {r.bedrooms !== null && <span className="ml-1 font-normal text-canopy/65">· {r.bedrooms} bed</span>}
+                </th>
+                <td className="px-3 py-2.5 text-right">
+                  {r.sqft.toLocaleString("en-SG")}
+                  {outside(r.sqft) && <span className="block text-xs font-semibold text-[#9b3b1c]">{r.sqft > largest ? "Larger" : "Smaller"} than leased</span>}
+                </td>
+                <td className="px-3 py-2.5 text-right">
+                  ${r.est!.psf.toFixed(2)}
+                  <span className="block text-xs text-canopy/60">{r.est!.basis === "bedrooms" ? `${r.est!.leases} ${r.bedrooms}-bed leases` : `all ${r.est!.leases} leases`}</span>
+                </td>
+                <td className="px-3 py-2.5 text-right font-semibold">{money(r.est!.rent)}</td>
+                <td className="px-3 py-2.5 text-right">{r.from !== null ? `${money(r.from)}${r.estimate ? " (est.)" : ""}` : "—"}</td>
+                <td className="px-4 py-2.5 text-right">{r.from !== null ? `${(((r.est!.rent * 12) / r.from) * 100).toFixed(2)}%` : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {anyOutside && (
+        <p className="mt-3 rounded-lg border-l-4 border-[#c88a12] bg-[#fbf5e8] px-3 py-2 text-sm">
+          In the last 12 months {evidence.project} leased units of {smallest.toLocaleString("en-SG")}–{largest.toLocaleString("en-SG")} sq ft. Rent per sq ft
+          usually falls as units get bigger, so estimates for larger types are likely on the high side, and for smaller types on the low side.
+        </p>
+      )}
+      <p className="mt-3 text-xs text-stone">
+        Rents: {evidence.provenance.source}, as at {evidence.provenance.updated}; {last12.length} leases in the last 12 months of records. Gross yield is 12
+        months&apos; estimated rent ÷ the lowest price of the type{anyEstimatePrice ? " (illustrative where marked est.)" : ""}, before vacancy, costs and
+        financing.
+      </p>
+    </section>
   );
 }

@@ -17,7 +17,12 @@ const projectId = process.env.TRM_PROJECT ?? "thomson-reserve";
 // its photos and plans are downloaded from Huttons' image server and embedded.
 const specPath = `src/features/selector/data/auto/specs/${projectId}.json`;
 const tracePath = `src/features/selector/data/auto/traces/${projectId}.json`;
-const auto = !ARTIFACT_PROJECTS[projectId] && existsSync(specPath) ? { spec: specPath, trace: existsSync(tracePath) ? tracePath : null } : null;
+// The chosen comparable's rental contracts, if any (comparables/rents/index.ts).
+const rentKey = (readFileSync("src/features/selector/data/comparables/rents/index.ts", "utf8").match(new RegExp(`"${projectId}": "([a-z0-9]+)"`)) ?? [])[1];
+const rentsPath = rentKey ? `src/features/selector/data/comparables/rents/${rentKey}.json` : null;
+const auto = !ARTIFACT_PROJECTS[projectId] && existsSync(specPath)
+  ? { spec: specPath, trace: existsSync(tracePath) ? tracePath : null, rents: rentsPath && existsSync(rentsPath) ? rentsPath : null }
+  : null;
 const cfg = ARTIFACT_PROJECTS[projectId] ??
   (auto && {
     entry: "scripts/artifact/auto-entry.tsx",
@@ -61,7 +66,7 @@ const js = await build({
     "next/dynamic": "./scripts/artifact/next-dynamic-shim.tsx",
     "next/link": "./scripts/artifact/next-link-shim.tsx",
     "@trm/project-entry": `./${cfg.entry}`,
-    ...(auto ? { "@trm/auto-spec": `./${auto.spec}`, "@trm/auto-trace": auto.trace ? `./${auto.trace}` : "./scripts/artifact/no-trace.json" } : {}),
+    ...(auto ? { "@trm/auto-spec": `./${auto.spec}`, "@trm/auto-trace": auto.trace ? `./${auto.trace}` : "./scripts/artifact/no-trace.json", "@trm/auto-rents": auto.rents ? `./${auto.rents}` : "./scripts/artifact/no-trace.json" } : {}),
     // No server in a single page: requests report that they can't be sent.
     "@/app/actions": "./scripts/artifact/actions-stub.ts",
   },

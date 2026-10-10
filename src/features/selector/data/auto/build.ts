@@ -15,6 +15,7 @@ import type {
   AlternativeProject,
   GalleryImage,
   ProjectBundle,
+  RentalEvidence,
   School,
   SourceRecord,
 } from "../../model/project";
@@ -22,6 +23,7 @@ import type { Block, Dataset, ExternalRoute, Gate, InternalRoute, Layout, Point,
 import { distance, normaliseBearing } from "../../lib/geometry";
 import { nearbyAlternatives, type NearbyProject } from "../nearby";
 import { comparableChoiceFor } from "../comparables/choice";
+import type { ComparableLeases } from "../comparables/rents";
 
 /** [block, stack, floor, floor plan, area sq ft, bedrooms, bathrooms, type, availability, list price, nett price] */
 export type AutoUnit = [string, string, number, string, number, number | null, number | null, string | null, UnitStatus, number | null, number | null];
@@ -159,7 +161,23 @@ function ring(core: Point, ids: string[], radius: number): Record<string, Point>
 
 const tidy = (s: string | null) => (s ? s.replace(/\s+([,.])/g, "$1").replace(/[.,\s]+$/, "").replace(/\s+/g, " ").trim() : s);
 
-export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): ProjectBundle {
+/** A comparable's URA rental contracts as this project's rent evidence. */
+export function rentEvidenceFrom(l: ComparableLeases): RentalEvidence {
+  return {
+    project: l.project,
+    records: l.leases.map(([month, min, max, rent, bedrooms]) => ({ month, areaSqft: { min, max }, monthlyRent: rent, bedrooms })),
+    provenance: {
+      source: `${l.source} for ${l.project}, TRM's chosen comparable`,
+      updated: l.fetched,
+      status: "verified",
+      note: "Rents at the comparable, not at this project. Size is URA's band; rent per sq ft uses its middle.",
+    },
+    kind: "official",
+    estimateFromPsf: true,
+  };
+}
+
+export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null, rents: ComparableLeases | null = null): ProjectBundle {
   const f = { ...spec.facts, address: tidy(spec.facts.address) };
   const API: Provenance = { source: "Huttons New Launch API", updated: spec.fetched, status: "verified" };
   const DEV: Provenance = { source: "Developer's information (via the Huttons New Launch API)", updated: spec.fetched, status: "verified" };
@@ -526,7 +544,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     schools: schools.length ? { measuredFrom: spec.name, registrationYear: null, schools, provenance: { source: "SLA OneMap address search", updated: spec.fetched, status: "verified" } } : null,
     comparables: [],
     comparableChoice: comparableChoiceFor(spec.id, { tenure: f.tenure, totalUnits: f.totalUnits, district: f.district, completion: f.completionDate }),
-    rentals: [],
+    rentals: rents ? [rentEvidenceFrom(rents)] : [],
     alternatives,
     pivot: { scores: null, overallStated: null, overallMethod: null, entry: null, provenance: null },
     sources,

@@ -12,6 +12,8 @@ import { chosenNotes } from "../../data/comparables/chosen-notes";
 import { stillBuilding } from "../../data/comparables/choice";
 import { uraComparables } from "../../data/comparables/ura-comparables";
 import { changeSinceLaunch, grossYield } from "../../components/comparable-records";
+import { comparableRentLoaders, comparableRentsFor, type ComparableLeases } from "../../data/comparables/rents";
+import { estimateRent } from "../rentals";
 
 const dir = join(__dirname, "../../data/auto");
 const specs = readdirSync(join(dir, "specs"))
@@ -117,5 +119,36 @@ describe("comparables' URA records", () => {
     expect(lentor.resaleLast12.count).toBe(0);
     expect(changeSinceLaunch(lentor)).toBeNull();
     expect(grossYield(lentor)).toBeNull();
+  });
+});
+
+describe("rent estimate from a comparable's rent per sq ft", () => {
+  const rec = (sqftMin: number, rent: number, bedrooms: number | null) => ({ month: "2026-06-01", areaSqft: { min: sqftMin, max: sqftMin + 100 }, monthlyRent: rent, bedrooms });
+
+  it("multiplies the median rent per sq ft by the size, to the nearest $10", () => {
+    // Mid-band 650, 750, 850 sq ft at $6.00, $5.60, $5.00 psf: median $5.60.
+    const records = [rec(600, 3900, null), rec(700, 4200, null), rec(800, 4250, null)];
+    const e = estimateRent(records, 1000, 3)!;
+    expect(e.psf).toBeCloseTo(5.6, 6);
+    expect(e.rent).toBe(5600);
+    expect(e.basis).toBe("all");
+  });
+
+  it("uses the same bedroom count only when there are enough leases", () => {
+    const twoBeds = Array.from({ length: 5 }, () => rec(700, 3750, 2)); // $5.00 psf
+    const others = [rec(400, 4500, 1), rec(400, 4500, 1)]; // $10.00 psf
+    expect(estimateRent([...twoBeds, ...others], 800, 2)).toMatchObject({ basis: "bedrooms", psf: 5, rent: 4000, leases: 5 });
+    expect(estimateRent([...twoBeds.slice(0, 4), ...others], 800, 2)?.basis).toBe("all");
+  });
+
+  it("gives Arina East Residences One Meyer's URA rental contracts", async () => {
+    const spec = specs.find((s) => s.id === "arina-east-residences")!;
+    expect(comparableRentsFor["arina-east-residences"]).toBe("onemeyer");
+    const rents = (await comparableRentLoaders.onemeyer()).default as ComparableLeases;
+    const ev = buildAutoBundle(spec, traceOf(spec.id), rents).rentals[0];
+    expect(ev.project).toBe("One Meyer");
+    expect(ev.estimateFromPsf).toBe(true);
+    expect(ev.records.length).toBe(rents.leases.length);
+    expect(buildAutoBundle(spec, traceOf(spec.id)).rentals).toEqual([]);
   });
 });

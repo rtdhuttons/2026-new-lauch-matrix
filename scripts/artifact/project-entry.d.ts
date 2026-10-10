@@ -10,6 +10,10 @@ declare module "@trm/auto-spec" {
   const spec: unknown;
   export default spec;
 }
+declare module "@trm/auto-rents" {
+  const rents: unknown;
+  export default rents;
+}
 declare module "@trm/auto-trace" {
   const trace: unknown;
   export default trace;
