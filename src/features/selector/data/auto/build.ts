@@ -432,7 +432,7 @@ export function buildAutoBundle(spec: AutoSpec, trace: AutoTrace | null): Projec
     const item = /^(?:\d+[.)]|[-•*])\s*(.+)$/.exec(line);
     if (item && groups.length) {
       if (groups[groups.length - 1].items.length < 6) groups[groups.length - 1].items.push(item[1].replace(/\s+-\s*/, ": "));
-    } else if (!item && line.length < 70) groups.push({ title: line.replace(/[:：]$/, ""), items: [] });
+    } else if (!item && line.length < 70) groups.push({ title: line.replace(/[:\uFF1A]$/, ""), items: [] });
   }
   const locationGroups = groups.filter((g) => g.items.length).slice(0, 5);
 

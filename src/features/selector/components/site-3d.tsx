@@ -12,6 +12,7 @@ import type { Dataset, Point, SiteDistance, Unit } from "../model/types";
 import type { Box, Extrusion, SceneData, Tree, UnitBox } from "../lib/scene";
 import { buildScene, sunVector } from "../lib/scene";
 import { MapLayer } from "./map-layer";
+import { assetSrc } from "./asset-image";
 
 export interface Facility {
   number: number;
@@ -175,7 +176,8 @@ class PlanImageBoundary extends Component<{ children: ReactNode }, { failed: boo
 
 /** The developer's site plan laid flat on the ground at its true scale. */
 function PlanImage({ src, maskSrc, widthM, heightM, crop }: { src: string; maskSrc?: string; widthM: number; heightM: number; crop?: { x: number; y: number; w: number; h: number } }) {
-  const loaded = useLoader(THREE.TextureLoader, maskSrc ? [src, maskSrc] : [src]);
+  // assetSrc: in the single page, the plan is embedded under its address.
+  const loaded = useLoader(THREE.TextureLoader, maskSrc ? [assetSrc(src), assetSrc(maskSrc)] : [assetSrc(src)]);
   const [texture, mask] = useMemo(() => {
     const t = loaded[0].clone();
     t.colorSpace = THREE.SRGBColorSpace;

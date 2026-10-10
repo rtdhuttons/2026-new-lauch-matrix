@@ -7,6 +7,7 @@ import { linkKey } from "./lib";
 const LINKS: Record<string, string> = {
   "Thomson Reserve": "https://claude.ai/artifact/5kRAW7usFiDUPDepbFZjSP",
   "The Serra Residences": "https://claude.ai/artifact/4Ym1GFYpmJDWMDQkwmnSyf",
+  "Arina East Residences": "https://claude.ai/artifact/89wwTydUfsVZ9tBif1r3e5",
 };
 
 export default function ProjectsMapArtifact() {

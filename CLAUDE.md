@@ -83,6 +83,7 @@ npm run build:artifact  # dist-artifact/selector.html, Thomson Reserve's single 
 TRM_PROJECT=the-serra-residences npm run build:artifact  # The Serra Residences' single page
 TRM_PROJECT=sample-wrenfield npm run build:artifact   # another project's single page
 TRM_PROJECT=huttons-map npm run build:artifact        # the new launches map
+TRM_PROJECT=arina-east-residences npm run build:artifact  # any automatic mini site (downloads and embeds its Huttons images)
 
 # Daily data refresh (needs HUTTONS_API_KEY, HUTTONS_API_SECRET, URA_ACCESS_KEY)
 python3 scripts/huttons/sync-catalogue.py
@@ -309,6 +310,13 @@ Run `npm test`, `npm run typecheck` and `npm run lint` before every commit.
 - `scripts/onemap/school-distances.py` — primary schools within about 2.5 km
   of each block, from OneMap address points (needs www.onemap.gov.sg allowed).
 - `scripts/build-artifact.mjs` and `scripts/artifact/` — the single-page build.
+  For an automatic mini site (`TRM_PROJECT=<slug>` with a spec in
+  `data/auto/specs/`), `auto-entry.tsx` renders it, `auto-images.ts` lists the
+  image addresses its bundle uses and `embed_remote.py` downloads and embeds
+  them, keyed by address, so `AssetImg` and `assetSrc` find them (set
+  `SSL_CERT_FILE=/root/.ccr/ca-bundle.crt` in cloud sessions). Published:
+  Arina East Residences, https://claude.ai/artifact/89wwTydUfsVZ9tBif1r3e5
+  (linked from the map's single page in `catalogue/artifact-entry.tsx`).
 
 ## 4. Rules for this project
 
